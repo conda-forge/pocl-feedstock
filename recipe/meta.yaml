@@ -30,7 +30,7 @@ source:
 
 build:
   number: 4
-  skip: True  # [not (linux and py35)]
+  skip: True  # [not (linux or py>=35)]
 
 requirements:
   build:
