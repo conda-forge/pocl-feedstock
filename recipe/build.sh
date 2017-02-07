@@ -4,7 +4,7 @@ cd build
 if [ "$(uname)" == "Darwin" ]; then
   OPENCL_LIBRARIES=""
 else
-  OPENCL_LIBRARIES="-L{$PREFIX}/lib;OpenCL"
+  OPENCL_LIBRARIES="-L${PREFIX}/lib;OpenCL"
 fi
 
 cmake \
