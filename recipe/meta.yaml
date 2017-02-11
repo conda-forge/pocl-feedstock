@@ -50,7 +50,7 @@ requirements:
 
 test:
   commands:
-    - test -f $PREFIX/lib/libpocl.so  # [linux]
+    - test -f $PREFIX/lib64/libpocl.so  # [linux]
     - test -f $PREFIX/lib/libpocl.dylib  # [osx]
 
 about:
