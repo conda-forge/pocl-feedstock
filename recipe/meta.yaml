@@ -49,9 +49,9 @@ requirements:
     - libtool
 
 test:
-  # Some package might need a `test/commands` key to check CLI.
   commands:
-    - test -f $PREFIX/etc/OpenCL/vendors/pocl.icd  # [unix]
+    - test -f $PREFIX/lib/libpocl.so  # [linux]
+    - test -f $PREFIX/lib/libpocl.dylib  # [osx]
 
 about:
   home: http://portablecl.org/
