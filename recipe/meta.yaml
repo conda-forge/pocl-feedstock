@@ -30,7 +30,7 @@ source:
 
 build:
   number: 5
-  skip: True  # [not (linux or py>=35)]
+  skip: True  # [not (unix or py>=35)]
 
 requirements:
   build:
@@ -49,9 +49,9 @@ requirements:
     - libtool
 
 test:
-  # Some package might need a `test/commands` key to check CLI.
   commands:
-    - test -f $PREFIX/etc/OpenCL/vendors/pocl.icd  # [unix]
+    - test -f $PREFIX/lib64/libpocl.so  # [linux]
+    - test -f $PREFIX/lib/libpocl.dylib  # [osx]
 
 about:
   home: http://portablecl.org/
