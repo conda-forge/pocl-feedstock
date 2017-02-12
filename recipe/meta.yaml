@@ -29,7 +29,7 @@ source:
   - 0001-Fix-clEnqueueFillBuffer-memory-leak.patch
 
 build:
-  number: 5
+  number: 6
   skip: True  # [not (unix or py>=35)]
 
 requirements:
