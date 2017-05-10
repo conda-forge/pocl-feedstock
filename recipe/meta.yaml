@@ -18,10 +18,6 @@ source:
   # strlen() and such at compile time.)
   - paths-in-separate-compilation-unit.patch
 
-  # http://stackoverflow.com/a/39190281
-  # https://llvm.org/bugs/show_bug.cgi?id=29162
-  - work-around-skylake-codegen.patch
-
   # Disable unneeded macro workaround
   - fix-macros.patch
 
