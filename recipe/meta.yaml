@@ -1,6 +1,8 @@
 {% set name = "pocl" %}
 {% set version = "0.14" %}
+{% set build_number = "1" %}
 {% set sha256 = "2127bf925a91fbbe3daf2f1bac0da5c8aceb16e2a9434977a3057eade974106a" %}
+{% set llvm_version = "4.0.0" %}
 
 package:
   name: {{ name|lower }}
@@ -22,7 +24,7 @@ source:
   - fix-macros.patch
 
 build:
-  number: 0
+  number: {{ build_number }}
   skip: True  # [not (unix or py>=35)]
 
 requirements:
@@ -32,12 +34,12 @@ requirements:
     - libhwloc
     - libtool
     - pkg-config
-    - llvmdev ==3.9.1
-    - clangdev ==3.9.1
-    - libcxx ==3.9.1
+    - llvmdev =={{ llvm_version }}
+    - clangdev =={{ llvm_version }}
+    - libcxx =={{ llvm_version }}
   run:
     - ocl-icd  # [linux]
-    - clangdev ==3.9.1
+    - clangdev =={{ llvm_version }}
     - libhwloc
     - libtool
 
