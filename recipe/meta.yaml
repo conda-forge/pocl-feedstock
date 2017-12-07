@@ -1,8 +1,10 @@
 {% set name = "pocl" %}
-{% set version = "0.14" %}
-{% set build_number = "1" %}
-{% set sha256 = "2127bf925a91fbbe3daf2f1bac0da5c8aceb16e2a9434977a3057eade974106a" %}
-{% set llvm_version = "4.0.0" %}
+{% set version = "1.0rc1" %}
+{% set build_number = "0" %}
+{% set sha256 = "4cba46bbb024fa58bb1faabb3c63c89c139936f106271a90b2fad17e424655b3" %}
+{% set llvm_version = "5.0.0" %}
+
+# FIXME fix URL below
 
 package:
   name: {{ name|lower }}
@@ -10,7 +12,8 @@ package:
 
 source:
   fn: {{ name }}-{{ version }}.tar.gz
-  url: http://portablecl.org/downloads/{{ name }}-{{ version }}.tar.gz
+  # url: http://portablecl.org/downloads/{{ name }}-{{ version }}.tar.gz
+  url: https://github.com/pocl/pocl/archive/v1.0-RC1.tar.gz
   sha256: {{ sha256 }}
 
   patches:
