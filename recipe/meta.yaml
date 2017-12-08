@@ -4,7 +4,7 @@
 {% set sha256 = "4cba46bbb024fa58bb1faabb3c63c89c139936f106271a90b2fad17e424655b3" %}
 {% set llvm_version = "5.0.0" %}
 
-# FIXME revert the URL below back to release
+# FIXME revert the URL/SHA below back to release
 
 package:
   name: {{ name|lower }}
@@ -13,8 +13,10 @@ package:
 source:
   fn: {{ name }}-{{ version }}.tar.gz
   # url: http://portablecl.org/downloads/{{ name }}-{{ version }}.tar.gz
-  url: https://github.com/pocl/pocl/archive/v1.0-RC1.tar.gz
-  sha256: {{ sha256 }}
+  # sha256: {{ sha256 }}
+
+  git_url: https://github.com/ilanschnell/bsdiff4.git
+  git_rev: 09cf952f4eeb79825bfa8e09198cd4c6e106d0a0
 
   patches:
   # Put binary paths built in pocl into a separate compilation unit
