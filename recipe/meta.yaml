@@ -4,7 +4,7 @@
 {% set sha256 = "4cba46bbb024fa58bb1faabb3c63c89c139936f106271a90b2fad17e424655b3" %}
 {% set llvm_version = "5.0.0" %}
 
-# FIXME fix URL below
+# FIXME revert the URL below back to release
 
 package:
   name: {{ name|lower }}
