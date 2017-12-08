@@ -1,8 +1,8 @@
 diff --git a/lib/CL/CMakeLists.txt b/lib/CL/CMakeLists.txt
-index ac11251a..21d1bd25 100644
+index f8adc3ff..6e257a74 100644
 --- a/lib/CL/CMakeLists.txt
 +++ b/lib/CL/CMakeLists.txt
-@@ -129,6 +129,7 @@ set(POCL_LIB_SOURCES  "clCreateContextFromType.c"
+@@ -133,6 +133,7 @@ set(POCL_LIB_SOURCES  "clCreateContextFromType.c"
                     "pocl_runtime_config.c" "pocl_runtime_config.h"
                     "pocl_mem_management.c"  "pocl_mem_management.h"
                     "pocl_hash.c"
@@ -10,93 +10,82 @@ index ac11251a..21d1bd25 100644
                     "pocl_debug.h" "pocl_debug.c" "pocl_timing.c"
                     "clSVMAlloc.c" "clSVMFree.c" "clEnqueueSVMFree.c"
                     "clEnqueueSVMMap.c" "clEnqueueSVMUnmap.c"
-diff --git a/lib/CL/pocl_llvm_api.cc b/lib/CL/pocl_llvm_api.cc
-index e92d5a57..a5702206 100644
---- a/lib/CL/pocl_llvm_api.cc
-+++ b/lib/CL/pocl_llvm_api.cc
-@@ -100,7 +100,6 @@ using llvm::legacy::PassManager;
- // causing compilation error if they are included before the LLVM headers.
- #include "pocl_llvm.h"
- #include "pocl_runtime_config.h"
--#include "install-paths.h"
- #include "LLVMUtils.h"
- #include "linker.h"
- #include "pocl_file_util.h"
-@@ -110,6 +109,13 @@ using llvm::legacy::PassManager;
- using namespace clang;
- using namespace llvm;
- 
-+extern "C"
-+{
-+  const char *conda_pocl_get_srcdir();
-+  const char *conda_pocl_get_builddir();
-+  const char *conda_pocl_get_pkgdatadir();
-+}
-+
+diff --git a/lib/CL/pocl_llvm_build.cc b/lib/CL/pocl_llvm_build.cc
+index fe039c01..922a010a 100644
+--- a/lib/CL/pocl_llvm_build.cc
++++ b/lib/CL/pocl_llvm_build.cc
+@@ -69,6 +69,12 @@ using namespace llvm;
  
  POP_COMPILER_DIAGS
  
-@@ -411,12 +417,17 @@ int pocl_llvm_build_program(cl_program program,
++extern "C"
++{
++  const char *conda_pocl_get_clang_resource_dir();
++  const char *conda_pocl_get_pocl_install_private_datadir();
++}
++
  
-   std::string kernelh;
-   if (pocl_get_bool_option("POCL_BUILDING", 0)) {
--    kernelh  = SRCDIR;
-+    kernelh  = conda_pocl_get_srcdir();
-     kernelh += "/include/_kernel.h";
-   } else {
--    kernelh = PKGDATADIR;
-+    kernelh = conda_pocl_get_pkgdatadir();
-     kernelh += "/include/_kernel.h";
-   }
-+  if (kernelh.find('\0') != std::string::npos)
-+  {
-+    std::cerr << "[ERROR] Kernel header directory included a null byte." << std::endl;
-+    abort();
-+  }
-   po.Includes.push_back(kernelh);
- 
-   clang::TargetOptions &ta = pocl_build.getTargetOpts();
-@@ -1583,7 +1594,7 @@ kernel_library
-   std::string kernellib;
-   std::string kernellib_fallback;
-   if (pocl_get_bool_option("POCL_BUILDING", 0)) {
--    kernellib = BUILDDIR;
-+    kernellib = conda_pocl_get_builddir();
-     kernellib += "/lib/kernel/";
-     kernellib += subdir;
-     // TODO: get this from the TCE target triplet
-@@ -1605,7 +1616,7 @@ kernel_library
+ /* Global pocl device to be used by passes if needed */
+ cl_device_id currentPoclDevice = NULL;
+@@ -419,16 +425,21 @@ int pocl_llvm_build_program(cl_program program,
+   if (0) {
  #endif
+   } else {
+-    kernelh = POCL_INSTALL_PRIVATE_DATADIR;
++    kernelh = conda_pocl_get_pocl_install_private_datadir();
+   }
+   BuiltinRenamesH = kernelh;
+   kernelh += "/include/_kernel.h";
+   BuiltinRenamesH += "/include/_builtin_renames.h";
+ 
++
+   po.Includes.push_back(BuiltinRenamesH);
+ #ifndef LLVM_OLDER_THAN_4_0
++  std::string clang_header_dir =
++      std::string(conda_pocl_get_clang_resource_dir())
++      + "/include/opencl-c.h";
++
+   // Use Clang's opencl-c.h header.
+-  po.Includes.push_back(CLANG_RESOURCE_DIR "/include/opencl-c.h");
++  po.Includes.push_back(clang_header_dir);
+ #endif
+   po.Includes.push_back(kernelh);
+   clang::TargetOptions &ta = pocl_build.getTargetOpts();
+@@ -808,7 +819,7 @@ kernel_library
+         kernellib += device->llvm_cpu;
      }
    } else { // POCL_BUILDING == 0, use install dir
--    kernellib = PKGDATADIR;
-+    kernellib = conda_pocl_get_pkgdatadir();
+-    kernellib = POCL_INSTALL_PRIVATE_DATADIR;
++    kernellib = conda_pocl_get_pocl_install_private_datadir();
      kernellib += "/kernel-";
      kernellib += device->llvm_target_triplet;
      if (is_host) {
 diff --git a/lib/CL/pocl_paths.cc b/lib/CL/pocl_paths.cc
-new file mode 100644
-index 00000000..94782eba
---- /dev/null
+index 94782eba..8269c034 100644
+--- a/lib/CL/pocl_paths.cc
 +++ b/lib/CL/pocl_paths.cc
-@@ -0,0 +1,20 @@
-+#include "install-paths.h"
-+#include "config.h"
-+
-+extern "C"
-+{
-+  const char *conda_pocl_get_srcdir()
-+  {
-+    return SRCDIR;
-+  }
-+
-+  const char *conda_pocl_get_builddir()
-+  {
-+    return BUILDDIR;
-+  }
-+
-+  const char *conda_pocl_get_pkgdatadir()
-+  {
-+    return PKGDATADIR;
-+  }
-+}
+@@ -1,20 +1,14 @@
+-#include "install-paths.h"
+ #include "config.h"
+ 
+ extern "C"
+ {
+-  const char *conda_pocl_get_srcdir()
++  const char *conda_pocl_get_clang_resource_dir()
+   {
+-    return SRCDIR;
++    return CLANG_RESOURCE_DIR;
+   }
+ 
+-  const char *conda_pocl_get_builddir()
++  const char *conda_pocl_get_pocl_install_private_datadir()
+   {
+-    return BUILDDIR;
+-  }
+-
+-  const char *conda_pocl_get_pkgdatadir()
+-  {
+-    return PKGDATADIR;
++    return POCL_INSTALL_PRIVATE_DATADIR;
+   }
+ }
