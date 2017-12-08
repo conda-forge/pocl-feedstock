@@ -61,31 +61,22 @@ index fe039c01..922a010a 100644
      kernellib += device->llvm_target_triplet;
      if (is_host) {
 diff --git a/lib/CL/pocl_paths.cc b/lib/CL/pocl_paths.cc
-index 94782eba..8269c034 100644
---- a/lib/CL/pocl_paths.cc
+new file mode 100644
+index 00000000..8269c034
+--- /dev/null
 +++ b/lib/CL/pocl_paths.cc
-@@ -1,20 +1,14 @@
--#include "install-paths.h"
- #include "config.h"
- 
- extern "C"
- {
--  const char *conda_pocl_get_srcdir()
+@@ -0,0 +1,14 @@
++#include "config.h"
++
++extern "C"
++{
 +  const char *conda_pocl_get_clang_resource_dir()
-   {
--    return SRCDIR;
++  {
 +    return CLANG_RESOURCE_DIR;
-   }
- 
--  const char *conda_pocl_get_builddir()
++  }
++
 +  const char *conda_pocl_get_pocl_install_private_datadir()
-   {
--    return BUILDDIR;
--  }
--
--  const char *conda_pocl_get_pkgdatadir()
--  {
--    return PKGDATADIR;
++  {
 +    return POCL_INSTALL_PRIVATE_DATADIR;
-   }
- }
++  }
++}
