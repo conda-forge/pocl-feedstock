@@ -1,8 +1,8 @@
 {% set name = "pocl" %}
-{% set version = "0.14" %}
-{% set build_number = "1" %}
-{% set sha256 = "2127bf925a91fbbe3daf2f1bac0da5c8aceb16e2a9434977a3057eade974106a" %}
-{% set llvm_version = "4.0.0" %}
+{% set version = "1.0" %}
+{% set build_number = "0" %}
+{% set sha256 = "94bd86a2f9847c03e6c3bf8dca12af3734f8b272ffeacbc3fa8fcca58844b1d4" %}
+{% set llvm_version = "5.0.0" %}
 
 package:
   name: {{ name|lower }}
@@ -12,6 +12,9 @@ source:
   fn: {{ name }}-{{ version }}.tar.gz
   url: http://portablecl.org/downloads/{{ name }}-{{ version }}.tar.gz
   sha256: {{ sha256 }}
+
+  # git_url: https://github.com/pocl/pocl.git
+  # git_rev: 09cf952f4eeb79825bfa8e09198cd4c6e106d0a0
 
   patches:
   # Put binary paths built in pocl into a separate compilation unit
