@@ -5,12 +5,12 @@ if [ "$(uname)" == "Darwin" ]; then
   OPENCL_LIBRARIES=""
   HAVE_CLOCK_GETTIME=0
   INSTALL_OPENCL_HEADERS=ON
-  EXTRA_HOST_LD_FLAGS="-Wl,-dead_strip_dylibs"
+  EXTRA_HOST_LD_FLAGS="-dead_strip_dylibs"
 else  # linux for now
   OPENCL_LIBRARIES="-L${PREFIX}/lib;OpenCL"
   HAVE_CLOCK_GETTIME=1
   INSTALL_OPENCL_HEADERS=OFF
-  EXTRA_HOST_LD_FLAGS="-Wl,--as-needed"
+  EXTRA_HOST_LD_FLAGS="--as-needed"
 fi
 
 cmake \
