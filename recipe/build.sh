@@ -15,6 +15,7 @@ fi
 
 cmake \
   -D CMAKE_INSTALL_PREFIX="${PREFIX}" \
+  -D LINK_COMMAND="${PREFIX}/bin/ld" \
   -D POCL_INSTALL_ICD_VENDORDIR="${PREFIX}/etc/OpenCL/vendors" \
   -D LLVM_CONFIG="${PREFIX}/bin/llvm-config" \
   -D HAVE_CLOCK_GETTIME="${HAVE_CLOCK_GETTIME}" \

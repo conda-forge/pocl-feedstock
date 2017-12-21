@@ -40,11 +40,13 @@ requirements:
     - llvmdev =={{ llvm_version }}
     - clangdev =={{ llvm_version }}
     - libcxx =={{ llvm_version }}
+    - binutils
   run:
     - ocl-icd  # [linux]
     - clangdev =={{ llvm_version }}
     - libhwloc
     - libtool
+    - binutils
 
 test:
   commands:
