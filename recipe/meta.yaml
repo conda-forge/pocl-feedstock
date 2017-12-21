@@ -49,9 +49,15 @@ requirements:
     - binutils
 
 test:
+  requires:
+    - pyopencl
+    - curl
+
   commands:
     - test -f $PREFIX/lib64/libpocl.so  # [linux]
     - test -f $PREFIX/lib/libOpenCL.dylib  # [osx]
+    - curl https://raw.githubusercontent.com/inducer/pyopencl/master/examples/demo.py  # [linux]
+    - python demo.py  # [linux]
 
 about:
   home: http://portablecl.org/
