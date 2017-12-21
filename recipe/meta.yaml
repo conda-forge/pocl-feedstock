@@ -51,6 +51,11 @@ requirements:
 test:
   requires:
     - pyopencl
+
+    # compensates for a missing pyopencl dependency, pending
+    # https://github.com/conda-forge/pyopencl-feedstock/pull/17
+    - setuptools
+
     - curl
 
   commands:
