@@ -40,7 +40,7 @@ requirements:
     - llvmdev =={{ llvm_version }}
     - clangdev =={{ llvm_version }}
     - libcxx =={{ llvm_version }}
-    - binutils
+    - binutils  # [linux]
   run:
     - ocl-icd  # [linux]
     - clangdev =={{ llvm_version }}
