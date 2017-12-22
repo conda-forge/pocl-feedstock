@@ -40,24 +40,23 @@ requirements:
     - llvmdev =={{ llvm_version }}
     - clangdev =={{ llvm_version }}
     - libcxx =={{ llvm_version }}
-    - binutils  # [linux]
   run:
     - ocl-icd  # [linux]
     - clangdev =={{ llvm_version }}
     - libhwloc
     - libtool
-    - binutils  # [linux]
 
 test:
   requires:
     - pyopencl
     - curl
+    - osx-pocl-opencl  # [osx]
 
   commands:
     - test -f $PREFIX/lib64/libpocl.so  # [linux]
     - test -f $PREFIX/lib/libOpenCL.dylib  # [osx]
-    - curl -O https://raw.githubusercontent.com/inducer/pyopencl/master/examples/demo.py  # [linux]
-    - python demo.py  # [linux]
+    - curl -O https://raw.githubusercontent.com/inducer/pyopencl/master/examples/demo.py
+    - python demo.py
 
 about:
   home: http://portablecl.org/
