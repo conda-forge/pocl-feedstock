@@ -5,12 +5,14 @@ if [ "$(uname)" == "Darwin" ]; then
   OPENCL_LIBRARIES=""
   HAVE_CLOCK_GETTIME=0
   INSTALL_OPENCL_HEADERS=ON
-  EXTRA_HOST_LD_FLAGS="-Wl,-dead_strip_dylibs"
+  LINKER_FLAG=""
+  EXTRA_HOST_LD_FLAGS="-dead_strip_dylibs"
 else  # linux for now
   OPENCL_LIBRARIES="-L${PREFIX}/lib;OpenCL"
   HAVE_CLOCK_GETTIME=1
   INSTALL_OPENCL_HEADERS=OFF
-  EXTRA_HOST_LD_FLAGS="-Wl,--as-needed"
+  LINKER_FLAG="-D LINK_COMMAND=${PREFIX}/bin/ld"
+  EXTRA_HOST_LD_FLAGS="--as-needed"
 fi
 
 cmake \
@@ -21,6 +23,7 @@ cmake \
   -D INSTALL_OPENCL_HEADERS="${INSTALL_OPENCL_HEADERS}" \
   -D KERNELLIB_HOST_CPU_VARIANTS=distro \
   -D OPENCL_LIBRARIES="${OPENCL_LIBRARIES}" \
+  $LINKER_FLAG \
   -D EXTRA_HOST_LD_FLAGS="${EXTRA_HOST_LD_FLAGS}" \
   ..
 
