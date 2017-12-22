@@ -1,6 +1,6 @@
 {% set name = "pocl" %}
 {% set version = "1.0" %}
-{% set build_number = "1" %}
+{% set build_number = "2" %}
 {% set sha256 = "94bd86a2f9847c03e6c3bf8dca12af3734f8b272ffeacbc3fa8fcca58844b1d4" %}
 {% set llvm_version = "5.0.0" %}
 
