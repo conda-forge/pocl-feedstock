@@ -1,6 +1,6 @@
 {% set name = "pocl" %}
 {% set version = "1.1" %}
-{% set build_number = "2" %}
+{% set build_number = "0" %}
 {% set sha256 = "1e8dd0693a88c84937754df947b202871a40545b1b0a97ebefa370b0281c3c53" %}
 {% set llvm_version = "5.0.0" %}
 
@@ -10,7 +10,7 @@ package:
 
 source:
   fn: {{ name }}-{{ version }}.tar.gz
-  url: http://portablecl.org/downloads/{{ name }}-{{ version }}.tar.gz
+  url: https://github.com/{{ name }}/{{ name }}/archive/v{{version}}.tar.gz
   sha256: {{ sha256 }}
 
   # git_url: https://github.com/pocl/pocl.git
