@@ -3,13 +3,11 @@ cd build
 
 if [ "$(uname)" == "Darwin" ]; then
   OPENCL_LIBRARIES=""
-  HAVE_CLOCK_GETTIME=0
   INSTALL_OPENCL_HEADERS=ON
   LINKER_FLAG=""
   EXTRA_HOST_LD_FLAGS="-dead_strip_dylibs"
 else  # linux for now
   OPENCL_LIBRARIES="-L${PREFIX}/lib;OpenCL"
-  HAVE_CLOCK_GETTIME=1
   INSTALL_OPENCL_HEADERS=OFF
   LINKER_FLAG="-D LINK_COMMAND=/usr/bin/ld"
   EXTRA_HOST_LD_FLAGS="--as-needed"
@@ -22,7 +20,6 @@ cmake \
   -D LLVM_CONFIG="${PREFIX}/bin/llvm-config" \
   -D CMAKE_C_COMPILER=${PREFIX}/bin/clang \
   -D CMAKE_CXX_COMPILER=${PREFIX}/bin/clang++ \
-  -D HAVE_CLOCK_GETTIME="${HAVE_CLOCK_GETTIME}" \
   -D INSTALL_OPENCL_HEADERS="${INSTALL_OPENCL_HEADERS}" \
   -D KERNELLIB_HOST_CPU_VARIANTS=distro \
   -D OPENCL_LIBRARIES="${OPENCL_LIBRARIES}" \
