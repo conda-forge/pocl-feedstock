@@ -1,0 +1,151 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index f14537d..a3297f7 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -408,8 +408,10 @@ if(UNIX)
+   include(CheckSymbolExists)
+ 
+   # don't allow implicit function declarations
+-  set(CMAKE_REQUIRED_FLAGS "-std=c99")
+-  set(CMAKE_REQUIRED_LIBRARIES "rt")
++  set(CMAKE_REQUIRED_FLAGS "-std=c99 -Werror=implicit-function-declaration")
++  if (CMAKE_SYSTEM_NAME MATCHES "Linux")
++    set(CMAKE_REQUIRED_LIBRARIES "rt")
++  endif ()
+ 
+   set(CMAKE_REQUIRED_DEFINITIONS "-D_POSIX_C_SOURCE=200112L")
+   CHECK_SYMBOL_EXISTS("posix_memalign"
+@@ -417,9 +419,16 @@ if(UNIX)
+                       HAVE_POSIX_MEMALIGN)
+ 
+   set(CMAKE_REQUIRED_DEFINITIONS "-D_POSIX_C_SOURCE=199309L")
+-  CHECK_SYMBOL_EXISTS("clock_gettime"
+-                      "time.h"
+-                      HAVE_CLOCK_GETTIME)
++
++  CHECK_C_SOURCE_COMPILES("
++#include <time.h>
++
++int main(int argc, char** argv) {
++  struct timespec timeout = {0, 0};
++  clock_gettime(CLOCK_REALTIME, &timeout);
++  return 0;
++}
++  " HAVE_CLOCK_GETTIME)
+ 
+   set(CMAKE_REQUIRED_DEFINITIONS "-D_BSD_SOURCE")
+   CHECK_SYMBOL_EXISTS("mkdtemp"
+@@ -467,11 +476,20 @@ int main(int argc, char** argv) {
+ }
+   " HAVE_MKSTEMPS)
+ 
++  set(CMAKE_REQUIRED_DEFINITIONS "-D_POSIX_C_SOURCE=200809L")
++  CHECK_SYMBOL_EXISTS("futimens"
++                      "fcntl.h;sys/stat.h"
++                      HAVE_FUTIMENS)
++
++  unset(CMAKE_REQUIRED_DEFINITIONS)
++  unset(CMAKE_REQUIRED_FLAGS)
++
+ else()
+   set(HAVE_CLOCK_GETTIME 0)
+   set(HAVE_FDATASYNC 0)
+   set(HAVE_MKOSTEMPS 0)
+   set(HAVE_MKDTEMP 0)
++  set(HAVE_FUTIMENS 0)
+ endif()
+ 
+ include(CheckFunctionExists)
+diff --git a/config.h.in.cmake b/config.h.in.cmake
+index e122d7c..4b6180a 100644
+--- a/config.h.in.cmake
++++ b/config.h.in.cmake
+@@ -49,6 +49,8 @@
+ 
+ #cmakedefine HAVE_MKDTEMP
+ 
++#cmakedefine HAVE_FUTIMENS
++
+ #cmakedefine HAVE_LTTNG_UST
+ 
+ #cmakedefine HAVE_OCL_ICD
+diff --git a/lib/CL/CMakeLists.txt b/lib/CL/CMakeLists.txt
+index df7c21f..65ca196 100644
+--- a/lib/CL/CMakeLists.txt
++++ b/lib/CL/CMakeLists.txt
+@@ -191,7 +191,7 @@ endif()
+ set(POCL_TRANSITIVE_LIBS ${POCL_PRIVATE_LINK_LIST} PARENT_SCOPE)
+ 
+ # -lrt is required for glibc < 2.17
+-if(HAVE_CLOCK_GETTIME AND (NOT WIN32))
++if(HAVE_CLOCK_GETTIME AND CMAKE_SYSTEM_NAME MATCHES "Linux")
+   list(APPEND POCL_PUBLIC_LINK_LIST "rt")
+ endif()
+ 
+diff --git a/lib/CL/pocl_llvm_utils.cc b/lib/CL/pocl_llvm_utils.cc
+index 6ba5db0..8b19a75 100644
+--- a/lib/CL/pocl_llvm_utils.cc
++++ b/lib/CL/pocl_llvm_utils.cc
+@@ -64,6 +64,9 @@
+ #define PassManager legacy::PassManager
+ #endif
+ 
++#ifdef __APPLE__
++#include <libkern/OSByteOrder.h>
++#endif
+ 
+ 
+ 
+@@ -154,7 +157,11 @@ int bitcode_is_spir(const char *bitcode, size_t size) {
+ }
+ 
+ int bitcode_is_spirv(const char *bitcode, size_t size) {
++#ifdef __APPLE__
++  uint32_t magic = OSSwapHostToLittleInt32(((uint32_t *)bitcode)[0]);
++#else
+   uint32_t magic = htole32(((uint32_t *)bitcode)[0]);
++#endif
+   return (size > 20) && (magic == 0x07230203U);
+ }
+ 
+diff --git a/lib/CL/pocl_timing.c b/lib/CL/pocl_timing.c
+index 8bb8e0b..af647e0 100644
+--- a/lib/CL/pocl_timing.c
++++ b/lib/CL/pocl_timing.c
+@@ -29,7 +29,7 @@
+ #    define _POSIX_C_SOURCE 199309L
+ #  endif
+ #  include <inttypes.h>
+-#  ifdef HAVE_CLOCK_GETTIME
++#  if defined(HAVE_CLOCK_GETTIME) || defined(__APPLE__)
+ #    include <time.h>
+ #  else
+ #    include <sys/time.h>
+diff --git a/lib/CL/pocl_util.c b/lib/CL/pocl_util.c
+index 34cb21a..1d09d09 100644
+--- a/lib/CL/pocl_util.c
++++ b/lib/CL/pocl_util.c
+@@ -530,7 +530,7 @@ void pocl_command_enqueue (cl_command_queue command_queue,
+   /* node->event is unlocked by device_ops->submit */
+ 
+   if (pocl_is_option_set("POCL_IMPLICIT_FINISH"))
+-    POclFinish (command_queue);
++    POname(clFinish) (command_queue);
+ }
+ 
+ 
+diff --git a/lib/llvmopencl/LLVMFileUtils.cc b/lib/llvmopencl/LLVMFileUtils.cc
+index 4fd3a76..b6f8dfb 100644
+--- a/lib/llvmopencl/LLVMFileUtils.cc
++++ b/lib/llvmopencl/LLVMFileUtils.cc
+@@ -166,9 +166,8 @@ int pocl_touch_file(const char* path) {
+     OPEN_CREATE;
+     RETURN_IF_EC;
+ 
+-#ifdef HAVE_CLOCK_GETTIME
++#ifdef HAVE_FUTIMENS
+     futimens(fd, NULL);
+-#else
+ #endif
+ 
+     return (close(fd) ? (-errno) : 0);
