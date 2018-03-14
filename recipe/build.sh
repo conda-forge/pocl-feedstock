@@ -28,4 +28,5 @@ cmake \
   ..
 
 make -j 8
+make check
 make install

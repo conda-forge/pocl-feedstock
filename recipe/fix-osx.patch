@@ -82,6 +82,34 @@ index df7c21f..65ca196 100644
    list(APPEND POCL_PUBLIC_LINK_LIST "rt")
  endif()
  
+diff --git a/lib/CL/devices/common.c b/lib/CL/devices/common.c
+index 046e367..645f15a 100644
+--- a/lib/CL/devices/common.c
++++ b/lib/CL/devices/common.c
+@@ -993,6 +993,14 @@ pocl_check_dlhandle_cache (_cl_command_node *cmd, unsigned initial_refcount)
+                   "_pocl_launcher_%s_workgroup", k->name);
+         ci->wg = (pocl_workgroup)lt_dlsym (ci->dlhandle, workgroup_string);
+         dl_error = lt_dlerror ();
++        if (ci->wg == NULL)
++          {
++            // Older osx dyld APIs need the name without the underscore
++            snprintf (workgroup_string, WORKGROUP_STRING_LENGTH,
++                      "pocl_launcher_%s_workgroup", k->name);
++            ci->wg = (pocl_workgroup)lt_dlsym (ci->dlhandle, workgroup_string);
++            dl_error = lt_dlerror ();
++          }
+ 
+         if (ci->wg != NULL && dl_error == NULL)
+           {
+@@ -1020,7 +1028,7 @@ pocl_check_dlhandle_cache (_cl_command_node *cmd, unsigned initial_refcount)
+ #define MIN_MAX_MEM_ALLOC_SIZE (128*1024*1024)
+ 
+ /* accounting object for the main memory */
+-static pocl_global_mem_t system_memory;
++static pocl_global_mem_t system_memory = POCL_LOCK_INITIALIZER;
+ 
+ void
+ pocl_setup_device_for_system_memory(cl_device_id device)
 diff --git a/lib/CL/pocl_llvm_utils.cc b/lib/CL/pocl_llvm_utils.cc
 index 6ba5db0..8b19a75 100644
 --- a/lib/CL/pocl_llvm_utils.cc
