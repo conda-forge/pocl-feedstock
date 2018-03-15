@@ -83,7 +83,7 @@ index df7c21f..65ca196 100644
  endif()
  
 diff --git a/lib/CL/devices/common.c b/lib/CL/devices/common.c
-index 046e367..645f15a 100644
+index 046e367..b95d338 100644
 --- a/lib/CL/devices/common.c
 +++ b/lib/CL/devices/common.c
 @@ -993,6 +993,14 @@ pocl_check_dlhandle_cache (_cl_command_node *cmd, unsigned initial_refcount)
@@ -106,7 +106,7 @@ index 046e367..645f15a 100644
  
  /* accounting object for the main memory */
 -static pocl_global_mem_t system_memory;
-+static pocl_global_mem_t system_memory = POCL_LOCK_INITIALIZER;
++static pocl_global_mem_t system_memory = {POCL_LOCK_INITIALIZER, 0, 0, 0};
  
  void
  pocl_setup_device_for_system_memory(cl_device_id device)
