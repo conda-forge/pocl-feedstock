@@ -37,6 +37,9 @@ requirements:
   build:
     - cmake
     - ocl-icd  # [linux]
+    # Pocl needs to pin to hwloc major version. See
+    # https://github.com/pocl/pocl/blob/19c570399eb5b7c4f8c85da83448d8582efc05d2/lib/CL/devices/topology/pocl_topology.c#L91
+    # Update this to 2.* when libhwloc is updated in conda-forge
     - libhwloc 1.*
     - libtool
     - pkg-config
