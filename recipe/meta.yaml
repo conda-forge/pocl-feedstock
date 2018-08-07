@@ -1,6 +1,6 @@
 {% set name = "pocl" %}
 {% set version = "1.1" %}
-{% set build_number = "2" %}
+{% set build_number = 3 %}
 {% set sha256 = "1e8dd0693a88c84937754df947b202871a40545b1b0a97ebefa370b0281c3c53" %}
 {% set llvm_version = "6.0.0" %}
 
@@ -36,13 +36,17 @@ build:
 requirements:
   build:
     - cmake
+    - libtool
+    - pkg-config
+    - libtool
+    - {{ compiler('c') }}
+    - {{ compiler('cxx') }}
+  host:
     - ocl-icd  # [linux]
     # Pocl needs to pin to hwloc major version. See
     # https://github.com/pocl/pocl/blob/19c570399eb5b7c4f8c85da83448d8582efc05d2/lib/CL/devices/topology/pocl_topology.c#L91
     # Update this to 2.* when libhwloc is updated in conda-forge
     - libhwloc 1.*
-    - libtool
-    - pkg-config
     - llvmdev =={{ llvm_version }}
     - clangdev =={{ llvm_version }}
     - libcxx =={{ llvm_version }}
@@ -50,7 +54,6 @@ requirements:
     - ocl-icd  # [linux]
     - clangdev =={{ llvm_version }}
     - libhwloc 1.*
-    - libtool
 
 test:
   requires:
