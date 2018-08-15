@@ -1,7 +1,7 @@
 {% set name = "pocl" %}
-{% set version = "1.1" %}
-{% set build_number = "2" %}
-{% set sha256 = "1e8dd0693a88c84937754df947b202871a40545b1b0a97ebefa370b0281c3c53" %}
+{% set version = "1.2-RC2" %}
+{% set build_number = 0 %}
+{% set sha256 = "63fd241189d6d8d4985fcb910a75309b820520d5fbc422422edabc2e4fcc97c1" %}
 {% set llvm_version = "6.0.0" %}
 
 package:
