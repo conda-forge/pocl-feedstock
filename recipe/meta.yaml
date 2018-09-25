@@ -1,7 +1,7 @@
 {% set name = "pocl" %}
-{% set version = "1.2.rc2" %}
+{% set version = "1.2" %}
 {% set build_number = 0 %}
-{% set sha256 = "63fd241189d6d8d4985fcb910a75309b820520d5fbc422422edabc2e4fcc97c1" %}
+{% set sha256 = "0c43e68f336892f3a64cba19beb99d9212f529bedb77f7879c0331450b982d46" %}
 {% set llvm_version = "6.0.0" %}
 
 package:
@@ -10,7 +10,7 @@ package:
 
 source:
   fn: {{ name }}-{{ version }}.tar.gz
-  url: https://github.com/{{ name }}/{{ name }}/archive/v1.2-RC2.tar.gz
+  url: https://github.com/{{ name }}/{{ name }}/archive/v1.2.tar.gz
   sha256: {{ sha256 }}
 
   # git_url: https://github.com/pocl/pocl.git
