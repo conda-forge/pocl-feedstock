@@ -1,5 +1,5 @@
 diff --git a/lib/CL/CMakeLists.txt b/lib/CL/CMakeLists.txt
-index f8adc3ff..6e257a74 100644
+index 4c016d3f..098c9388 100644
 --- a/lib/CL/CMakeLists.txt
 +++ b/lib/CL/CMakeLists.txt
 @@ -133,6 +133,7 @@ set(POCL_LIB_SOURCES  "clCreateContextFromType.c"
@@ -11,12 +11,12 @@ index f8adc3ff..6e257a74 100644
                     "clSVMAlloc.c" "clSVMFree.c" "clEnqueueSVMFree.c"
                     "clEnqueueSVMMap.c" "clEnqueueSVMUnmap.c"
 diff --git a/lib/CL/pocl_llvm_build.cc b/lib/CL/pocl_llvm_build.cc
-index fe039c01..922a010a 100644
+index a6174415..0dc835ff 100644
 --- a/lib/CL/pocl_llvm_build.cc
 +++ b/lib/CL/pocl_llvm_build.cc
-@@ -69,6 +69,12 @@ using namespace llvm;
- 
- POP_COMPILER_DIAGS
+@@ -72,6 +72,12 @@ POP_COMPILER_DIAGS
+ /* Global pocl device to be used by passes if needed */
+ cl_device_id currentPoclDevice = NULL;
  
 +extern "C"
 +{
@@ -25,8 +25,8 @@ index fe039c01..922a010a 100644
 +}
 +
  
- /* Global pocl device to be used by passes if needed */
- cl_device_id currentPoclDevice = NULL;
+ //#define DEBUG_POCL_LLVM_API
+ 
 @@ -419,16 +425,21 @@ int pocl_llvm_build_program(cl_program program,
    if (0) {
  #endif
@@ -51,15 +51,15 @@ index fe039c01..922a010a 100644
  #endif
    po.Includes.push_back(kernelh);
    clang::TargetOptions &ta = pocl_build.getTargetOpts();
-@@ -808,7 +819,7 @@ kernel_library
-         kernellib += device->llvm_cpu;
-     }
-   } else { // POCL_BUILDING == 0, use install dir
--    kernellib = POCL_INSTALL_PRIVATE_DATADIR;
-+    kernellib = conda_pocl_get_pocl_install_private_datadir();
-     kernellib += "/kernel-";
-     kernellib += device->llvm_target_triplet;
-     if (is_host) {
+@@ -832,7 +843,7 @@ kernel_library
+     kernellib += subdir;
+   } else // POCL_BUILDING == 0, use install dir
+ #endif
+-  kernellib = POCL_INSTALL_PRIVATE_DATADIR;
++  kernellib = conda_pocl_get_pocl_install_private_datadir();
+   kernellib += "/kernel-";
+   kernellib += device->llvm_target_triplet;
+   if (is_host) {
 diff --git a/lib/CL/pocl_paths.cc b/lib/CL/pocl_paths.cc
 new file mode 100644
 index 00000000..8269c034
