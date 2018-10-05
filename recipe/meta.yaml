@@ -28,15 +28,16 @@ source:
 
 build:
   number: {{ build_number }}
-  skip: True  # [not (unix or py>=35)]
+  skip: True  # [win]
 
 requirements:
   build:
     - cmake
+    - pkg-config
+  host:
     - ocl-icd  # [linux]
     - libhwloc
     - libtool
-    - pkg-config
     - llvmdev =={{ llvm_version }}
     - clangdev =={{ llvm_version }}
     - libcxx =={{ llvm_version }}
