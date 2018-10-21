@@ -1,11 +1,11 @@
-build_number_decrement:
-- '0'
 channel_sources:
 - conda-forge,defaults
 channel_targets:
 - conda-forge main
 curl:
 - '7.59'
+cxx_compiler:
+- toolchain_cxx
 docker_image:
 - condaforge/linux-anvil
 pin_run_as_build:
