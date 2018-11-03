@@ -7,7 +7,12 @@ channel_targets:
 curl:
 - '7.59'
 docker_image:
-- condaforge/linux-anvil
+- condaforge/linux-anvil-comp7
 pin_run_as_build:
   curl:
     max_pin: x
+zip_keys:
+- - channel_sources
+  - channel_targets
+  - docker_image
+  - build_number_decrement

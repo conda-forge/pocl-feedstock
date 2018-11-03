@@ -17,3 +17,7 @@ macos_min_version:
 pin_run_as_build:
   curl:
     max_pin: x
+zip_keys:
+- - channel_sources
+  - channel_targets
+  - build_number_decrement
