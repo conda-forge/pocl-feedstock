@@ -41,7 +41,7 @@ requirements:
     - libtool
     - llvmdev =={{ llvm_version }}
     - clangdev =={{ llvm_version }}
-    - libcxx =={{ llvm_version }}        # [osx]
+    - libcxx                             # [osx]
   run:
     - ocl-icd                            # [linux]
     - {{ pin_compatible('libhwloc') }}

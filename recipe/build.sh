@@ -14,7 +14,8 @@ else  # linux for now
 fi
 
 if [ "$cxx_compiler" == "gxx" ]; then
-  ln -s $LD $PREFIX/bin/ld
+  export LD="$(basename $LD)"
+  export LDFLAGS="-fuse-ld=$LD"
 fi
 
 cmake \
