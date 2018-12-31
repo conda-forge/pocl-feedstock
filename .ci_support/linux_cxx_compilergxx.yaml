@@ -4,15 +4,10 @@ channel_sources:
 - conda-forge/label/gcc7,defaults
 channel_targets:
 - conda-forge gcc7
-curl:
-- '7.59'
 cxx_compiler:
 - gxx
 docker_image:
 - condaforge/linux-anvil-comp7
-pin_run_as_build:
-  curl:
-    max_pin: x
 zip_keys:
 - - cxx_compiler
   - channel_sources
