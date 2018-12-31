@@ -16,6 +16,7 @@ else  # linux for now
 fi
 
 if [[ "$cxx_compiler" == "gxx" ]]; then
+  EXTRA_HOST_LD_FLAGS="$EXTRA_HOST_LD_FLAGS -L$BUILD_PREFIX/$HOST/sysroot/usr/lib"
   EXTRA_HOST_CLANG_FLAGS="-I$BUILD_PREFIX/$HOST/sysroot/usr/include"
 fi
 
