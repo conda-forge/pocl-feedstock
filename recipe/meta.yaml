@@ -41,13 +41,11 @@ requirements:
     - libtool
     - llvmdev =={{ llvm_version }}
     - clangdev =={{ llvm_version }}
-    - libcxx =={{ llvm_version }}
   run:
     - ocl-icd                            # [linux]
     - {{ pin_compatible('libhwloc') }}
     - libtool
     - clangdev =={{ llvm_version }}
-    - libcxx =={{ llvm_version }}
 
 test:
   #requires:
