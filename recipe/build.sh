@@ -13,6 +13,10 @@ else  # linux for now
   EXTRA_HOST_LD_FLAGS="--as-needed"
 fi
 
+if [ "$(cxx_compiler)" == "gxx" ]; then
+  ln -s $LD $PREFIX/bin/ld
+fi
+
 cmake \
   -D CMAKE_BUILD_TYPE="Release" \
   -D CMAKE_INSTALL_PREFIX="${PREFIX}" \
@@ -30,3 +34,7 @@ cmake \
 make -j 8
 make check
 make install
+
+if [ "$(cxx_compiler)" == "gxx" ]; then
+  rm $PREFIX/bin/ld
+fi
