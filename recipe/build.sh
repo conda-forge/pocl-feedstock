@@ -9,13 +9,8 @@ if [ "$(uname)" == "Darwin" ]; then
 else  # linux for now
   OPENCL_LIBRARIES="-L${PREFIX}/lib;OpenCL"
   INSTALL_OPENCL_HEADERS=OFF
-  LINKER_FLAG="-D LINK_COMMAND=$LD"
+  LINKER_FLAG="-D LINK_COMMAND=llvm-lld"
   EXTRA_HOST_LD_FLAGS="--as-needed"
-fi
-
-if [ "$cxx_compiler" == "gxx" ]; then
-  export LD="$(basename $LD)"
-  export LDFLAGS="-fuse-ld=$LD"
 fi
 
 cmake \
@@ -35,7 +30,3 @@ cmake \
 make -j 8
 make check
 make install
-
-if [ "$cxx_compiler" == "gxx" ]; then
-  rm $PREFIX/bin/ld
-fi
