@@ -13,7 +13,7 @@ else  # linux for now
   EXTRA_HOST_LD_FLAGS="--as-needed"
 fi
 
-if [ "$(cxx_compiler)" == "gxx" ]; then
+if [ "$cxx_compiler" == "gxx" ]; then
   ln -s $LD $PREFIX/bin/ld
 fi
 
@@ -35,6 +35,6 @@ make -j 8
 make check
 make install
 
-if [ "$(cxx_compiler)" == "gxx" ]; then
+if [ "$cxx_compiler" == "gxx" ]; then
   rm $PREFIX/bin/ld
 fi
