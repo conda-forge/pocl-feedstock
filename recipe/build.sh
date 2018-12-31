@@ -11,6 +11,7 @@ else  # linux for now
   INSTALL_OPENCL_HEADERS=OFF
   LINKER_FLAG="-D LINK_COMMAND=llvm-lld"
   EXTRA_HOST_LD_FLAGS="--as-needed"
+  export LDFLAGS="$LDFLAGS -fuse-ld=lld"
 fi
 
 cmake \
