@@ -40,7 +40,6 @@ requirements:
     - libhwloc
     - libtool
     - llvmdev =={{ llvm_version }}
-    - lld =={{ llvm_version }}           # [linux]
     - clangdev =={{ llvm_version }}
     - libcxx                             # [osx]
   run:
@@ -48,7 +47,7 @@ requirements:
     - {{ pin_compatible('libhwloc') }}
     - libtool
     - clangdev =={{ llvm_version }}
-    - lld =={{ llvm_version }}           # [linux]
+    - {{ compiler('cxx') }}     # [cxx_compiler=='gxx']
 
 test:
   #requires:
