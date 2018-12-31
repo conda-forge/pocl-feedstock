@@ -29,6 +29,7 @@ source:
 build:
   number: {{ build_number }}
   skip: True  # [win]
+  merge_build_host: True   # [cxx_compiler=='gxx']
 
 requirements:
   build:

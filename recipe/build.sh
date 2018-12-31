@@ -1,6 +1,8 @@
 mkdir build
 cd build
 
+EXTRA_HOST_CLANG_FLAGS=""
+
 if [ "$(uname)" == "Darwin" ]; then
   OPENCL_LIBRARIES=""
   INSTALL_OPENCL_HEADERS=ON
@@ -11,9 +13,10 @@ else  # linux for now
   INSTALL_OPENCL_HEADERS=OFF
   LINKER_FLAG="-D LINK_COMMAND=$LD"
   EXTRA_HOST_LD_FLAGS="--as-needed"
-  export LDFLAGS="$LDFLAGS -L$BUILD_PREFIX/$HOST/sysroot/usr/lib"
-  export CFLAGS="$CFLAGS -I$BUILD_PREFIX/$HOST/sysroot/usr/include"
-  export CXXFLAGS="$CXXFLAGS -I$BUILD_PREFIX/$HOST/sysroot/usr/include"
+fi
+
+if [[ "$cxx_compiler" == "gxx" ]]; then
+  EXTRA_HOST_CLANG_FLAGS="-I$BUILD_PREFIX/$HOST/sysroot/usr/include"
 fi
 
 if [[ "$(uname)" == "Darwin" || "$c_compiler" == "toolchain_c" ]]; then
@@ -31,6 +34,7 @@ cmake \
   -D OPENCL_LIBRARIES="${OPENCL_LIBRARIES}" \
   $LINKER_FLAG \
   -D EXTRA_HOST_LD_FLAGS="${EXTRA_HOST_LD_FLAGS}" \
+  -D EXTRA_HOST_CLANG_FLAGS="${EXTRA_HOST_CLANG_FLAGS}" \
   ..
 
 make -j 8
