@@ -11,7 +11,7 @@ if [ "$(uname)" == "Darwin" ]; then
 else  # linux for now
   OPENCL_LIBRARIES="-L${PREFIX}/lib;OpenCL"
   INSTALL_OPENCL_HEADERS=OFF
-  LINKER_FLAG="-D LINK_COMMAND=$LD"
+  LINKER_FLAG=""
   EXTRA_HOST_LD_FLAGS="--as-needed"
 fi
 

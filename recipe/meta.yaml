@@ -48,7 +48,6 @@ requirements:
     - {{ pin_compatible('libhwloc') }}
     - libtool
     - clangdev =={{ llvm_version }}
-    - {{ compiler('cxx') }}     # [cxx_compiler=='gxx']
 
 test:
   #requires:
