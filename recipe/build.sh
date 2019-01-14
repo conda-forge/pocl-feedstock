@@ -1,6 +1,8 @@
 mkdir build
 cd build
 
+EXTRA_HOST_CLANG_FLAGS=""
+
 if [ "$(uname)" == "Darwin" ]; then
   OPENCL_LIBRARIES=""
   INSTALL_OPENCL_HEADERS=ON
@@ -9,8 +11,18 @@ if [ "$(uname)" == "Darwin" ]; then
 else  # linux for now
   OPENCL_LIBRARIES="-L${PREFIX}/lib;OpenCL"
   INSTALL_OPENCL_HEADERS=OFF
-  LINKER_FLAG="-D LINK_COMMAND=/usr/bin/ld"
+  LINKER_FLAG=""
   EXTRA_HOST_LD_FLAGS="--as-needed"
+fi
+
+if [[ "$cxx_compiler" == "gxx" ]]; then
+  EXTRA_HOST_LD_FLAGS="$EXTRA_HOST_LD_FLAGS -L$BUILD_PREFIX/$HOST/sysroot/usr/lib"
+  EXTRA_HOST_CLANG_FLAGS="-I$BUILD_PREFIX/$HOST/sysroot/usr/include"
+fi
+
+if [[ "$(uname)" == "Darwin" || "$c_compiler" == "toolchain_c" ]]; then
+  export CC=$PREFIX/bin/clang
+  export CXX=$PREFIX/bin/clang++
 fi
 
 cmake \
@@ -18,13 +30,12 @@ cmake \
   -D CMAKE_INSTALL_PREFIX="${PREFIX}" \
   -D POCL_INSTALL_ICD_VENDORDIR="${PREFIX}/etc/OpenCL/vendors" \
   -D LLVM_CONFIG="${PREFIX}/bin/llvm-config" \
-  -D CMAKE_C_COMPILER=${PREFIX}/bin/clang \
-  -D CMAKE_CXX_COMPILER=${PREFIX}/bin/clang++ \
   -D INSTALL_OPENCL_HEADERS="${INSTALL_OPENCL_HEADERS}" \
   -D KERNELLIB_HOST_CPU_VARIANTS=distro \
   -D OPENCL_LIBRARIES="${OPENCL_LIBRARIES}" \
   $LINKER_FLAG \
   -D EXTRA_HOST_LD_FLAGS="${EXTRA_HOST_LD_FLAGS}" \
+  -D EXTRA_HOST_CLANG_FLAGS="${EXTRA_HOST_CLANG_FLAGS}" \
   ..
 
 make -j 8
