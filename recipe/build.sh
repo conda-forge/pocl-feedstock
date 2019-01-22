@@ -10,7 +10,7 @@ else  # linux for now
 fi
 
 LINKER_FLAG=""
-OPENCL_LIBRARIES="-L${PREFIX}/lib;OpenCL"
+OPENCL_LIBRARIES="${PREFIX}/lib/libOpenCL${SHLIB_EXT}"
 
 if [[ "$cxx_compiler" == "gxx" ]]; then
   EXTRA_HOST_LD_FLAGS="$EXTRA_HOST_LD_FLAGS -L$BUILD_PREFIX/$HOST/sysroot/usr/lib"
