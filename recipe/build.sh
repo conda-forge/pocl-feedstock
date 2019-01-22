@@ -45,7 +45,7 @@ make install
 
 
 if [[ "$(uname)" == "Darwin" ]]; then
-    cd ocl_icd_wrapper
+    cd ../ocl_icd_wrapper
     autoreconf -i
     chmod +x configure
     ./configure
