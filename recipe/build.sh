@@ -46,6 +46,9 @@ cmake \
   -D ENABLE_ICD=on \
   ..
 
+cat CMakeFiles/CMakeError.log
+cat CMakeFiles/CMakeOutput.log
+
 make -j 8
 make check
 make install
