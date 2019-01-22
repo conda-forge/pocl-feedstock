@@ -45,10 +45,12 @@ cmake \
   -D ENABLE_ICD=on \
   ..
 
-cat CMakeFiles/CMakeError.log
-cat CMakeFiles/CMakeOutput.log
-
 make -j 8
 # install needs to come first for the pocl.icd to be found
 make install
 make check
+
+# For backwards compatibility
+if [[ "$(uname)" == "Darwin" ]]; then
+    ln -s $PREFIX/lib/libpocl.dylib $PREFIX/lib/libOpenCL.2.dylib
+fi
