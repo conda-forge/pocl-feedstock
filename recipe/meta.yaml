@@ -43,6 +43,9 @@ requirements:
     - cmake
     - pkg-config
     - {{ compiler('cxx') }}
+    - autoconf
+    - automake
+    - libtool
   host:
     - ocl-icd                            # [linux]
     - libhwloc
