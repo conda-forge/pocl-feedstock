@@ -33,6 +33,7 @@ fi
 cmake \
   -D CMAKE_BUILD_TYPE="Release" \
   -D CMAKE_INSTALL_PREFIX="${PREFIX}" \
+  -D CMAKE_PREFIX_PATH="${PREFIX}" \
   -D POCL_INSTALL_ICD_VENDORDIR="${PREFIX}/etc/OpenCL/vendors" \
   -D LLVM_CONFIG="${PREFIX}/bin/llvm-config" \
   -D INSTALL_OPENCL_HEADERS="off" \
