@@ -49,5 +49,6 @@ cat CMakeFiles/CMakeError.log
 cat CMakeFiles/CMakeOutput.log
 
 make -j 8
-make check
+# install needs to come first for the pocl.icd to be found
 make install
+make check
