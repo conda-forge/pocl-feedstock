@@ -21,9 +21,9 @@ if [[ "$cxx_compiler" == "gxx" ]]; then
 fi
 
 # avoid linking to libLLVM and libclang in build prefix. These are from the compiler package by anaconda
-rm -rf $BUILD_PREFIX/lib/libLLVM*.a $BUILD_PREFIX/lib/libclang*.ag
-rm $BUILD_PREFIX/include/llvm/* $BUILD_PREFIX/include/llvm-c/*
-rm $BUILD_PREFIX/include/clang/* $BUILD_PREFIX/include/clang-c/*
+rm -rf $BUILD_PREFIX/lib/libLLVM*.a $BUILD_PREFIX/lib/libclang*.a
+rm -rf $BUILD_PREFIX/include/llvm $BUILD_PREFIX/include/llvm-c
+rm -rf $BUILD_PREFIX/include/clang $BUILD_PREFIX/include/clang-c
 
 if [[ "$(uname)" == "Darwin" || "$c_compiler" == "toolchain_c" ]]; then
   export CC=$PREFIX/bin/clang
