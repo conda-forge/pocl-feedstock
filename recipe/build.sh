@@ -42,29 +42,9 @@ cmake \
   -D EXTRA_HOST_LD_FLAGS="${EXTRA_HOST_LD_FLAGS}" \
   -D EXTRA_HOST_CLANG_FLAGS="${EXTRA_HOST_CLANG_FLAGS}" \
   -D CMAKE_INSTALL_LIBDIR=lib \
+  -D ENABLE_ICD=on \
   ..
 
 make -j 8
 make check
 make install
-
-
-if [[ "$(uname)" == "Darwin" ]]; then
-    cd ../ocl_icd_wrapper
-    autoreconf -i
-    chmod +x configure
-    ./configure
-    make LDFLAGS+="-L$PREFIX/lib -lpocl"
-
-    mkdir -p ${PREFIX}/lib
-    mkdir -p ${PREFIX}/etc/OpenCL/vendors
-
-    cp .libs/libocl_icd_wrapper.0.dylib ${PREFIX}/lib/libocl_icd_wrapper_pocl.dylib
-    ${INSTALL_NAME_TOOL} -id ${PREFIX}/lib/libocl_icd_wrapper_pocl.dylib ${PREFIX}/lib/libocl_icd_wrapper_pocl.dylib
-    ${OTOOL} -L ${PREFIX}/lib/libocl_icd_wrapper_pocl.dylib
-
-    echo ${PREFIX}/lib/libocl_icd_wrapper_pocl.dylib > ${PREFIX}/etc/OpenCL/vendors/pocl.icd
-
-    # For backwards compatibility
-    ln -s ${PREFIX}/lib/libpocl.dylib ${PREFIX}/lib/libOpenCL.2.dylib
-fi

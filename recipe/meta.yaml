@@ -26,12 +26,8 @@ source:
     # Disable unneeded macro workaround
     - fix-macros.patch
 
-    # Change library name
-    - use_pocl_library_name.diff
-
-  - url: https://github.com/jrprice/ocl_icd_wrapper/archive/3b9490ede352a57575d7c29a92a184b0622b7fe3.tar.gz  # [osx]
-    sha256: d90f3fba88901a0d6ae7de6111ed45121195ea8942a965111413a3eff9049a14                                 # [osx]
-    folder: ocl_icd_wrapper                                                                                  # [osx]
+    # Enable ICD interface on osx
+    - enable_icd_osx.diff
 
 build:
   number: {{ build_number }}
@@ -43,9 +39,6 @@ requirements:
     - cmake
     - pkg-config
     - {{ compiler('cxx') }}
-    - autoconf
-    - automake
-    - libtool
   host:
     - ocl-icd                            # [linux]
     - khronos-opencl-icd-loader          # [osx]
