@@ -4,14 +4,13 @@ cd build
 EXTRA_HOST_CLANG_FLAGS=""
 
 if [ "$(uname)" == "Darwin" ]; then
-  OPENCL_LIBRARIES=""
-  LINKER_FLAG=""
   EXTRA_HOST_LD_FLAGS="-dead_strip_dylibs"
 else  # linux for now
-  OPENCL_LIBRARIES="-L${PREFIX}/lib;OpenCL"
-  LINKER_FLAG=""
   EXTRA_HOST_LD_FLAGS="--as-needed"
 fi
+
+LINKER_FLAG=""
+OPENCL_LIBRARIES="-L${PREFIX}/lib;OpenCL"
 
 if [[ "$cxx_compiler" == "gxx" ]]; then
   EXTRA_HOST_LD_FLAGS="$EXTRA_HOST_LD_FLAGS -L$BUILD_PREFIX/$HOST/sysroot/usr/lib"
