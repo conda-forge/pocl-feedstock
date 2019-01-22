@@ -48,6 +48,7 @@ requirements:
     - libtool
   host:
     - ocl-icd                            # [linux]
+    - khronos-opencl-icd-loader          # [osx]
     - libhwloc
     - libtool
     - llvmdev =={{ llvm_version }}
@@ -55,6 +56,7 @@ requirements:
     - libcxx                             # [osx]
   run:
     - ocl-icd                            # [linux]
+    - khronos-opencl-icd-loader          # [osx]
     - {{ pin_compatible('libhwloc') }}
     - libtool
     - clangdev =={{ llvm_version }}
