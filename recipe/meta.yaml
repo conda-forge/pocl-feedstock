@@ -9,22 +9,29 @@ package:
   version: {{ version }}
 
 source:
-  fn: {{ name }}-{{ version }}.tar.gz
-  url: https://github.com/{{ name }}/{{ name }}/archive/v{{ version }}.tar.gz
-  sha256: {{ sha256 }}
+  - url: https://github.com/{{ name }}/{{ name }}/archive/v{{ version }}.tar.gz
+    sha256: {{ sha256 }}
+    patches:
 
-  # git_url: https://github.com/pocl/pocl.git
-  # git_rev: 09cf952f4eeb79825bfa8e09198cd4c6e106d0a0
+    # git_url: https://github.com/pocl/pocl.git
+    # git_rev: 09cf952f4eeb79825bfa8e09198cd4c6e106d0a0
 
-  patches:
-  # Put binary paths built in pocl into a separate compilation unit
-  # so that conda can successfully change them. (If they're not in
-  # a separate compilation unit, the compiler has a habit of evaluating
-  # strlen() and such at compile time.)
-  - paths-in-separate-compilation-unit.patch
+    patches:
+    # Put binary paths built in pocl into a separate compilation unit
+    # so that conda can successfully change them. (If they're not in
+    # a separate compilation unit, the compiler has a habit of evaluating
+    # strlen() and such at compile time.)
+    - paths-in-separate-compilation-unit.patch
 
-  # Disable unneeded macro workaround
-  - fix-macros.patch
+    # Disable unneeded macro workaround
+    - fix-macros.patch
+
+    # Change library name
+    - use_pocl_library_name.diff
+
+  - url: https://github.com/jrprice/ocl_icd_wrapper/archive/3b9490ede352a57575d7c29a92a184b0622b7fe3.tar.gz  # [osx]
+    sha256: d90f3fba88901a0d6ae7de6111ed45121195ea8942a965111413a3eff9049a14                                 # [osx]
+    folder: ocl_icd_wrapper                                                                                  # [osx]
 
 build:
   number: {{ build_number }}
@@ -56,8 +63,7 @@ test:
     #- osx-pocl-opencl  # [osx]
 
   commands:
-    - test -f $PREFIX/lib64/libpocl.so  # [linux]
-    - test -f $PREFIX/lib/libOpenCL.dylib  # [osx]
+    - test -f $PREFIX/lib/libpocl${SHLIB_EXT}     # [unix]
     #- curl -O https://raw.githubusercontent.com/inducer/pyopencl/master/examples/demo.py
     #- python demo.py
 
