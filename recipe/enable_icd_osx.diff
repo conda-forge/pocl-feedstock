@@ -1,5 +1,15 @@
+From 998429f3315cd888254404ea682db911f56c9db1 Mon Sep 17 00:00:00 2001
+From: Isuru Fernando <isuruf@gmail.com>
+Date: Tue, 22 Jan 2019 12:40:21 -0600
+Subject: [PATCH] Support ICD on OSX
+
+---
+ lib/CL/clGetPlatformIDs.c | 226 +++++++++++++++++++-------------------
+ lib/CL/pocl_cl.h          |   3 -
+ 2 files changed, 113 insertions(+), 116 deletions(-)
+
 diff --git a/lib/CL/clGetPlatformIDs.c b/lib/CL/clGetPlatformIDs.c
-index e5c48b56..facae1ee 100644
+index e5c48b562..a0b22791d 100644
 --- a/lib/CL/clGetPlatformIDs.c
 +++ b/lib/CL/clGetPlatformIDs.c
 @@ -37,115 +37,115 @@
@@ -207,7 +217,7 @@ index e5c48b56..facae1ee 100644
 +  &POname(clCreateProgramWithBuiltInKernels),
 +  &POname(clCompileProgram),
 +  &POname(clLinkProgram),
-+  &POname(clUnloadPlatformCompiler), 
++  &POname(clUnloadPlatformCompiler),
 +  &POname(clGetKernelArgInfo),
 +  &POname(clEnqueueFillBuffer),
 +  &POname(clEnqueueFillImage),
@@ -252,7 +262,7 @@ index e5c48b56..facae1ee 100644
    NULL, /* &clUnknown137 */
    NULL, /* &clUnknown138 */
 diff --git a/lib/CL/pocl_cl.h b/lib/CL/pocl_cl.h
-index fbe8dd25..23d8546c 100644
+index fbe8dd25a..49887124e 100644
 --- a/lib/CL/pocl_cl.h
 +++ b/lib/CL/pocl_cl.h
 @@ -210,9 +210,6 @@ typedef pthread_mutex_t pocl_lock_t;
@@ -265,25 +275,4 @@ index fbe8dd25..23d8546c 100644
  #  define POname(name) name
  #  define POdeclsym(name)
  #  define POsym(name)
-@@ -229,17 +226,10 @@ typedef pthread_mutex_t pocl_lock_t;
- #else
- /* Symbol aliases are supported */
- 
--#  define POname(name) PO##name
--#  define POdeclsym(name)                      \
--  __typeof__(name) PO##name __attribute__((visibility("hidden")));
--#  define POCL_ALIAS_OPENCL_SYMBOL(name)                                \
--  __typeof__(name) name __attribute__((alias ("PO" #name), visibility("default")));
--#  define POsymAlways(name) POCL_ALIAS_OPENCL_SYMBOL(name)
--#  if !defined(BUILD_ICD)
--#    define POsym(name) POCL_ALIAS_OPENCL_SYMBOL(name)
--#  else
--#    define POsym(name)
--#  endif
-+#  define POname(name) name
-+#  define POdeclsym(name)
-+#  define POsym(name)
-+#  define POsymAlways(name)
- 
- #endif
- 
+
