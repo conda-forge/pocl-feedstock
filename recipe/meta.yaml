@@ -1,6 +1,6 @@
 {% set name = "pocl" %}
 {% set version = "1.2" %}
-{% set build_number = 1002 %}
+{% set build_number = 1003 %}
 {% set sha256 = "0c43e68f336892f3a64cba19beb99d9212f529bedb77f7879c0331450b982d46" %}
 {% set llvm_version = "6.0.1" %}
 
@@ -9,22 +9,25 @@ package:
   version: {{ version }}
 
 source:
-  fn: {{ name }}-{{ version }}.tar.gz
-  url: https://github.com/{{ name }}/{{ name }}/archive/v{{ version }}.tar.gz
-  sha256: {{ sha256 }}
+  - url: https://github.com/{{ name }}/{{ name }}/archive/v{{ version }}.tar.gz
+    sha256: {{ sha256 }}
+    patches:
 
-  # git_url: https://github.com/pocl/pocl.git
-  # git_rev: 09cf952f4eeb79825bfa8e09198cd4c6e106d0a0
+    # git_url: https://github.com/pocl/pocl.git
+    # git_rev: 09cf952f4eeb79825bfa8e09198cd4c6e106d0a0
 
-  patches:
-  # Put binary paths built in pocl into a separate compilation unit
-  # so that conda can successfully change them. (If they're not in
-  # a separate compilation unit, the compiler has a habit of evaluating
-  # strlen() and such at compile time.)
-  - paths-in-separate-compilation-unit.patch
+    patches:
+    # Put binary paths built in pocl into a separate compilation unit
+    # so that conda can successfully change them. (If they're not in
+    # a separate compilation unit, the compiler has a habit of evaluating
+    # strlen() and such at compile time.)
+    - paths-in-separate-compilation-unit.patch
 
-  # Disable unneeded macro workaround
-  - fix-macros.patch
+    # Disable unneeded macro workaround
+    - fix-macros.patch
+
+    # Enable ICD interface on osx
+    - enable_icd_osx.diff
 
 build:
   number: {{ build_number }}
@@ -38,6 +41,7 @@ requirements:
     - {{ compiler('cxx') }}
   host:
     - ocl-icd                            # [linux]
+    - khronos-opencl-icd-loader          # [osx]
     - libhwloc
     - libtool
     - llvmdev =={{ llvm_version }}
@@ -45,6 +49,7 @@ requirements:
     - libcxx                             # [osx]
   run:
     - ocl-icd                            # [linux]
+    - khronos-opencl-icd-loader          # [osx]
     - {{ pin_compatible('libhwloc') }}
     - libtool
     - clangdev =={{ llvm_version }}
@@ -56,8 +61,7 @@ test:
     #- osx-pocl-opencl  # [osx]
 
   commands:
-    - test -f $PREFIX/lib64/libpocl.so  # [linux]
-    - test -f $PREFIX/lib/libOpenCL.dylib  # [osx]
+    - test -f $PREFIX/lib/libpocl${SHLIB_EXT}     # [unix]
     #- curl -O https://raw.githubusercontent.com/inducer/pyopencl/master/examples/demo.py
     #- python demo.py
 
