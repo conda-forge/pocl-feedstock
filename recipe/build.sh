@@ -13,7 +13,7 @@ LINKER_FLAG=""
 OPENCL_LIBRARIES="${PREFIX}/lib/libOpenCL${SHLIB_EXT}"
 
 if [[ "$cxx_compiler" == "gxx" ]]; then
-  EXTRA_HOST_LD_FLAGS="$EXTRA_HOST_LD_FLAGS -L$BUILD_PREFIX/$HOST/sysroot/usr/lib"
+  EXTRA_HOST_LD_FLAGS="$EXTRA_HOST_LD_FLAGS -nodefaultlibs -L$BUILD_PREFIX/$HOST/sysroot/usr/lib"
   EXTRA_HOST_CLANG_FLAGS="-I$BUILD_PREFIX/$HOST/sysroot/usr/include"
 fi
 
