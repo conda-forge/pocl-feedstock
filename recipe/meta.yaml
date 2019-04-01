@@ -9,12 +9,8 @@ package:
   version: {{ version }}
 
 source:
-  - url: https://github.com/{{ name }}/{{ name }}/archive/v{{ version }}.tar.gz
-    sha256: {{ sha256 }}
-    patches:
-
-    # git_url: https://github.com/pocl/pocl.git
-    # git_rev: 09cf952f4eeb79825bfa8e09198cd4c6e106d0a0
+  - git_url: https://github.com/pocl/pocl.git
+    git_rev: v1.3-RC1
 
     patches:
     # Put binary paths built in pocl into a separate compilation unit
@@ -22,12 +18,6 @@ source:
     # a separate compilation unit, the compiler has a habit of evaluating
     # strlen() and such at compile time.)
     - paths-in-separate-compilation-unit.patch
-
-    # Disable unneeded macro workaround
-    - fix-macros.patch
-
-    # Enable ICD interface on osx
-    - enable_icd_osx.diff
 
 build:
   number: {{ build_number }}

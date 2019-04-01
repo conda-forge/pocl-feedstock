@@ -1,5 +1,5 @@
 diff --git a/lib/CL/CMakeLists.txt b/lib/CL/CMakeLists.txt
-index 4c016d3f..098c9388 100644
+index 14b1534b..7a7c7425 100644
 --- a/lib/CL/CMakeLists.txt
 +++ b/lib/CL/CMakeLists.txt
 @@ -133,6 +133,7 @@ set(POCL_LIB_SOURCES  "clCreateContextFromType.c"
@@ -11,10 +11,10 @@ index 4c016d3f..098c9388 100644
                     "clSVMAlloc.c" "clSVMFree.c" "clEnqueueSVMFree.c"
                     "clEnqueueSVMMap.c" "clEnqueueSVMUnmap.c"
 diff --git a/lib/CL/pocl_llvm_build.cc b/lib/CL/pocl_llvm_build.cc
-index a6174415..0dc835ff 100644
+index f0b897f4..8b426074 100644
 --- a/lib/CL/pocl_llvm_build.cc
 +++ b/lib/CL/pocl_llvm_build.cc
-@@ -72,6 +72,12 @@ POP_COMPILER_DIAGS
+@@ -76,6 +76,12 @@ POP_COMPILER_DIAGS
  /* Global pocl device to be used by passes if needed */
  cl_device_id currentPoclDevice = NULL;
  
@@ -27,31 +27,28 @@ index a6174415..0dc835ff 100644
  
  //#define DEBUG_POCL_LLVM_API
  
-@@ -419,16 +425,21 @@ int pocl_llvm_build_program(cl_program program,
+@@ -428,7 +434,7 @@ int pocl_llvm_build_program(cl_program program,
    if (0) {
  #endif
    } else {
--    kernelh = POCL_INSTALL_PRIVATE_DATADIR;
-+    kernelh = conda_pocl_get_pocl_install_private_datadir();
+-    IncludeRoot = POCL_INSTALL_PRIVATE_DATADIR;
++    IncludeRoot = conda_pocl_get_pocl_install_private_datadir();
    }
-   BuiltinRenamesH = kernelh;
-   kernelh += "/include/_kernel.h";
-   BuiltinRenamesH += "/include/_builtin_renames.h";
- 
-+
+   KernelH = IncludeRoot + "/include/_kernel.h";
+   BuiltinRenamesH = IncludeRoot + "/include/_builtin_renames.h";
+@@ -438,7 +444,10 @@ int pocl_llvm_build_program(cl_program program,
    po.Includes.push_back(BuiltinRenamesH);
  #ifndef LLVM_OLDER_THAN_4_0
+   // Use Clang's opencl-c.h header.
+-  po.Includes.push_back(CLANG_RESOURCE_DIR "/include/opencl-c.h");
 +  std::string clang_header_dir =
 +      std::string(conda_pocl_get_clang_resource_dir())
 +      + "/include/opencl-c.h";
-+
-   // Use Clang's opencl-c.h header.
--  po.Includes.push_back(CLANG_RESOURCE_DIR "/include/opencl-c.h");
 +  po.Includes.push_back(clang_header_dir);
  #endif
-   po.Includes.push_back(kernelh);
+   po.Includes.push_back(KernelH);
    clang::TargetOptions &ta = pocl_build.getTargetOpts();
-@@ -832,7 +843,7 @@ kernel_library
+@@ -837,7 +846,7 @@ static llvm::Module* getKernelLibrary(cl_device_id device)
      kernellib += subdir;
    } else // POCL_BUILDING == 0, use install dir
  #endif
