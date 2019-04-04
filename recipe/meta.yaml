@@ -10,7 +10,7 @@ package:
 
 source:
   - git_url: https://github.com/pocl/pocl.git
-    git_rev: v1.3-RC1
+    git_rev: v1.3-RC3
 
     patches:
     # Put binary paths built in pocl into a separate compilation unit
