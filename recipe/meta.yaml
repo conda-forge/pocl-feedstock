@@ -1,16 +1,18 @@
 {% set name = "pocl" %}
-{% set version = "1.2" %}
-{% set build_number = 1003 %}
-{% set sha256 = "0c43e68f336892f3a64cba19beb99d9212f529bedb77f7879c0331450b982d46" %}
-{% set llvm_version = "6.0.1" %}
+{% set version = "1.3" %}
+{% set build_number = 0 %}
+{% set sha256 = "6527e3f47fab7c21e96bc757c4ae3303901f35e23f64642d6da5cc4c4fcc915a" %}
+{% set llvm_version = "8.0.0" %}
 
 package:
   name: {{ name|lower }}
   version: {{ version }}
 
 source:
-  - git_url: https://github.com/pocl/pocl.git
-    git_rev: v1.3-RC3
+  - url: https://github.com/{{ name }}/{{ name }}/archive/v{{ version }}.tar.gz
+    sha256: {{ sha256 }}
+  #- git_url: https://github.com/pocl/pocl.git
+  #  git_rev: v1.3-RC3
 
     patches:
     # Put binary paths built in pocl into a separate compilation unit
@@ -42,7 +44,6 @@ requirements:
     - khronos-opencl-icd-loader          # [osx]
     - {{ pin_compatible('libhwloc') }}
     - libtool
-    - clangdev =={{ llvm_version }}
 
 test:
   #requires:
@@ -66,3 +67,4 @@ extra:
   recipe-maintainers:
     - inducer
     - mattwala
+    - isuruf
