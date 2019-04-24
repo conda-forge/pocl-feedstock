@@ -6,14 +6,14 @@ EXTRA_HOST_CLANG_FLAGS=""
 if [ "$(uname)" == "Darwin" ]; then
   EXTRA_HOST_LD_FLAGS="-dead_strip_dylibs"
 else  # linux for now
-  EXTRA_HOST_LD_FLAGS="--as-needed"
+  EXTRA_HOST_LD_FLAGS="-Wl,--as-needed"
 fi
 
 LINKER_FLAG=""
 OPENCL_LIBRARIES="${PREFIX}/lib/libOpenCL${SHLIB_EXT}"
 
 if [[ "$cxx_compiler" == "gxx" ]]; then
-  EXTRA_HOST_LD_FLAGS="$EXTRA_HOST_LD_FLAGS -L$BUILD_PREFIX/$HOST/sysroot/usr/lib"
+  EXTRA_HOST_LD_FLAGS="$EXTRA_HOST_LD_FLAGS -nodefaultlibs -L$BUILD_PREFIX/$HOST/sysroot/usr/lib"
   EXTRA_HOST_CLANG_FLAGS="-I$BUILD_PREFIX/$HOST/sysroot/usr/include"
 fi
 
