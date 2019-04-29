@@ -9,11 +9,14 @@ if [[ "$cxx_compiler" == "gxx" ]]; then
   EXTRA_HOST_CLANG_FLAGS="-I$BUILD_PREFIX/$HOST/sysroot/usr/include"
 fi
 
+LINK_WITH_LLD_LIBS="yes"
+
 if [[ "$(uname)" == "Darwin" ]]; then
     # avoid linking to libLLVM and libclang in build prefix. These are from the compiler package by anaconda
     rm -rf $BUILD_PREFIX/lib/libLLVM*.a $BUILD_PREFIX/lib/libclang*.a
     rm -rf $BUILD_PREFIX/include/llvm $BUILD_PREFIX/include/llvm-c
     rm -rf $BUILD_PREFIX/include/clang $BUILD_PREFIX/include/clang-c
+    LINK_WITH_LLD_LIBS="no"
 fi
 
 if [[ "$(uname)" == "Darwin" || "$c_compiler" == "toolchain_c" ]]; then
@@ -34,7 +37,7 @@ cmake \
   -D EXTRA_HOST_CLANG_FLAGS="${EXTRA_HOST_CLANG_FLAGS}" \
   -D CMAKE_INSTALL_LIBDIR=lib \
   -D ENABLE_ICD=on \
-  -D LINK_WITH_LLD_LIBS=on \
+  -D LINK_WITH_LLD_LIBS=$LINK_WITH_LLD_LIBS \
   ..
 
 make -j ${CPU_COUNT} VERBOSE=1
