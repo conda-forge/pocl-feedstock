@@ -2,14 +2,6 @@ mkdir build
 cd build
 
 EXTRA_HOST_CLANG_FLAGS=""
-
-if [ "$(uname)" == "Darwin" ]; then
-  EXTRA_HOST_LD_FLAGS="-dead_strip_dylibs"
-else  # linux for now
-  EXTRA_HOST_LD_FLAGS="--as-needed"
-fi
-
-LINKER_FLAG=""
 OPENCL_LIBRARIES="${PREFIX}/lib/libOpenCL${SHLIB_EXT}"
 
 if [[ "$cxx_compiler" == "gxx" ]]; then
@@ -38,7 +30,6 @@ cmake \
   -D INSTALL_OPENCL_HEADERS="off" \
   -D KERNELLIB_HOST_CPU_VARIANTS=distro \
   -D OPENCL_LIBRARIES="${OPENCL_LIBRARIES}" \
-  $LINKER_FLAG \
   -D EXTRA_HOST_LD_FLAGS="${EXTRA_HOST_LD_FLAGS}" \
   -D EXTRA_HOST_CLANG_FLAGS="${EXTRA_HOST_CLANG_FLAGS}" \
   -D CMAKE_INSTALL_LIBDIR=lib \
