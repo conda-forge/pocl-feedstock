@@ -43,6 +43,7 @@ cmake \
   -D EXTRA_HOST_CLANG_FLAGS="${EXTRA_HOST_CLANG_FLAGS}" \
   -D CMAKE_INSTALL_LIBDIR=lib \
   -D ENABLE_ICD=on \
+  -D LINK_WITH_LLD_LIBS=on \
   ..
 
 make -j 8
