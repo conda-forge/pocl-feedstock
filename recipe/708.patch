@@ -1,7 +1,7 @@
 From f00d2c7ae8f59b3fed0309215bc9a19619749550 Mon Sep 17 00:00:00 2001
 From: Isuru Fernando <isuruf@gmail.com>
 Date: Tue, 2 Apr 2019 13:58:20 -0500
-Subject: [PATCH 1/6] Enable pocl relocation
+Subject: [PATCH 1/7] Enable pocl relocation
 
 With ENABLE_POCL_RELOCATION option, no hard coded paths are used in libpocl.so
 making it possible to relocate pocl
@@ -147,7 +147,7 @@ index f0b897f48..5e2a1c1b1 100644
 From 8d3ba35eae2773ab8e7116124c9739e67678ff85 Mon Sep 17 00:00:00 2001
 From: Isuru Fernando <isuruf@gmail.com>
 Date: Wed, 3 Apr 2019 23:28:08 -0500
-Subject: [PATCH 2/6] Remove redundant -lm
+Subject: [PATCH 2/7] Remove redundant -lm
 
 ---
  lib/CL/devices/basic/basic.c  | 2 +-
@@ -184,7 +184,7 @@ index 2ac3da8e4..d991aef0d 100644
 From 82f2c7bb1c436a04f7cd7b00eea17df636d7d6c5 Mon Sep 17 00:00:00 2001
 From: Isuru Fernando <isuruf@gmail.com>
 Date: Wed, 3 Apr 2019 23:30:55 -0500
-Subject: [PATCH 3/6] Don't link to libm if ENABLE_POCL_RELOCATION
+Subject: [PATCH 3/7] Don't link to libm if ENABLE_POCL_RELOCATION
 
 libm.so might not be available after relocation (only libm.so.6)
 Since pocl itself links to libm.so.6, there's no need to link to
@@ -237,7 +237,7 @@ index 14b1534b6..70ddf9b92 100644
 From 5edd2ff61a520b42ee28b066d3b678d1f2716584 Mon Sep 17 00:00:00 2001
 From: Isuru Fernando <isuruf@gmail.com>
 Date: Thu, 4 Apr 2019 00:39:05 -0500
-Subject: [PATCH 4/6] Use LLD libraries
+Subject: [PATCH 4/7] Use LLD libraries
 
 ---
  cmake/LLVM.cmake          | 15 ++++++++++
@@ -430,7 +430,7 @@ index 5e2a1c1b1..3c90450b8 100644
 From f15ec18c127054b6179cd260065ee3d4aac6a218 Mon Sep 17 00:00:00 2001
 From: Isuru Fernando <isuruf@gmail.com>
 Date: Fri, 19 Apr 2019 23:25:53 -0500
-Subject: [PATCH 5/6] Do relative paths unconditionally
+Subject: [PATCH 5/7] Do relative paths unconditionally
 
 Also add an option to use lld optionally
 ---
@@ -584,7 +584,7 @@ index 3c90450b8..6d02ee1ae 100644
 From 5e3d485ddaf52daf8241ede2e34f4ea5f420d580 Mon Sep 17 00:00:00 2001
 From: Isuru Fernando <isuruf@gmail.com>
 Date: Fri, 19 Apr 2019 23:27:41 -0500
-Subject: [PATCH 6/6] Guard lld includes
+Subject: [PATCH 6/7] Guard lld includes
 
 ---
  lib/CL/pocl_llvm_build.cc | 2 ++
@@ -608,3 +608,57 @@ index 6d02ee1ae..5362992d9 100644
  
  #include <iostream>
  #include <sstream>
+
+From 691f7ede07327209b957dc02d8eb990d491b6668 Mon Sep 17 00:00:00 2001
+From: Isuru Fernando <isuruf@gmail.com>
+Date: Mon, 29 Apr 2019 00:42:34 -0500
+Subject: [PATCH 7/7] Fix lld libraries
+
+---
+ cmake/LLVM.cmake          | 13 +++++++++++--
+ lib/CL/pocl_llvm_build.cc |  6 ++++++
+ 2 files changed, 17 insertions(+), 2 deletions(-)
+
+diff --git a/cmake/LLVM.cmake b/cmake/LLVM.cmake
+index 5dd2cb238..bb281e8c3 100644
+--- a/cmake/LLVM.cmake
++++ b/cmake/LLVM.cmake
+@@ -228,10 +228,19 @@ set(CLANG_LIBNAMES clangCodeGen clangFrontendTool clangFrontend clangDriver clan
+     clangStaticAnalyzerCore clangAnalysis clangEdit clangAST clangLex clangBasic)
+ 
+ if (LINK_WITH_LLD_LIBS)
++    if (APPLE)
++        set(LLD_LIBNAMES lldDriver lldMachO lldReaderWriter lldYAML)
++    elseif (MINGW)
++        set(LLD_LIBNAMES lldMinGW)
++    elseif (WIN32)
++        set(LLD_LIBNAMES lldCOFF)
++    else ()
++        set(LLD_LIBNAMES lldELF)
++    endif ()
+     if(LLVM_OLDER_THAN_6_0)
+-        set(LLD_LIBNAMES lldELF lldConfig lldCore ${LLD_LIBNAMES})
++        set(LLD_LIBNAMES ${LLD_LIBNAMES} lldConfig lldCore)
+     else()
+-        set(LLD_LIBNAMES lldELF lldCommon ${LLD_LIBNAMES})
++        set(LLD_LIBNAMES ${LLD_LIBNAMES} lldCommon lldCore)
+     endif()
+     foreach(LIBNAME ${LLD_LIBNAMES})
+       find_library(C_LIBFILE_${LIBNAME} NAMES "${LIBNAME}" HINTS "${LLVM_LIBDIR}")
+diff --git a/lib/CL/pocl_llvm_build.cc b/lib/CL/pocl_llvm_build.cc
+index 5362992d9..e39447105 100644
+--- a/lib/CL/pocl_llvm_build.cc
++++ b/lib/CL/pocl_llvm_build.cc
+@@ -990,6 +990,12 @@ int pocl_invoke_lld(char* const* Args) {
+ #endif
+ #elif defined(__linux__)
+   success = lld::elf::link(ArgsArray, false);
++#elif defined(__MINGW32__)
++#ifdef LLVM_OLDER_THAN_7_0
++  success = lld::mingw::link(ArgsArray);
++#else
++  success = lld::mingw::link(ArgsArray, false);
++#endif
+ #elif defined(_WIN32)
+ #ifdef LLVM_OLDER_THAN_7_0
+   success = lld::coff::link(ArgsArray);
