@@ -37,7 +37,7 @@ cmake \
   -D LINK_WITH_LLD_LIBS=on \
   ..
 
-make -j 8
+make -j ${CPU_COUNT} VERBOSE=1
 # install needs to come first for the pocl.icd to be found
 make install
 make check
