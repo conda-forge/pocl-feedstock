@@ -31,7 +31,7 @@ requirements:
     - llvmdev =={{ llvm_version }}
     - clangdev =={{ llvm_version }}
     # For run_exports
-    - libllvm
+    - llvm
     - libcxx                             # [osx]
   run:
     - ocl-icd                            # [linux]
