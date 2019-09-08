@@ -1,6 +1,13 @@
 mkdir build
 cd build
 
+# Info needed to report in pocl release testing
+if [[ "$target_platform" == linux* ]]; then
+    lscpu || true
+elif [[ "$target_platform" == osx* ]]; then
+    system_profiler SPHardwareDataType || true
+fi
+
 EXTRA_HOST_CLANG_FLAGS=""
 
 if [ "$(uname)" == "Darwin" ]; then
