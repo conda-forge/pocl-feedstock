@@ -1,0 +1,41 @@
+From ddf3a05a316d2c0ae2a82b34fc6977a781829b00 Mon Sep 17 00:00:00 2001
+From: Isuru Fernando <isuruf@gmail.com>
+Date: Sun, 8 Sep 2019 00:55:50 -0500
+Subject: [PATCH] Check for dladdr instead of dlinfo
+
+In OSX, there's no dlinfo and only dladdr. For ENABLE_RELOCATION, only dladdr is needed.
+---
+ CMakeLists.txt | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index cc20174c0..f414ef09f 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -536,9 +536,9 @@ if(UNIX)
+                       HAVE_MKOSTEMPS)
+ 
+   set(CMAKE_REQUIRED_LIBRARIES "dl")
+-  CHECK_SYMBOL_EXISTS("dlinfo"
++  CHECK_SYMBOL_EXISTS("dladdr"
+                       "dlfcn.h"
+-                      HAVE_DLINFO)
++                      HAVE_DLADDR)
+ 
+   unset(CMAKE_REQUIRED_DEFINITIONS)
+   unset(CMAKE_REQUIRED_FLAGS)
+@@ -556,12 +556,12 @@ else()
+   set(HAVE_FORK 0)
+   set(HAVE_VFORK 0)
+   set(HAVE_UTIME 0)
+-  set(HAVE_DLINFO 0)
++  set(HAVE_DLADDR 0)
+ endif()
+ 
+ ######################################################################################
+ 
+-if(UNIX AND OCS_AVAILABLE AND HAVE_DLINFO)
++if(UNIX AND OCS_AVAILABLE AND HAVE_DLADDR)
+     option(ENABLE_RELOCATION "make libpocl relocatable" ON)
+ else()
+     message(STATUS "Relocation not available")
