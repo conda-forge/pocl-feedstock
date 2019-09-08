@@ -45,6 +45,9 @@ cmake \
   -D ENABLE_ICD=on \
   ..
 
+cat CMakeFiles/CMakeOutput.log
+cat CMakeFiles/CMakeError.log
+
 make -j 8
 # install needs to come first for the pocl.icd to be found
 make install
