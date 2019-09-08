@@ -3,7 +3,7 @@ cd build
 
 # Info needed to report in pocl release testing
 if [[ "$target_platform" == linux* ]]; then
-    lscpu || true
+    cat /proc/cpuinfo || true
 elif [[ "$target_platform" == osx* ]]; then
     system_profiler SPHardwareDataType || true
 fi
