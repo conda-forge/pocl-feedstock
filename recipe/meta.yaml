@@ -45,6 +45,7 @@ test:
 
   commands:
     - test -f $PREFIX/lib/libpocl${SHLIB_EXT}     # [unix]
+    - rm $PREFIX/etc/OpenCL/vendors/apple.icd     # [osx]
     - curl -O https://raw.githubusercontent.com/inducer/pyopencl/master/examples/demo.py
     - python demo.py
 
