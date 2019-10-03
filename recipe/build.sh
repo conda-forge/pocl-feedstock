@@ -2,26 +2,21 @@ mkdir build
 cd build
 
 EXTRA_HOST_CLANG_FLAGS=""
-
-if [ "$(uname)" == "Darwin" ]; then
-  EXTRA_HOST_LD_FLAGS="-dead_strip_dylibs"
-else  # linux for now
-  EXTRA_HOST_LD_FLAGS="-Wl,--as-needed"
-fi
-
-LINKER_FLAG=""
 OPENCL_LIBRARIES="${PREFIX}/lib/libOpenCL${SHLIB_EXT}"
 
 if [[ "$cxx_compiler" == "gxx" ]]; then
-  EXTRA_HOST_LD_FLAGS="$EXTRA_HOST_LD_FLAGS -nodefaultlibs -L$BUILD_PREFIX/$HOST/sysroot/usr/lib"
+  EXTRA_HOST_LD_FLAGS="$EXTRA_HOST_LD_FLAGS -L$BUILD_PREFIX/$HOST/sysroot/usr/lib"
   EXTRA_HOST_CLANG_FLAGS="-I$BUILD_PREFIX/$HOST/sysroot/usr/include"
 fi
+
+LINK_WITH_LLD_LIBS="yes"
 
 if [[ "$(uname)" == "Darwin" ]]; then
     # avoid linking to libLLVM and libclang in build prefix. These are from the compiler package by anaconda
     rm -rf $BUILD_PREFIX/lib/libLLVM*.a $BUILD_PREFIX/lib/libclang*.a
     rm -rf $BUILD_PREFIX/include/llvm $BUILD_PREFIX/include/llvm-c
     rm -rf $BUILD_PREFIX/include/clang $BUILD_PREFIX/include/clang-c
+    LINK_WITH_LLD_LIBS="no"
 fi
 
 if [[ "$(uname)" == "Darwin" || "$c_compiler" == "toolchain_c" ]]; then
@@ -38,14 +33,14 @@ cmake \
   -D INSTALL_OPENCL_HEADERS="off" \
   -D KERNELLIB_HOST_CPU_VARIANTS=distro \
   -D OPENCL_LIBRARIES="${OPENCL_LIBRARIES}" \
-  $LINKER_FLAG \
   -D EXTRA_HOST_LD_FLAGS="${EXTRA_HOST_LD_FLAGS}" \
   -D EXTRA_HOST_CLANG_FLAGS="${EXTRA_HOST_CLANG_FLAGS}" \
   -D CMAKE_INSTALL_LIBDIR=lib \
   -D ENABLE_ICD=on \
+  -D LINK_WITH_LLD_LIBS=$LINK_WITH_LLD_LIBS \
   ..
 
-make -j 8
+make -j ${CPU_COUNT} VERBOSE=1
 # install needs to come first for the pocl.icd to be found
 make install
 make check
