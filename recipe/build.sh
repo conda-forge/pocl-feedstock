@@ -1,25 +1,22 @@
 mkdir build
 cd build
 
+# Info needed to report in pocl release testing
+if [[ "$target_platform" == linux* ]]; then
+    cat /proc/cpuinfo || true
+elif [[ "$target_platform" == osx* ]]; then
+    system_profiler SPHardwareDataType || true
+fi
+
 EXTRA_HOST_CLANG_FLAGS=""
 OPENCL_LIBRARIES="${PREFIX}/lib/libOpenCL${SHLIB_EXT}"
 
 if [[ "$cxx_compiler" == "gxx" ]]; then
-  EXTRA_HOST_LD_FLAGS="$EXTRA_HOST_LD_FLAGS -L$BUILD_PREFIX/$HOST/sysroot/usr/lib"
+  EXTRA_HOST_LD_FLAGS="$EXTRA_HOST_LD_FLAGS -nodefaultlibs -L$BUILD_PREFIX/$HOST/sysroot/usr/lib"
   EXTRA_HOST_CLANG_FLAGS="-I$BUILD_PREFIX/$HOST/sysroot/usr/include"
 fi
 
-LINK_WITH_LLD_LIBS="yes"
-
-if [[ "$(uname)" == "Darwin" ]]; then
-    # avoid linking to libLLVM and libclang in build prefix. These are from the compiler package by anaconda
-    rm -rf $BUILD_PREFIX/lib/libLLVM*.a $BUILD_PREFIX/lib/libclang*.a
-    rm -rf $BUILD_PREFIX/include/llvm $BUILD_PREFIX/include/llvm-c
-    rm -rf $BUILD_PREFIX/include/clang $BUILD_PREFIX/include/clang-c
-    LINK_WITH_LLD_LIBS="no"
-fi
-
-if [[ "$(uname)" == "Darwin" || "$c_compiler" == "toolchain_c" ]]; then
+if [[ "$target_platform" == osx* || "$c_compiler" == "toolchain_c" ]]; then
   export CC=$PREFIX/bin/clang
   export CXX=$PREFIX/bin/clang++
 fi
@@ -37,7 +34,6 @@ cmake \
   -D EXTRA_HOST_CLANG_FLAGS="${EXTRA_HOST_CLANG_FLAGS}" \
   -D CMAKE_INSTALL_LIBDIR=lib \
   -D ENABLE_ICD=on \
-  -D LINK_WITH_LLD_LIBS=$LINK_WITH_LLD_LIBS \
   ..
 
 make -j ${CPU_COUNT} VERBOSE=1
@@ -46,6 +42,6 @@ make install
 make check
 
 # For backwards compatibility
-if [[ "$(uname)" == "Darwin" ]]; then
+if [[ "$target_platform" == osx* ]]; then
     ln -s $PREFIX/lib/libpocl.dylib $PREFIX/lib/libOpenCL.2.dylib
 fi
