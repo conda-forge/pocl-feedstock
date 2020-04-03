@@ -1,7 +1,7 @@
 {% set name = "pocl" %}
-{% set version = "1.4" %}
+{% set version = "1.5" %}
 {% set build_number = 0 %}
-{% set sha256 = "ec237faa83bb1c803fbdf7c6e83d8a2ad68b6f0ed1879c3aa16c0e1dcc478742" %}
+{% set sha256 = "4fcf4618171727d165fc044d465a66e3119217bb4577a97374f94fcd8aed330e" %}
 {% set llvm_version = "6.0.1" %}
 
 package:
@@ -16,8 +16,8 @@ source:
 
 build:
   number: {{ build_number }}
-  skip: True  # [win]
-  merge_build_host: True   # [cxx_compiler=='gxx']
+  skip: true  # [win]
+  merge_build_host: true  # [cxx_compiler=='gxx']
 
 requirements:
   build:
@@ -54,7 +54,7 @@ about:
   home: http://portablecl.org/
   license: MIT
   license_file: LICENSE
-  summary: 'Portable Computing Language -- a CPU OpenCL implementation'
+  summary: Portable Computing Language -- a CPU OpenCL implementation
   dev_url: https://github.com/pocl/pocl
 
 extra:
