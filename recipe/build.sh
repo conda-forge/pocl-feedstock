@@ -16,6 +16,10 @@ if [[ "$cxx_compiler" == "gxx" ]]; then
   EXTRA_HOST_CLANG_FLAGS="-I$BUILD_PREFIX/$HOST/sysroot/usr/include"
 fi
 
+if [[ "$target_platform" == osx* ]]; then
+  export SDKROOT=$CONDA_BUILD_SYSROOT
+fi
+
 cmake \
   -D CMAKE_BUILD_TYPE="Release" \
   -D CMAKE_INSTALL_PREFIX="${PREFIX}" \
