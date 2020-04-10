@@ -38,6 +38,7 @@ cmake \
 make -j ${CPU_COUNT} VERBOSE=1
 # install needs to come first for the pocl.icd to be found
 make install
+echo "$PREFIX/lib/libpocl$SHLIB_EXT" > ${PREFIX}/etc/OpenCL/vendors/pocl.icd
 make check
 
 # For backwards compatibility
