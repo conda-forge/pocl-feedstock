@@ -18,6 +18,8 @@ fi
 
 if [[ "$target_platform" == osx* ]]; then
   export SDKROOT=$CONDA_BUILD_SYSROOT
+  export CC=$PREFIX/bin/clang
+  export CXX=$PREFIX/bin/clang++
 fi
 
 cmake \
