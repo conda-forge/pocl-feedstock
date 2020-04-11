@@ -43,12 +43,9 @@ make -j ${CPU_COUNT} VERBOSE=1
 # install needs to come first for the pocl.icd to be found
 make install
 
+# Workaround for https://github.com/KhronosGroup/OpenCL-ICD-Loader/issues/104
+sed -i.bak "s@ocl-vendors@ocl-vendors/@g" CTestCustom.cmake
 
-if [[ "$target_platform" == osx* ]]; then
-  python -c "import ctypes;ctypes.CDLL(\"$PREFIX/lib/libpocl$SHLIB_EXT\");"
-fi
-
-echo "$PREFIX/lib/libpocl$SHLIB_EXT" > ${PREFIX}/etc/OpenCL/vendors/pocl.icd
 make check
 
 # For backwards compatibility
