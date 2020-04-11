@@ -16,6 +16,8 @@ if [[ "$cxx_compiler" == "gxx" ]]; then
   EXTRA_HOST_CLANG_FLAGS="-I$BUILD_PREFIX/$HOST/sysroot/usr/include"
 fi
 
+EXTRA_HOST_LD_FLAGS="$EXTRA_HOST_LD_FLAGS -Wl,-rpath,$PREFIX/lib"
+
 if [[ "$target_platform" == osx* ]]; then
   export SDKROOT=$CONDA_BUILD_SYSROOT
   export CC=$PREFIX/bin/clang
