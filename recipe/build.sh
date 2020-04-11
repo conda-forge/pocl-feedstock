@@ -16,8 +16,6 @@ if [[ "$cxx_compiler" == "gxx" ]]; then
   EXTRA_HOST_CLANG_FLAGS="-I$BUILD_PREFIX/$HOST/sysroot/usr/include"
 fi
 
-EXTRA_HOST_LD_FLAGS="$EXTRA_HOST_LD_FLAGS -Wl,-rpath,$PREFIX/lib"
-
 if [[ "$target_platform" == osx* ]]; then
   export SDKROOT=$CONDA_BUILD_SYSROOT
   export CC=$PREFIX/bin/clang
@@ -44,6 +42,12 @@ cmake \
 make -j ${CPU_COUNT} VERBOSE=1
 # install needs to come first for the pocl.icd to be found
 make install
+
+
+if [[ "$target_platform" == osx* ]]; then
+  python -c "import ctypes;ctypes.CDLL(\"$PREFIX/lib/libpocl$SHLIB_EXT\");"
+fi
+
 echo "$PREFIX/lib/libpocl$SHLIB_EXT" > ${PREFIX}/etc/OpenCL/vendors/pocl.icd
 make check
 
