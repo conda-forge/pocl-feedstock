@@ -16,10 +16,13 @@ if [[ "$cxx_compiler" == "gxx" ]]; then
   EXTRA_HOST_CLANG_FLAGS="-I$BUILD_PREFIX/$HOST/sysroot/usr/include"
 fi
 
-if [[ "$target_platform" == osx* || "$c_compiler" == "toolchain_c" ]]; then
+if [[ "$target_platform" == osx* ]]; then
+  export SDKROOT=$CONDA_BUILD_SYSROOT
   export CC=$PREFIX/bin/clang
   export CXX=$PREFIX/bin/clang++
 fi
+
+export OCL_ICD_DEBUG=15
 
 cmake \
   -D CMAKE_BUILD_TYPE="Release" \
@@ -39,6 +42,10 @@ cmake \
 make -j ${CPU_COUNT} VERBOSE=1
 # install needs to come first for the pocl.icd to be found
 make install
+
+# Workaround for https://github.com/KhronosGroup/OpenCL-ICD-Loader/issues/104
+sed -i.bak "s@ocl-vendors@ocl-vendors/@g" CTestCustom.cmake
+
 make check
 
 # For backwards compatibility
