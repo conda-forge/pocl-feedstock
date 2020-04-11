@@ -22,6 +22,8 @@ if [[ "$target_platform" == osx* ]]; then
   export CXX=$PREFIX/bin/clang++
 fi
 
+export OCL_ICD_DEBUG=15
+
 cmake \
   -D CMAKE_BUILD_TYPE="Release" \
   -D CMAKE_INSTALL_PREFIX="${PREFIX}" \
