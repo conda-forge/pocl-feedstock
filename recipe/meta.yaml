@@ -32,7 +32,7 @@ requirements:
     - llvmdev =={{ llvm_version }}
     - clangdev =={{ llvm_version }}
     - lld =={{ llvm_version }}
-    - libcxx                             # [osx]
+    - zlib                               # [osx]
   run:
     - ocl-icd                            # [linux]
     - khronos-opencl-icd-loader          # [osx]
