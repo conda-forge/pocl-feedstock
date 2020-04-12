@@ -10,6 +10,8 @@ cxx_compiler_version:
 - '8'
 docker_image:
 - condaforge/linux-anvil-ppc64le
+libhwloc:
+- '1'
 pin_run_as_build:
   curl:
     max_pin: x
