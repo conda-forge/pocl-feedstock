@@ -41,14 +41,14 @@ requirements:
 
 test:
   requires:
-    - pyopencl
-    - curl
+    - pyopencl  # [x86_64]
+    - curl  # [x86_64]
   commands:
     - test -f $PREFIX/lib/libpocl${SHLIB_EXT}     # [unix]
     # Remove apple icd so that only pocl is found
     - rm $PREFIX/etc/OpenCL/vendors/apple.icd     # [osx]
-    - curl -O https://raw.githubusercontent.com/inducer/pyopencl/master/examples/demo.py
-    - python demo.py
+    - curl -O https://raw.githubusercontent.com/inducer/pyopencl/master/examples/demo.py  # [x86_64]
+    - python demo.py  # [x86_64]
 
 about:
   home: http://portablecl.org/
