@@ -22,6 +22,7 @@ build:
 requirements:
   build:
     - cmake
+    - make
     - pkg-config
     - {{ compiler('cxx') }}
   host:
