@@ -27,9 +27,10 @@ if [[ "$target_platform" == osx* ]]; then
 fi
 
 if [[ "$target_platform" == linux-aarch64 ]]; then
-  KERNELLIB_HOST_CPU_VARIANTS="-DKERNELLIB_HOST_CPU_VARIANTS='tsv110;generic;thunderx;saphira;cortex-a35;cortex-a53;cyclone;falkor;kryo'"
+  EXTRA_CMAKE_ARGS="-DKERNELLIB_HOST_CPU_VARIANTS='tsv110;generic;thunderx;saphira;cortex-a35;cortex-a53;cyclone;falkor;kryo' -DLLC_HOST_CPU=cortex-a35"
+  lscpu
 elif [[ "$target_platform" == linux-ppc64le ]]; then
-  KERNELLIB_HOST_CPU_VARIANTS="-DKERNELLIB_HOST_CPU_VARIANTS='pwr8;pwr9;generic'"
+  EXTRA_CMAKE_ARGS="-DKERNELLIB_HOST_CPU_VARIANTS='pwr8;pwr9;generic'"
 fi
 
 export OCL_ICD_DEBUG=15
@@ -47,7 +48,7 @@ cmake \
   -D EXTRA_HOST_CLANG_FLAGS="${EXTRA_HOST_CLANG_FLAGS}" \
   -D CMAKE_INSTALL_LIBDIR=lib \
   -D ENABLE_ICD=on \
-  ${KERNELLIB_HOST_CPU_VARIANTS} \
+  ${EXTRA_CMAKE_ARGS} \
   ..
 
 make -j ${CPU_COUNT} VERBOSE=1
