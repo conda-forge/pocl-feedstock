@@ -1,5 +1,6 @@
 if [[ "$target_platform" == linux* ]]; then
   sed -i 's/add_subdirectory("matrix1")//g' examples/CMakeLists.txt
+  sed -i 's/"-lm",//g' lib/CL/devices/basic/basic.c
 fi
 
 mkdir build
