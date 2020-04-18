@@ -1,6 +1,6 @@
 if [[ "$target_platform" == linux-ppc64le ]]; then
   find . -type f -not -name "conda_build.sh" -print0 | xargs -0 sed -i'' -e 's/-std=c++11/-std=gnu++11/g'
-  find $PREFIX/lib/cmake/llvm/HandleLLVMOptions.cmake -type f -print0 | xargs -0 sed -i'' -e 's/\"c++11\"/\"gnu++11\"/g'
+  find $PREFIX/lib/cmake/llvm/ -type f -print0 | xargs -0 sed -i'' -e 's/c++11/gnu++11/g'
 fi
 
 mkdir build
@@ -28,10 +28,10 @@ if [[ "$target_platform" == osx* ]]; then
 fi
 
 if [[ "$target_platform" == linux-aarch64 ]]; then
-  EXTRA_CMAKE_ARGS="-DKERNELLIB_HOST_CPU_VARIANTS='generic;thunderx;saphira;cortex-a35;cortex-a53;cyclone;falkor;kryo' -DLLC_HOST_CPU=cortex-a35"
+  EXTRA_CMAKE_ARGS="-DKERNELLIB_HOST_CPU_VARIANTS='generic;thunderx;saphira;cortex-a35;cortex-a53;cyclone;falkor;kryo' -DLLC_HOST_CPU=cortex-a35 -DCLANG_MARCH_FLAG='-mcpu='"
   lscpu
 elif [[ "$target_platform" == linux-ppc64le ]]; then
-  EXTRA_CMAKE_ARGS="-DKERNELLIB_HOST_CPU_VARIANTS='pwr8;pwr9;generic'"
+  EXTRA_CMAKE_ARGS="-DKERNELLIB_HOST_CPU_VARIANTS='pwr8;pwr9;generic' -DCLANG_MARCH_FLAG='-mcpu='"
 fi
 
 export OCL_ICD_DEBUG=15
