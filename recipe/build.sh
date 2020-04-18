@@ -1,3 +1,11 @@
+if [[ "$target_platform" == linux-ppc64le ]]; then
+  find tests -type f -print0 | xargs -0 sed -i'' -e 's/-std=c++11/-std=gnu++11/g'
+  echo 'set(LLVM_CXXFLAGS "${LLVM_CXXFLAGS} -std=gnu++11")' >> cmake/LLVM.cmake
+  echo 'set(LLVM_CFLAGS "${LLVM_CFLAGS} -std=gnu11")' >> cmake/LLVM.cmake
+  export CXXFLAGS="$CXXFLAGS -std=gnu++11"
+  export CFLAGS="$CFLAGS -std=gnu11"
+fi
+
 mkdir build
 cd build
 
@@ -29,8 +37,6 @@ if [[ "$target_platform" == linux-aarch64 ]]; then
   EXTRA_CMAKE_ARGS="-DKERNELLIB_HOST_CPU_VARIANTS='${AARCH64_CPUS}' -DLLC_HOST_CPU=cortex-a35 -DCLANG_MARCH_FLAG='-mcpu='"
 elif [[ "$target_platform" == linux-ppc64le ]]; then
   EXTRA_CMAKE_ARGS="-DKERNELLIB_HOST_CPU_VARIANTS='pwr8;pwr9;generic' -DCLANG_MARCH_FLAG='-mcpu='"
-  export CXXFLAGS="$CXXFLAGS -std=gnu++11"
-  export CFLAGS="$CFLAGS -std=gnu11"
 fi
 
 export OCL_ICD_DEBUG=15
