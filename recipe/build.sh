@@ -1,5 +1,6 @@
 if [[ "$target_platform" == linux-ppc64le ]]; then
   find . -type f -not -name "conda_build.sh" -print0 | xargs -0 sed -i'' -e 's/-std=c++11/-std=gnu++11/g'
+  find $PREFIX/lib/cmake/llvm/HandleLLVMOptions.cmake -type f -print0 | xargs -0 sed -i'' -e 's/\"c++11\"/\"gnu++11\"/g'
 fi
 
 mkdir build
