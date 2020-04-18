@@ -1,7 +1,7 @@
 {% set name = "pocl" %}
-{% set version = "1.4" %}
-{% set build_number = 1 %}
-{% set sha256 = "ec237faa83bb1c803fbdf7c6e83d8a2ad68b6f0ed1879c3aa16c0e1dcc478742" %}
+{% set version = "1.5" %}
+{% set build_number = 0 %}
+{% set sha256 = "4fcf4618171727d165fc044d465a66e3119217bb4577a97374f94fcd8aed330e" %}
 {% set llvm_version = "6.0.1" %}
 
 package:
@@ -11,13 +11,15 @@ package:
 source:
   - url: https://github.com/{{ name }}/{{ name }}/archive/v{{ version }}.tar.gz
     sha256: {{ sha256 }}
+    patches:
+      - gh814.patch
   #- git_url: https://github.com/pocl/pocl.git
   #  git_rev: v1.3-RC3
 
 build:
   number: {{ build_number }}
-  skip: True  # [win]
-  merge_build_host: True   # [cxx_compiler=='gxx']
+  skip: true  # [win]
+  merge_build_host: true  # [cxx_compiler=='gxx']
 
 requirements:
   build:
@@ -48,6 +50,7 @@ test:
     - test -f $PREFIX/lib/libpocl${SHLIB_EXT}     # [unix]
     # Remove apple icd so that only pocl is found
     - rm $PREFIX/etc/OpenCL/vendors/apple.icd     # [osx]
+    - export OCL_ICD_DEBUG=15                     # [linux]
     - curl -O https://raw.githubusercontent.com/inducer/pyopencl/master/examples/demo.py  # [x86_64]
     - python demo.py  # [x86_64]
 
@@ -55,7 +58,7 @@ about:
   home: http://portablecl.org/
   license: MIT
   license_file: LICENSE
-  summary: 'Portable Computing Language -- a CPU OpenCL implementation'
+  summary: Portable Computing Language -- a CPU OpenCL implementation
   dev_url: https://github.com/pocl/pocl
 
 extra:

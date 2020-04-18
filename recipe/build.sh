@@ -1,9 +1,6 @@
-if [[ "$target_platform" == linux-ppc64le ]]; then
-  find tests -type f -print0 | xargs -0 sed -i'' -e 's/-std=c++11/-std=gnu++11/g'
-  echo 'set(LLVM_CXXFLAGS "${LLVM_CXXFLAGS} -std=gnu++11")' >> cmake/LLVM.cmake
-  echo 'set(LLVM_CFLAGS "${LLVM_CFLAGS} -std=gnu11")' >> cmake/LLVM.cmake
-  export CXXFLAGS="$CXXFLAGS -std=gnu++11"
-  export CFLAGS="$CFLAGS -std=gnu11"
+if [[ "$target_platform" == linux* ]]; then
+  sed -i 's/add_subdirectory("matrix1")//g' examples/CMakeLists.txt
+  sed -i 's/"-lm",//g' lib/CL/devices/basic/basic.c
 fi
 
 mkdir build
