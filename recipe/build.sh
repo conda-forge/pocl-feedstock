@@ -28,7 +28,7 @@ if [[ "$target_platform" == osx* ]]; then
 fi
 
 if [[ "$target_platform" == linux-aarch64 ]]; then
-  EXTRA_CMAKE_ARGS="-DKERNELLIB_HOST_CPU_VARIANTS='tsv110;generic;thunderx;saphira;cortex-a35;cortex-a53;cyclone;falkor;kryo' -DLLC_HOST_CPU=cortex-a35"
+  EXTRA_CMAKE_ARGS="-DKERNELLIB_HOST_CPU_VARIANTS='generic;thunderx;saphira;cortex-a35;cortex-a53;cyclone;falkor;kryo' -DLLC_HOST_CPU=cortex-a35"
   lscpu
 elif [[ "$target_platform" == linux-ppc64le ]]; then
   EXTRA_CMAKE_ARGS="-DKERNELLIB_HOST_CPU_VARIANTS='pwr8;pwr9;generic'"
