@@ -1,8 +1,3 @@
-if [[ "$target_platform" == linux-ppc64le ]]; then
-  find . -type f -not -name "conda_build.sh" -print0 | xargs -0 sed -i'' -e 's/-std=c++11/-std=gnu++11/g'
-  find $PREFIX/lib/cmake/llvm/ -type f -print0 | xargs -0 sed -i'' -e 's/c++11/gnu++11/g'
-fi
-
 mkdir build
 cd build
 
@@ -27,28 +22,6 @@ if [[ "$target_platform" == osx* ]]; then
   export CXX=$PREFIX/bin/clang++
 fi
 
-  cortex-a35   - Select the cortex-a35 processor.
-  cortex-a53   - Select the cortex-a53 processor.
-  cortex-a55   - Select the cortex-a55 processor.
-  cortex-a57   - Select the cortex-a57 processor.
-  cortex-a72   - Select the cortex-a72 processor.
-  cortex-a73   - Select the cortex-a73 processor.
-  cortex-a75   - Select the cortex-a75 processor.
-  cyclone      - Select the cyclone processor.
-  exynos-m1    - Select the exynos-m1 processor.
-  exynos-m2    - Select the exynos-m2 processor.
-  exynos-m3    - Select the exynos-m3 processor.
-  falkor       - Select the falkor processor.
-  generic      - Select the generic processor.
-  kryo         - Select the kryo processor.
-  saphira      - Select the saphira processor.
-  thunderx     - Select the thunderx processor.
-  thunderx2t99 - Select the thunderx2t99 processor.
-  thunderxt81  - Select the thunderxt81 processor.
-  thunderxt83  - Select the thunderxt83 processor.
-  thunderxt88  - Select the thunderxt88 processor.
-
-
 if [[ "$target_platform" == linux-aarch64 ]]; then
   AARCH64_CPUS="generic;cortex-a35;cortex-a53;cortex-a55;cortex-a57;cortex-a72;cortex-a73;cortex-a75"
   AARCH64_CPUS="${AARCH64_CPUS};cyclone;exynos-m1;exynos-m2;exynos-m3;falkor;kryo;saphira"
@@ -56,6 +29,8 @@ if [[ "$target_platform" == linux-aarch64 ]]; then
   EXTRA_CMAKE_ARGS="-DKERNELLIB_HOST_CPU_VARIANTS='${AARCH64_CPUS}' -DLLC_HOST_CPU=cortex-a35 -DCLANG_MARCH_FLAG='-mcpu='"
 elif [[ "$target_platform" == linux-ppc64le ]]; then
   EXTRA_CMAKE_ARGS="-DKERNELLIB_HOST_CPU_VARIANTS='pwr8;pwr9;generic' -DCLANG_MARCH_FLAG='-mcpu='"
+  export CXXFLAGS="$CXXFLAGS -std=gnu++11"
+  export CFLAGS="$CFLAGS -std=gnu11"
 fi
 
 export OCL_ICD_DEBUG=15
