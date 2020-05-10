@@ -36,7 +36,7 @@ elif [[ "$target_platform" == linux-ppc64le ]]; then
   EXTRA_CMAKE_ARGS="-DKERNELLIB_HOST_CPU_VARIANTS='pwr8;pwr9;generic' -DCLANG_MARCH_FLAG='-mcpu='"
 fi
 
-export OCL_ICD_DEBUG=15
+#export OCL_ICD_DEBUG=7
 
 cmake \
   -D CMAKE_BUILD_TYPE="Release" \
