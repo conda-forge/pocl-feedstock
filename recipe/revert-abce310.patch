@@ -1,0 +1,123 @@
+diff --git a/lib/CL/pocl_llvm_build.cc b/lib/CL/pocl_llvm_build.cc
+index 6b5c8168..69aa0e89 100644
+--- a/lib/CL/pocl_llvm_build.cc
++++ b/lib/CL/pocl_llvm_build.cc
+@@ -431,8 +431,13 @@ int pocl_llvm_build_program(cl_program program,
+ 
+   la->setStackProtector(LangOptions::StackProtectorMode::SSPOff);
+ 
++#ifdef LLVM_OLDER_THAN_3_9
++  la->PICLevel = PICLevel::Large;
++  la->PIELevel = PICLevel::Large;
++#else
+   la->PICLevel = PICLevel::BigPIC;
+-  la->PIE = 1;
++  la->PIE = 0;
++#endif
+ 
+   std::string IncludeRoot;
+   std::string KernelH;
+@@ -571,10 +576,10 @@ int pocl_llvm_build_program(cl_program program,
+ 
+   ++numberOfIRs;
+ 
+-  if ((*mod)->getModuleFlag("PIC Level") == nullptr)
+-    (*mod)->setPICLevel(PICLevel::BigPIC);
+-  if ((*mod)->getModuleFlag("PIE Level") == nullptr)
+-    (*mod)->setPIELevel(PIELevel::Large);
++#ifdef LLVM_OLDER_THAN_3_9
++  (*mod)->setPICLevel(PICLevel::Large);
++#endif
++
+ 
+   // link w kernel lib, but not if we're called from clCompileProgram()
+   // Later this should be replaced with indexed linking of source code
+@@ -666,10 +671,9 @@ int pocl_llvm_link_program(cl_program program, unsigned device_i,
+      */
+     linked_module->setTargetTriple(libmodule->getTargetTriple());
+     linked_module->setDataLayout(libmodule->getDataLayout());
+-    if (linked_module->getModuleFlag("PIC Level") == nullptr)
+-      linked_module->setPICLevel(PICLevel::BigPIC);
+-    if (linked_module->getModuleFlag("PIE Level") == nullptr)
+-      linked_module->setPIELevel(PIELevel::Large);
++#ifdef LLVM_OLDER_THAN_3_9
++    linked_module->setPICLevel(PICLevel::Large);
++#endif
+ 
+ #else
+     POCL_MSG_ERR("SPIR not supported\n");
+diff --git a/lib/kernel/errol/itoa_c.h b/lib/kernel/errol/itoa_c.h
+index f77dcd6a..6a164faf 100644
+--- a/lib/kernel/errol/itoa_c.h
++++ b/lib/kernel/errol/itoa_c.h
+@@ -18,8 +18,8 @@
+ #ifndef ITOA_C_H
+ #define ITOA_C_H
+ 
+-static const char cDigitsLut[200]
+-    = { '0', '0', '0', '1', '0', '2', '0', '3', '0', '4', '0', '5', '0', '6',
++const char cDigitsLut[200] = {
++        '0', '0', '0', '1', '0', '2', '0', '3', '0', '4', '0', '5', '0', '6',
+         '0', '7', '0', '8', '0', '9', '1', '0', '1', '1', '1', '2', '1', '3',
+         '1', '4', '1', '5', '1', '6', '1', '7', '1', '8', '1', '9', '2', '0',
+         '2', '1', '2', '2', '2', '3', '2', '4', '2', '5', '2', '6', '2', '7',
+@@ -33,7 +33,8 @@ static const char cDigitsLut[200]
+         '7', '7', '7', '8', '7', '9', '8', '0', '8', '1', '8', '2', '8', '3',
+         '8', '4', '8', '5', '8', '6', '8', '7', '8', '8', '8', '9', '9', '0',
+         '9', '1', '9', '2', '9', '3', '9', '4', '9', '5', '9', '6', '9', '7',
+-        '9', '8', '9', '9' };
++        '9', '8', '9', '9'
++};
+ 
+ static inline char *u32toa(cl_int value, char *buffer)
+ {
+diff --git a/lib/kernel/errol/lookup.h b/lib/kernel/errol/lookup.h
+index 77758d65..82ec8ed9 100644
+--- a/lib/kernel/errol/lookup.h
++++ b/lib/kernel/errol/lookup.h
+@@ -1,5 +1,5 @@
+ #define LOOKUP_TABLE_LEN (sizeof(lookup_table) / (2 * sizeof(double)))
+-static const struct hp_t lookup_table[] = {
++const struct hp_t lookup_table[] = {
+        { 1.000000e+308,        -1.097906362944045488e+291 },
+        { 1.000000e+307,        1.396894023974354241e+290 },
+        { 1.000000e+306,        -1.721606459673645508e+289 },
+* Unmerged path lib/kernel/printf.c
+diff --git a/lib/llvmopencl/linker.cpp b/lib/llvmopencl/linker.cpp
+index ea7138fa..b5e24bca 100644
+--- a/lib/llvmopencl/linker.cpp
++++ b/lib/llvmopencl/linker.cpp
+@@ -39,7 +39,6 @@ IGNORE_COMPILER_WARNING("-Wunused-parameter")
+ #include "llvm/IR/Function.h"
+ #include "llvm/IR/Instructions.h"
+ #include "llvm/IR/Module.h"
+-#include "llvm/IR/GlobalValue.h"
+ #include "llvm/Transforms/Utils/Cloning.h"
+ #include "llvm/Transforms/Utils/ValueMapper.h"
+ #include "pocl_cl.h"
+@@ -284,7 +283,6 @@ stringref_equal(llvm::StringRef a, llvm::StringRef b)
+ {
+     return a.equals(b);
+ }
+-
+ static inline bool
+ stringref_cmp(llvm::StringRef a, llvm::StringRef b)
+ {
+@@ -383,17 +381,6 @@ int link(llvm::Module *program, const llvm::Module *lib, std::string &log) {
+   declared.sort(stringref_cmp);
+   declared.unique(stringref_equal);
+ 
+-  // some global variables can have external linkage. Set it to private
+-  // otherwise these end up in ELF relocation tables and cause link
+-  // failures when linking with -fPIC/PIE
+-  llvm::Module::global_iterator gi1, ge1;
+-  for (gi1 = program->global_begin(), ge1 = program->global_end(); gi1 != ge1;
+-       gi1++) {
+-    GlobalValue::LinkageTypes linkage = gi1->getLinkage();
+-    if (linkage == GlobalValue::LinkageTypes::ExternalLinkage)
+-      gi1->setLinkage(GlobalValue::LinkageTypes::PrivateLinkage);
+-  }
+-
+   // Copy all the globals from lib to program.
+   // It probably is faster to just copy them all, than to inspect
+   // both program and lib to find which actually are used.
