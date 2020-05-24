@@ -83,7 +83,7 @@ fi
 
 export POCL_DEVICES=pthread
 
-ctest -R "not ($SKIP_TESTS)"
+ctest -E "$SKIP_TESTS"
 
 # Can't run cuda tests without a GPU
 # if [[ "$enable_cuda" == "True" ]]; then
