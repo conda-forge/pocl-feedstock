@@ -1,0 +1,631 @@
+From 2cb3dd9b10ab942b9b728398866327ab27b22651 Mon Sep 17 00:00:00 2001
+From: Isuru Fernando <isuruf@gmail.com>
+Date: Wed, 13 May 2020 09:32:22 -0500
+Subject: [PATCH 1/5] Turn off automatic conversion of locals to args in CUDA
+
+Turning it on prevents optimization opportunities.
+---
+ lib/CL/devices/cuda/pocl-cuda.c | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/lib/CL/devices/cuda/pocl-cuda.c b/lib/CL/devices/cuda/pocl-cuda.c
+index 16b6dc9e4..325ef42ed 100644
+--- a/lib/CL/devices/cuda/pocl-cuda.c
++++ b/lib/CL/devices/cuda/pocl-cuda.c
+@@ -191,6 +191,8 @@ pocl_cuda_init (unsigned j, cl_device_id dev, const char *parameters)
+   /* TODO: Get images working */
+   dev->image_support = CL_FALSE;
+ 
++  dev->autolocals_to_args = CL_FALSE;
++
+   dev->has_64bit_long = 1;
+ 
+   pocl_cuda_device_data_t *data = calloc (1, sizeof (pocl_cuda_device_data_t));
+
+From ad946ca2e0ebf7f34a5eabd230a628b15bd024ee Mon Sep 17 00:00:00 2001
+From: Isuru Fernando <isuruf@gmail.com>
+Date: Wed, 13 May 2020 16:18:24 -0500
+Subject: [PATCH 2/5] Use constant offset for automatic locals
+
+---
+ lib/CL/devices/cuda/pocl-cuda-types.h | 80 ++++++++++++++++++++++++
+ lib/CL/devices/cuda/pocl-cuda.c       | 71 +++------------------
+ lib/CL/devices/cuda/pocl-ptx-gen.cc   | 89 ++++++++++++++++++++++-----
+ lib/CL/devices/cuda/pocl-ptx-gen.h    |  2 +
+ 4 files changed, 162 insertions(+), 80 deletions(-)
+ create mode 100644 lib/CL/devices/cuda/pocl-cuda-types.h
+
+diff --git a/lib/CL/devices/cuda/pocl-cuda-types.h b/lib/CL/devices/cuda/pocl-cuda-types.h
+new file mode 100644
+index 000000000..ee72a8cde
+--- /dev/null
++++ b/lib/CL/devices/cuda/pocl-cuda-types.h
+@@ -0,0 +1,80 @@
++/* pocl-cuda.c - driver for CUDA devices
++
++   Copyright (c) 2016-2017 James Price / University of Bristol
++
++   Permission is hereby granted, free of charge, to any person obtaining a copy
++   of this software and associated documentation files (the "Software"), to
++   deal
++   in the Software without restriction, including without limitation the rights
++   to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
++   copies of the Software, and to permit persons to whom the Software is
++   furnished to do so, subject to the following conditions:
++
++   The above copyright notice and this permission notice shall be included in
++   all copies or substantial portions of the Software.
++
++   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
++   IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
++   FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
++   AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
++   LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
++   FROM,
++   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
++   THE SOFTWARE.
++*/
++
++#include "config.h"
++
++#include "common.h"
++#include "pocl.h"
++#include "pocl_util.h"
++
++#include <cuda.h>
++
++#ifndef PATH_MAX
++#define PATH_MAX 4096
++#endif
++
++typedef struct pocl_cuda_device_data_s
++{
++  CUdevice device;
++  CUcontext context;
++  CUevent epoch_event;
++  cl_ulong epoch;
++  char libdevice[PATH_MAX];
++  pocl_lock_t compile_lock;
++} pocl_cuda_device_data_t;
++
++typedef struct pocl_cuda_queue_data_s
++{
++  CUstream stream;
++  int use_threads;
++  pthread_t submit_thread;
++  pthread_t finalize_thread;
++  pthread_mutex_t lock;
++  pthread_cond_t pending_cond;
++  pthread_cond_t running_cond;
++  _cl_command_node *volatile pending_queue;
++  _cl_command_node *volatile running_queue;
++  cl_command_queue queue;
++} pocl_cuda_queue_data_t;
++
++typedef struct pocl_cuda_kernel_data_s
++{
++  CUmodule module;
++  CUmodule module_offsets;
++  CUfunction kernel;
++  CUfunction kernel_offsets;
++  size_t *alignments;
++  size_t auto_local_offset;
++} pocl_cuda_kernel_data_t;
++
++typedef struct pocl_cuda_event_data_s
++{
++  CUevent start;
++  CUevent end;
++  volatile int events_ready;
++  cl_int *ext_event_flag;
++  volatile unsigned num_ext_events;
++} pocl_cuda_event_data_t;
++
+diff --git a/lib/CL/devices/cuda/pocl-cuda.c b/lib/CL/devices/cuda/pocl-cuda.c
+index 325ef42ed..93628b231 100644
+--- a/lib/CL/devices/cuda/pocl-cuda.c
++++ b/lib/CL/devices/cuda/pocl-cuda.c
+@@ -42,48 +42,6 @@
+ 
+ #include <cuda.h>
+ 
+-typedef struct pocl_cuda_device_data_s
+-{
+-  CUdevice device;
+-  CUcontext context;
+-  CUevent epoch_event;
+-  cl_ulong epoch;
+-  char libdevice[PATH_MAX];
+-  pocl_lock_t compile_lock;
+-} pocl_cuda_device_data_t;
+-
+-typedef struct pocl_cuda_queue_data_s
+-{
+-  CUstream stream;
+-  int use_threads;
+-  pthread_t submit_thread;
+-  pthread_t finalize_thread;
+-  pthread_mutex_t lock;
+-  pthread_cond_t pending_cond;
+-  pthread_cond_t running_cond;
+-  _cl_command_node *volatile pending_queue;
+-  _cl_command_node *volatile running_queue;
+-  cl_command_queue queue;
+-} pocl_cuda_queue_data_t;
+-
+-typedef struct pocl_cuda_kernel_data_s
+-{
+-  CUmodule module;
+-  CUmodule module_offsets;
+-  CUfunction kernel;
+-  CUfunction kernel_offsets;
+-  size_t *alignments;
+-} pocl_cuda_kernel_data_t;
+-
+-typedef struct pocl_cuda_event_data_s
+-{
+-  CUevent start;
+-  CUevent end;
+-  volatile int events_ready;
+-  cl_int *ext_event_flag;
+-  volatile unsigned num_ext_events;
+-} pocl_cuda_event_data_t;
+-
+ extern unsigned int pocl_num_devices;
+ 
+ void *pocl_cuda_submit_thread (void *);
+@@ -806,7 +764,7 @@ load_or_generate_kernel (cl_kernel kernel, cl_device_id device,
+   if (!pocl_exists (ptx_filename))
+     {
+       /* Generate PTX from LLVM bitcode */
+-      if (pocl_ptx_gen (bc_filename, ptx_filename, kernel->name,
++      if (pocl_ptx_gen (bc_filename, ptx_filename, kdata, kernel->name,
+                         device->llvm_cpu,
+                         ((pocl_cuda_device_data_t *)device->data)->libdevice,
+                         has_offsets))
+@@ -828,7 +786,7 @@ load_or_generate_kernel (cl_kernel kernel, cl_device_id device,
+   if (!kdata->alignments)
+     {
+       kdata->alignments
+-          = calloc (meta->num_args + meta->num_locals + 4, sizeof (size_t));
++          = calloc (meta->num_args + 4, sizeof (size_t));
+       pocl_cuda_get_ptr_arg_alignment (bc_filename, kernel->name,
+                                        kdata->alignments);
+     }
+@@ -880,8 +838,8 @@ pocl_cuda_submit_kernel (CUstream stream, _cl_command_node *cmd,
+   /* Prepare kernel arguments */
+   void *null = NULL;
+   unsigned sharedMemBytes = 0;
+-  void *params[meta->num_args + meta->num_locals + 4];
+-  unsigned sharedMemOffsets[meta->num_args + meta->num_locals];
++  void *params[meta->num_args + 4];
++  unsigned sharedMemOffsets[meta->num_args];
+   unsigned constantMemBytes = 0;
+   unsigned constantMemOffsets[meta->num_args];
+   unsigned globalOffsets[3];
+@@ -892,8 +850,11 @@ pocl_cuda_submit_kernel (CUstream stream, _cl_command_node *cmd,
+   cuModuleGetGlobal (&constant_mem_base, &constant_mem_size, module,
+                      "_constant_memory_region_");
+ 
+-  CUresult result;
+   unsigned i;
++  /* Deal with automatic local allocations */
++  sharedMemBytes = kdata->auto_local_offset;
++
++  CUresult result;
+   for (i = 0; i < meta->num_args; i++)
+     {
+       pocl_argument_type type = meta->arg_info[i].type;
+@@ -985,22 +946,6 @@ pocl_cuda_submit_kernel (CUstream stream, _cl_command_node *cmd,
+ 
+   unsigned arg_index = meta->num_args;
+ 
+-  /* Deal with automatic local allocations */
+-  /* TODO: Would be better to remove arguments and make these static GEPs */
+-  for (i = 0; i < meta->num_locals; ++i, ++arg_index)
+-    {
+-      size_t size = meta->local_sizes[i];
+-      size_t align = kdata->alignments[arg_index];
+-
+-      /* Pad offset to align memory */
+-      if (sharedMemBytes % align)
+-        sharedMemBytes += align - (sharedMemBytes % align);
+-
+-      sharedMemOffsets[arg_index] = sharedMemBytes;
+-      sharedMemBytes += size;
+-      params[arg_index] = sharedMemOffsets + arg_index;
+-    }
+-
+   /* Add global work dimensionality */
+   params[arg_index++] = &pc.work_dim;
+ 
+diff --git a/lib/CL/devices/cuda/pocl-ptx-gen.cc b/lib/CL/devices/cuda/pocl-ptx-gen.cc
+index 00f9a46bb..d6431f172 100644
+--- a/lib/CL/devices/cuda/pocl-ptx-gen.cc
++++ b/lib/CL/devices/cuda/pocl-ptx-gen.cc
+@@ -55,7 +55,7 @@ extern ModulePass *createNVVMReflectPass(const StringMap<int> &Mapping);
+ 
+ static void addKernelAnnotations(llvm::Module *Module, const char *KernelName);
+ static void fixConstantMemArgs(llvm::Module *Module, const char *KernelName);
+-static void fixLocalMemArgs(llvm::Module *Module, const char *KernelName);
++static void fixLocalMemArgs(llvm::Module *Module, const char *KernelName, pocl_cuda_kernel_data_t *KernelData);
+ static void fixPrintF(llvm::Module *Module);
+ static void handleGetWorkDim(llvm::Module *Module, const char *KernelName);
+ static void linkLibDevice(llvm::Module *Module, const char *KernelName,
+@@ -63,6 +63,7 @@ static void linkLibDevice(llvm::Module *Module, const char *KernelName,
+ static void mapLibDeviceCalls(llvm::Module *Module);
+ 
+ int pocl_ptx_gen(const char *BitcodeFilename, const char *PTXFilename,
++		 pocl_cuda_kernel_data_t *KernelData,
+                  const char *KernelName, const char *Arch,
+                  const char *LibDevicePath, int HasOffsets) {
+   llvm::ErrorOr<std::unique_ptr<llvm::MemoryBuffer>> Buffer =
+@@ -84,7 +85,7 @@ int pocl_ptx_gen(const char *BitcodeFilename, const char *PTXFilename,
+   // Apply transforms to prepare for lowering to PTX.
+   fixPrintF(Module->get());
+   fixConstantMemArgs(Module->get(), KernelName);
+-  fixLocalMemArgs(Module->get(), KernelName);
++  fixLocalMemArgs(Module->get(), KernelName, KernelData);
+   handleGetWorkDim(Module->get(), KernelName);
+   addKernelAnnotations(Module->get(), KernelName);
+   mapLibDeviceCalls(Module->get());
+@@ -594,7 +595,8 @@ void linkLibDevice(llvm::Module *Module, const char *KernelName,
+ // instructions to calculate the new pointers from the provided base global
+ // variable.
+ void convertPtrArgsToOffsets(llvm::Module *Module, const char *KernelName,
+-                             unsigned AddrSpace, llvm::GlobalVariable *Base) {
++                             unsigned AddrSpace, llvm::GlobalVariable *Base,
++			     pocl_cuda_kernel_data_t *KernelData) {
+ 
+   llvm::LLVMContext &Context = Module->getContext();
+ 
+@@ -607,19 +609,70 @@ void convertPtrArgsToOffsets(llvm::Module *Module, const char *KernelName,
+   std::vector<llvm::Type *> ArgumentTypes;
+ 
+   llvm::ValueToValueMapTy VV;
+-  std::vector<std::pair<llvm::Instruction *, llvm::Instruction *>> ToInsert;
++  std::vector<std::vector<llvm::Instruction *>> ToInsert;
++
++  bool IsLocal = (AddrSpace == 3);
++
++  size_t ConstOffset = 0;
++  llvm::Type *I32ty = llvm::Type::getInt32Ty(Context);
+ 
+-  // Loop over arguments.
+   bool NeedsArgOffsets = false;
++  // Loop over arguments.
+   for (auto &Arg : Function->args()) {
+     // Check for local memory pointer.
+     llvm::Type *ArgType = Arg.getType();
+     if (ArgType->isPointerTy() &&
+         ArgType->getPointerAddressSpace() == AddrSpace) {
+       NeedsArgOffsets = true;
++    }
++  }
++
++  if (!NeedsArgOffsets)
++    return;
+ 
++  if (IsLocal && NeedsArgOffsets) {
++    std::string FuncName = Function->getName().str();
++    for (auto &Arg: Function->getParent()->globals()) {
++      if (pocl::isAutomaticLocal(FuncName, Arg)) {
++        // Fix alignment
++        auto Alignment = Module->getDataLayout().getTypeAllocSize(Arg.getType()->getPointerElementType());
++        if (ConstOffset % Alignment)
++            ConstOffset += Alignment - (ConstOffset % Alignment);
++
++        // Insert GEP to add offset.
++        llvm::Value *Zero = llvm::ConstantInt::getSigned(I32ty, 0);
++        llvm::Value *Offset = llvm::ConstantInt::getSigned(I32ty, ConstOffset);
++        llvm::GetElementPtrInst *GEP =
++            llvm::GetElementPtrInst::Create(nullptr, Base, {Zero, Offset});
++
++        // Cast pointer to correct type.
++        llvm::Type *ArgType = Arg.getType();
++        llvm::BitCastInst *Cast = new llvm::BitCastInst(GEP, ArgType);
++
++        // Save these instructions to insert into new function later.
++        ToInsert.push_back({GEP, Cast});
++
++        // Map the old local memory argument to the result of this cast.
++        VV[&Arg] = Cast;
++
++        // Calculate next offset
++        ConstOffset += Module->getDataLayout().getTypeAllocSize(Arg.getInitializer()->getType());
++      }
++    }
++  }
++
++  if (KernelData != NULL) {
++     KernelData->auto_local_offset = ConstOffset;
++  }
++
++  // Loop over arguments.
++  for (auto &Arg : Function->args()) {
++    // Check for local memory pointer.
++    llvm::Type *ArgType = Arg.getType();
++    if (ArgType->isPointerTy() &&
++        ArgType->getPointerAddressSpace() == AddrSpace) {
++      NeedsArgOffsets = true;
+       // Create new argument for offset into shared memory allocation.
+-      llvm::Type *I32ty = llvm::Type::getInt32Ty(Context);
+       llvm::Argument *Offset =
+           new llvm::Argument(I32ty, Arg.getName() + "_offset");
+       Arguments.push_back(Offset);
+@@ -627,14 +680,17 @@ void convertPtrArgsToOffsets(llvm::Module *Module, const char *KernelName,
+ 
+       // Insert GEP to add offset.
+       llvm::Value *Zero = llvm::ConstantInt::getSigned(I32ty, 0);
++      llvm::Value *ConstOffsetValue = llvm::ConstantInt::getSigned(I32ty, ConstOffset);
++      llvm::Instruction *FullOffset = llvm::BinaryOperator::CreateAdd(Offset, ConstOffsetValue);
++
+       llvm::GetElementPtrInst *GEP =
+-          llvm::GetElementPtrInst::Create(nullptr, Base, {Zero, Offset});
++          llvm::GetElementPtrInst::Create(nullptr, Base, {Zero, FullOffset});
+ 
+       // Cast pointer to correct type.
+       llvm::BitCastInst *Cast = new llvm::BitCastInst(GEP, ArgType);
+ 
+       // Save these instructions to insert into new function later.
+-      ToInsert.push_back({GEP, Cast});
++      ToInsert.push_back({FullOffset, GEP, Cast});
+ 
+       // Map the old local memory argument to the result of this cast.
+       VV[&Arg] = Cast;
+@@ -645,9 +701,6 @@ void convertPtrArgsToOffsets(llvm::Module *Module, const char *KernelName,
+     }
+   }
+ 
+-  if (!NeedsArgOffsets)
+-    return;
+-
+   // Create new function with offsets instead of local memory pointers.
+   llvm::FunctionType *NewFunctionType =
+       llvm::FunctionType::get(Function->getReturnType(), ArgumentTypes, false);
+@@ -675,9 +728,11 @@ void convertPtrArgsToOffsets(llvm::Module *Module, const char *KernelName,
+   llvm::CloneFunctionInto(NewFunction, Function, VV, true, RI);
+ 
+   // Insert offset instructions into new function.
+-  for (auto Pair : ToInsert) {
+-    Pair.first->insertBefore(&*NewFunction->begin()->begin());
+-    Pair.second->insertAfter(Pair.first);
++  for (auto Vec : ToInsert) {
++    Vec[0]->insertBefore(&*NewFunction->begin()->begin());
++    for (size_t Idx = 0; Idx + 1 < Vec.size(); Idx++) {
++        Vec[Idx + 1]->insertAfter(Vec[Idx]);
++    }
+   }
+ 
+   Function->eraseFromParent();
+@@ -705,14 +760,14 @@ void fixConstantMemArgs(llvm::Module *Module, const char *KernelName) {
+       llvm::Constant::getNullValue(ByteArrayType), "_constant_memory_region_",
+       NULL, llvm::GlobalValue::NotThreadLocal, 4, false);
+ 
+-  convertPtrArgsToOffsets(Module, KernelName, 4, ConstantMemBase);
++  convertPtrArgsToOffsets(Module, KernelName, 4, ConstantMemBase, NULL);
+ }
+ 
+ // CUDA doesn't allow multiple local memory arguments or automatic variables, so
+ // we have to create a single global variable for local memory allocations, and
+ // then manually add offsets to it to get each individual local memory
+ // allocation.
+-void fixLocalMemArgs(llvm::Module *Module, const char *KernelName) {
++void fixLocalMemArgs(llvm::Module *Module, const char *KernelName, pocl_cuda_kernel_data_t* KernelData) {
+ 
+   // Create global variable for local memory allocations.
+   llvm::Type *ByteArrayType =
+@@ -722,7 +777,7 @@ void fixLocalMemArgs(llvm::Module *Module, const char *KernelName) {
+       "_shared_memory_region_", NULL, llvm::GlobalValue::NotThreadLocal, 3,
+       false);
+ 
+-  convertPtrArgsToOffsets(Module, KernelName, 3, SharedMemBase);
++  convertPtrArgsToOffsets(Module, KernelName, 3, SharedMemBase, KernelData);
+ }
+ 
+ // Map kernel math functions onto the corresponding CUDA libdevice functions.
+diff --git a/lib/CL/devices/cuda/pocl-ptx-gen.h b/lib/CL/devices/cuda/pocl-ptx-gen.h
+index 30a4d3f59..39aab9b88 100644
+--- a/lib/CL/devices/cuda/pocl-ptx-gen.h
++++ b/lib/CL/devices/cuda/pocl-ptx-gen.h
+@@ -25,6 +25,7 @@
+ #define POCL_PTX_GEN_H
+ 
+ #include "config.h"
++#include "pocl-cuda-types.h"
+ 
+ #ifdef __cplusplus
+ extern "C"
+@@ -43,6 +44,7 @@ int findLibDevice(char LibDevicePath[PATH_MAX], const char *Arch);
+ /* Returns zero on success, non-zero on failure. */
+ int pocl_ptx_gen(const char *BitcodeFilename,
+                  const char *PTXFilename,
++		 pocl_cuda_kernel_data_t *KernelData,
+                  const char *KernelName,
+                  const char *Arch,
+                  const char *LibDevicePath,
+
+From 9a439607c2a4606c0328b4a39516f4368675c6e3 Mon Sep 17 00:00:00 2001
+From: Isuru Fernando <isuruf@gmail.com>
+Date: Tue, 19 May 2020 10:17:41 -0500
+Subject: [PATCH 3/5] Fix formatting
+
+---
+ lib/CL/devices/cuda/pocl-cuda-types.h |  1 -
+ lib/CL/devices/cuda/pocl-cuda.c       |  3 +--
+ lib/CL/devices/cuda/pocl-ptx-gen.cc   | 33 +++++++++++++++------------
+ lib/CL/devices/cuda/pocl-ptx-gen.h    | 10 +++-----
+ lib/CL/pocl_debug.h                   |  1 -
+ lib/CL/pocl_util.h                    |  1 -
+ 6 files changed, 23 insertions(+), 26 deletions(-)
+
+diff --git a/lib/CL/devices/cuda/pocl-cuda-types.h b/lib/CL/devices/cuda/pocl-cuda-types.h
+index ee72a8cde..30237fb22 100644
+--- a/lib/CL/devices/cuda/pocl-cuda-types.h
++++ b/lib/CL/devices/cuda/pocl-cuda-types.h
+@@ -77,4 +77,3 @@ typedef struct pocl_cuda_event_data_s
+   cl_int *ext_event_flag;
+   volatile unsigned num_ext_events;
+ } pocl_cuda_event_data_t;
+-
+diff --git a/lib/CL/devices/cuda/pocl-cuda.c b/lib/CL/devices/cuda/pocl-cuda.c
+index 93628b231..9d216e197 100644
+--- a/lib/CL/devices/cuda/pocl-cuda.c
++++ b/lib/CL/devices/cuda/pocl-cuda.c
+@@ -785,8 +785,7 @@ load_or_generate_kernel (cl_kernel kernel, cl_device_id device,
+   /* Get pointer aligment */
+   if (!kdata->alignments)
+     {
+-      kdata->alignments
+-          = calloc (meta->num_args + 4, sizeof (size_t));
++      kdata->alignments = calloc (meta->num_args + 4, sizeof (size_t));
+       pocl_cuda_get_ptr_arg_alignment (bc_filename, kernel->name,
+                                        kdata->alignments);
+     }
+diff --git a/lib/CL/devices/cuda/pocl-ptx-gen.cc b/lib/CL/devices/cuda/pocl-ptx-gen.cc
+index d6431f172..e42bf3532 100644
+--- a/lib/CL/devices/cuda/pocl-ptx-gen.cc
++++ b/lib/CL/devices/cuda/pocl-ptx-gen.cc
+@@ -55,7 +55,8 @@ extern ModulePass *createNVVMReflectPass(const StringMap<int> &Mapping);
+ 
+ static void addKernelAnnotations(llvm::Module *Module, const char *KernelName);
+ static void fixConstantMemArgs(llvm::Module *Module, const char *KernelName);
+-static void fixLocalMemArgs(llvm::Module *Module, const char *KernelName, pocl_cuda_kernel_data_t *KernelData);
++static void fixLocalMemArgs(llvm::Module *Module, const char *KernelName,
++                            pocl_cuda_kernel_data_t *KernelData);
+ static void fixPrintF(llvm::Module *Module);
+ static void handleGetWorkDim(llvm::Module *Module, const char *KernelName);
+ static void linkLibDevice(llvm::Module *Module, const char *KernelName,
+@@ -63,9 +64,8 @@ static void linkLibDevice(llvm::Module *Module, const char *KernelName,
+ static void mapLibDeviceCalls(llvm::Module *Module);
+ 
+ int pocl_ptx_gen(const char *BitcodeFilename, const char *PTXFilename,
+-		 pocl_cuda_kernel_data_t *KernelData,
+-                 const char *KernelName, const char *Arch,
+-                 const char *LibDevicePath, int HasOffsets) {
++                 pocl_cuda_kernel_data_t *KernelData, const char *KernelName,
++                 const char *Arch, const char *LibDevicePath, int HasOffsets) {
+   llvm::ErrorOr<std::unique_ptr<llvm::MemoryBuffer>> Buffer =
+       llvm::MemoryBuffer::getFile(BitcodeFilename);
+   if (!Buffer) {
+@@ -596,7 +596,7 @@ void linkLibDevice(llvm::Module *Module, const char *KernelName,
+ // variable.
+ void convertPtrArgsToOffsets(llvm::Module *Module, const char *KernelName,
+                              unsigned AddrSpace, llvm::GlobalVariable *Base,
+-			     pocl_cuda_kernel_data_t *KernelData) {
++                             pocl_cuda_kernel_data_t *KernelData) {
+ 
+   llvm::LLVMContext &Context = Module->getContext();
+ 
+@@ -632,12 +632,13 @@ void convertPtrArgsToOffsets(llvm::Module *Module, const char *KernelName,
+ 
+   if (IsLocal && NeedsArgOffsets) {
+     std::string FuncName = Function->getName().str();
+-    for (auto &Arg: Function->getParent()->globals()) {
++    for (auto &Arg : Function->getParent()->globals()) {
+       if (pocl::isAutomaticLocal(FuncName, Arg)) {
+         // Fix alignment
+-        auto Alignment = Module->getDataLayout().getTypeAllocSize(Arg.getType()->getPointerElementType());
++        auto Alignment = Module->getDataLayout().getTypeAllocSize(
++            Arg.getType()->getPointerElementType());
+         if (ConstOffset % Alignment)
+-            ConstOffset += Alignment - (ConstOffset % Alignment);
++          ConstOffset += Alignment - (ConstOffset % Alignment);
+ 
+         // Insert GEP to add offset.
+         llvm::Value *Zero = llvm::ConstantInt::getSigned(I32ty, 0);
+@@ -656,13 +657,14 @@ void convertPtrArgsToOffsets(llvm::Module *Module, const char *KernelName,
+         VV[&Arg] = Cast;
+ 
+         // Calculate next offset
+-        ConstOffset += Module->getDataLayout().getTypeAllocSize(Arg.getInitializer()->getType());
++        ConstOffset += Module->getDataLayout().getTypeAllocSize(
++            Arg.getInitializer()->getType());
+       }
+     }
+   }
+ 
+   if (KernelData != NULL) {
+-     KernelData->auto_local_offset = ConstOffset;
++    KernelData->auto_local_offset = ConstOffset;
+   }
+ 
+   // Loop over arguments.
+@@ -680,8 +682,10 @@ void convertPtrArgsToOffsets(llvm::Module *Module, const char *KernelName,
+ 
+       // Insert GEP to add offset.
+       llvm::Value *Zero = llvm::ConstantInt::getSigned(I32ty, 0);
+-      llvm::Value *ConstOffsetValue = llvm::ConstantInt::getSigned(I32ty, ConstOffset);
+-      llvm::Instruction *FullOffset = llvm::BinaryOperator::CreateAdd(Offset, ConstOffsetValue);
++      llvm::Value *ConstOffsetValue =
++          llvm::ConstantInt::getSigned(I32ty, ConstOffset);
++      llvm::Instruction *FullOffset =
++          llvm::BinaryOperator::CreateAdd(Offset, ConstOffsetValue);
+ 
+       llvm::GetElementPtrInst *GEP =
+           llvm::GetElementPtrInst::Create(nullptr, Base, {Zero, FullOffset});
+@@ -731,7 +735,7 @@ void convertPtrArgsToOffsets(llvm::Module *Module, const char *KernelName,
+   for (auto Vec : ToInsert) {
+     Vec[0]->insertBefore(&*NewFunction->begin()->begin());
+     for (size_t Idx = 0; Idx + 1 < Vec.size(); Idx++) {
+-        Vec[Idx + 1]->insertAfter(Vec[Idx]);
++      Vec[Idx + 1]->insertAfter(Vec[Idx]);
+     }
+   }
+ 
+@@ -767,7 +771,8 @@ void fixConstantMemArgs(llvm::Module *Module, const char *KernelName) {
+ // we have to create a single global variable for local memory allocations, and
+ // then manually add offsets to it to get each individual local memory
+ // allocation.
+-void fixLocalMemArgs(llvm::Module *Module, const char *KernelName, pocl_cuda_kernel_data_t* KernelData) {
++void fixLocalMemArgs(llvm::Module *Module, const char *KernelName,
++                     pocl_cuda_kernel_data_t *KernelData) {
+ 
+   // Create global variable for local memory allocations.
+   llvm::Type *ByteArrayType =
+diff --git a/lib/CL/devices/cuda/pocl-ptx-gen.h b/lib/CL/devices/cuda/pocl-ptx-gen.h
+index 39aab9b88..5ed47b794 100644
+--- a/lib/CL/devices/cuda/pocl-ptx-gen.h
++++ b/lib/CL/devices/cuda/pocl-ptx-gen.h
+@@ -42,13 +42,9 @@ int findLibDevice(char LibDevicePath[PATH_MAX], const char *Arch);
+ 
+ /* Generate a PTX file from an LLVM bitcode file. */
+ /* Returns zero on success, non-zero on failure. */
+-int pocl_ptx_gen(const char *BitcodeFilename,
+-                 const char *PTXFilename,
+-		 pocl_cuda_kernel_data_t *KernelData,
+-                 const char *KernelName,
+-                 const char *Arch,
+-                 const char *LibDevicePath,
+-                 int HasOffsets);
++int pocl_ptx_gen (const char *BitcodeFilename, const char *PTXFilename,
++                  pocl_cuda_kernel_data_t *KernelData, const char *KernelName,
++                  const char *Arch, const char *LibDevicePath, int HasOffsets);
+ 
+ /* Populate the Alignments array with the required pointer alignments for */
+ /* each kernel argument. */
+diff --git a/lib/CL/pocl_debug.h b/lib/CL/pocl_debug.h
+index 249279587..2b1e9b05c 100644
+--- a/lib/CL/pocl_debug.h
++++ b/lib/CL/pocl_debug.h
+@@ -63,7 +63,6 @@ extern "C" {
+ #define POCL_FILTER_TYPE_WARN 2
+ #define POCL_FILTER_TYPE_ERR 3
+ 
+-
+ #ifdef __GNUC__
+ #pragma GCC visibility push(hidden)
+ #endif
+diff --git a/lib/CL/pocl_util.h b/lib/CL/pocl_util.h
+index 7e2cdee34..cd9adb525 100644
+--- a/lib/CL/pocl_util.h
++++ b/lib/CL/pocl_util.h
+@@ -36,7 +36,6 @@
+ #error aligned malloc unavailable
+ #endif
+ 
+-
+ #ifdef __GNUC__
+ #pragma GCC visibility push(hidden)
+ #endif
+

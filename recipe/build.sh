@@ -36,7 +36,10 @@ elif [[ "$target_platform" == linux-ppc64le ]]; then
   EXTRA_CMAKE_ARGS="-DKERNELLIB_HOST_CPU_VARIANTS='pwr8;pwr9;generic' -DCLANG_MARCH_FLAG='-mcpu='"
 fi
 
-#export OCL_ICD_DEBUG=7
+if [[ "$enable_cuda" == "True" ]]; then
+  EXTRA_CMAKE_ARGS="$EXTRA_CMAKE_ARGS -DENABLE_CUDA=ON"
+  LDFLAGS="$LDFLAGS -L$CUDA_HOME/lib64/stubs"
+fi
 
 cmake \
   -D CMAKE_BUILD_TYPE="Release" \
@@ -58,6 +61,11 @@ make -j ${CPU_COUNT} VERBOSE=1
 # install needs to come first for the pocl.icd to be found
 make install
 
+if [[ "$enable_cuda" == "True" ]]; then
+  # Don't package the cuda package in pocl package
+  mv $PREFIX/lib/pocl/libpocl-devices-cuda.so .
+fi
+
 # Workaround for https://github.com/KhronosGroup/OpenCL-ICD-Loader/issues/104
 sed -i.bak "s@ocl-vendors@ocl-vendors/@g" CTestCustom.cmake
 
@@ -73,9 +81,16 @@ if [[ "$target_platform" == "linux-ppc64le" ]]; then
   SKIP_TESTS="$SKIP_TESTS|kernel/test_convert_type_2|kernel/test_sampler_address_clamp|kernel/test_image_query_funcs"
 fi
 
-ctest -R "not ($SKIP_TESTS)"
+export POCL_DEVICES=pthread
+
+ctest -E "$SKIP_TESTS"
+
+# Can't run cuda tests without a GPU
+# if [[ "$enable_cuda" == "True" ]]; then
+#   POCL_DEVICES=cuda ctest -L cuda
+# fi
 
 # For backwards compatibility
 if [[ "$target_platform" == osx* ]]; then
-    ln -s $PREFIX/lib/libpocl.dylib $PREFIX/lib/libOpenCL.2.dylib
+  ln -s $PREFIX/lib/libpocl.dylib $PREFIX/lib/libOpenCL.2.dylib
 fi

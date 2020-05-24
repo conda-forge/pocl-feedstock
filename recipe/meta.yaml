@@ -1,6 +1,6 @@
 {% set name = "pocl" %}
 {% set version = "1.5" %}
-{% set build_number = 0 %}
+{% set build_number = 1 %}
 {% set sha256 = "4fcf4618171727d165fc044d465a66e3119217bb4577a97374f94fcd8aed330e" %}
 {% set llvm_version = "6.0.1" %}
 
@@ -12,15 +12,19 @@ source:
   - url: https://github.com/{{ name }}/{{ name }}/archive/v{{ version }}.tar.gz
     sha256: {{ sha256 }}
     patches:
-      - gh814.patch
-      - revert-abce310.patch  # [ppc64le]
-  #- git_url: https://github.com/pocl/pocl.git
-  #  git_rev: v1.3-RC3
+      - patches/gh814.patch
+      - patches/gh819.patch
+      - patches/gh822.patch
+      - patches/gh824.patch
+      - patches/gh821.patch
+      - patches/gh-459d0bb.patch
 
 build:
   number: {{ build_number }}
   skip: true  # [win]
   merge_build_host: true  # [cxx_compiler=='gxx']
+  script_env:     # [enable_cuda]
+    - CUDA_HOME   # [enable_cuda]
 
 requirements:
   build:
@@ -54,6 +58,22 @@ test:
     - export OCL_ICD_DEBUG=15                     # [linux]
     - curl -O https://raw.githubusercontent.com/inducer/pyopencl/master/examples/demo.py  # [x86_64]
     - python demo.py  # [x86_64]
+
+outputs:
+  - name: pocl
+
+  - name: pocl-cuda
+    build:
+      skip: True   # [not enable_cuda]
+    script: install-cuda.sh
+    requirements:
+      host:
+        - {{ pin_subpackage("pocl", exact=True) }}
+      run:
+        - {{ pin_subpackage("pocl", exact=True) }}
+    test:
+      commands:
+        - test -f $PREFIX/lib/pocl/libpocl-devices-cuda.so     # [unix]
 
 about:
   home: http://portablecl.org/

@@ -1,0 +1,53 @@
+From 459d0bb5241a62af3b5b607a65dcf5e9a34a01ee Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Pekka=20J=C3=A4=C3=A4skel=C3=A4inen?=
+ <pekka.jaaskelainen@tuni.fi>
+Date: Sat, 23 May 2020 09:26:03 +0300
+Subject: [PATCH] Remove the unroll-threshold override.
+
+Hopefully takes care of #825 and #826.
+
+The general goal is to move towards using LLVM defaults
+whenever possible. The outer loop vs. inner loop vectorization
+decision should be eventually left to the LLVM's loop exchange
+benefit analysis.
+---
+ lib/CL/pocl_llvm_utils.cc       | 6 +-----
+ tests/workgroup/outerlooppar.cl | 1 +
+ 2 files changed, 2 insertions(+), 5 deletions(-)
+
+diff --git a/lib/CL/pocl_llvm_utils.cc b/lib/CL/pocl_llvm_utils.cc
+index 1824864bd..a3c061780 100644
+--- a/lib/CL/pocl_llvm_utils.cc
++++ b/lib/CL/pocl_llvm_utils.cc
+@@ -1,7 +1,7 @@
+ /* pocl_llvm_utils.cc: various helpers for pocl LLVM API.
+ 
+    Copyright (c) 2013 Kalle Raiskila
+-                 2013-2017 Pekka Jääskeläinen
++                 2013-2020 Pekka Jääskeläinen
+ 
+    Permission is hereby granted, free of charge, to any person obtaining a copy
+    of this software and associated documentation files (the "Software"), to deal
+@@ -344,10 +344,6 @@ void InitializeLLVM() {
+     O->addOccurrence(1, StringRef("debug"), StringRef("true"), false);
+   }
+ 
+-  O = opts["unroll-threshold"];
+-  assert(O && "could not find LLVM option 'unroll-threshold'");
+-  O->addOccurrence(1, StringRef("unroll-threshold"), StringRef("1"), false);
+-
+   LLVMInitialized = true;
+ }
+ 
+diff --git a/tests/workgroup/outerlooppar.cl b/tests/workgroup/outerlooppar.cl
+index 04711b141..c374d8b82 100644
+--- a/tests/workgroup/outerlooppar.cl
++++ b/tests/workgroup/outerlooppar.cl
+@@ -24,6 +24,7 @@ test_kernel (void)
+     printf ("horizontal:\n");
+   /* This loop should be horizontally vectorized because the iteration count
+      does not depend on the gid.*/
++#pragma nounroll
+   for (int i = 0; i < get_local_size(0); ++i) {
+     if (i < 4)
+       printf ("i: %d gid: %d\n", i, gid);
