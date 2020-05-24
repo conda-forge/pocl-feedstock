@@ -1,0 +1,712 @@
+commit 08e3fa0f25c7809d9850a5674198a698b68cf7a1
+Author: Isuru Fernando <isuruf@gmail.com>
+Date:   Sat May 23 17:21:40 2020 -0500
+
+    Build device libraries separately and dlopen them
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 6df8cee3..40243caf 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -626,6 +626,7 @@ if(ENABLE_RELOCATION)
+           DESTINATION "${POCL_INSTALL_PRIVATE_DATADIR}/include" COMPONENT "dev")
+ endif()
+ 
++file(RELATIVE_PATH POCL_INSTALL_PRIVATE_LIBDIR_REL ${POCL_INSTALL_PUBLIC_LIBDIR} ${POCL_INSTALL_PRIVATE_LIBDIR})
+ 
+ ######################################################################################
+ 
+diff --git a/config.h.in.cmake b/config.h.in.cmake
+index 42c63f77..e53fe7f1 100644
+--- a/config.h.in.cmake
++++ b/config.h.in.cmake
+@@ -184,6 +184,10 @@
+ 
+ #define POCL_INSTALL_PRIVATE_DATADIR_REL "@POCL_INSTALL_PRIVATE_DATADIR_REL@"
+ 
++#define POCL_INSTALL_PRIVATE_LIBDIR "@POCL_INSTALL_PRIVATE_LIBDIR@"
++
++#define POCL_INSTALL_PRIVATE_LIBDIR_REL "@POCL_INSTALL_PRIVATE_LIBDIR_REL@"
++
+ #cmakedefine POCL_ASSERTS_BUILD
+ 
+ /* these are *host* values */
+diff --git a/include/pocl_cache.h b/include/pocl_cache.h
+index 92ef2845..377aa21a 100644
+--- a/include/pocl_cache.h
++++ b/include/pocl_cache.h
+@@ -36,10 +36,6 @@ extern "C" {
+ 
+ #include <CL/cl.h>
+ 
+-#ifdef __GNUC__
+-#pragma GCC visibility push(hidden)
+-#endif
+-
+ int pocl_cache_init_topdir ();
+ 
+ int
+@@ -124,10 +120,6 @@ void pocl_cache_final_binary_path (char *final_binary_path, cl_program program,
+                                    unsigned device_i, cl_kernel kernel,
+                                    _cl_command_node *command, int specialize);
+ 
+-#ifdef __GNUC__
+-#pragma GCC visibility pop
+-#endif
+-
+ 
+ #ifdef __cplusplus
+ }
+diff --git a/include/pocl_file_util.h b/include/pocl_file_util.h
+index b6b90f8d..a6d73f0a 100644
+--- a/include/pocl_file_util.h
++++ b/include/pocl_file_util.h
+@@ -31,10 +31,6 @@
+ extern "C" {
+ #endif
+ 
+-#ifdef __GNUC__
+-#pragma GCC visibility push(hidden)
+-#endif
+-
+ /* Remove a directory, recursively */
+ int pocl_rm_rf(const char* path);
+ 
+@@ -71,10 +67,6 @@ int pocl_mk_tempdir (char *output, const char *prefix);
+ int pocl_mk_tempname (char *output, const char *prefix, const char *suffix,
+                       int *ret_fd);
+ 
+-#ifdef __GNUC__
+-#pragma GCC visibility pop
+-#endif
+-
+ #ifdef __cplusplus
+ }
+ #endif
+diff --git a/lib/CL/CMakeLists.txt b/lib/CL/CMakeLists.txt
+index 49633c98..9dcc6b98 100644
+--- a/lib/CL/CMakeLists.txt
++++ b/lib/CL/CMakeLists.txt
+@@ -34,8 +34,34 @@ endif()
+ 
+ include_directories(AFTER "devices" ".")
+ 
++################################################################################
++if (MSVC)
++  set(POCL_PUBLIC_LINK_LIST ${Pthreads_LIBRARIES} ${LTTNG_UST_LDFLAGS})
++else()
++  set(POCL_PUBLIC_LINK_LIST "${DL_LIB}" ${CMAKE_THREAD_LIBS_INIT} ${LTTNG_UST_LDFLAGS} ${LIBMATH})
++endif()
++
++set(POCL_PRIVATE_LINK_LIST ${CLANG_LIBFILES} ${POCL_LLVM_LIBS} ${LLVM_SYSLIBS})
++
++if(SANITIZER_OPTIONS)
++  list(INSERT POCL_PUBLIC_LINK_LIST 0 ${SANITIZER_LIBS})
++endif()
++
++if(Hwloc_LDFLAGS)
++  list(INSERT POCL_PUBLIC_LINK_LIST 0 ${Hwloc_LDFLAGS})
++else()
++  list(INSERT POCL_PUBLIC_LINK_LIST 0 ${Hwloc_LIBRARIES})
++endif()
++
++# -lrt is required for glibc < 2.17
++if(HAVE_CLOCK_GETTIME AND CMAKE_SYSTEM_NAME MATCHES "Linux")
++  list(APPEND POCL_PUBLIC_LINK_LIST "rt")
++endif()
++
+ add_subdirectory("devices")
+ 
++###############################################################################
++
+ set(POCL_LIB_SOURCES  "clCreateContextFromType.c"
+                    "clReleaseContext.c"
+                    "clRetainContext.c"
+@@ -189,27 +215,13 @@ add_library("libpocl_unlinked_objs" OBJECT ${POCL_LIB_SOURCES})
+ 
+ #################################################################
+ 
+-if (MSVC)
+-  set(POCL_PUBLIC_LINK_LIST ${Pthreads_LIBRARIES} ${POCL_DEVICES_LINK_LIST} ${LTTNG_UST_LDFLAGS})
+-else()
+-  set(POCL_PUBLIC_LINK_LIST "${DL_LIB}" ${CMAKE_THREAD_LIBS_INIT} ${POCL_DEVICES_LINK_LIST} ${LTTNG_UST_LDFLAGS} ${LIBMATH})
+-endif()
+-
+-set(POCL_PRIVATE_LINK_LIST ${CLANG_LIBFILES} ${POCL_LLVM_LIBS} ${LLVM_SYSLIBS})
+-
+-if(SANITIZER_OPTIONS)
+-  list(INSERT POCL_PUBLIC_LINK_LIST 0 ${SANITIZER_LIBS})
+-endif()
+-
++if (POCL_DEVICES_LINK_LIST)
++  list(INSERT POCL_PUBLIC_LINK_LIST 0 ${POCL_DEVICES_LINK_LIST})
++endif ()
+ 
+ # see lib/CMakeLists.txt
+ set(POCL_TRANSITIVE_LIBS ${POCL_PRIVATE_LINK_LIST} PARENT_SCOPE)
+ 
+-# -lrt is required for glibc < 2.17
+-if(HAVE_CLOCK_GETTIME AND CMAKE_SYSTEM_NAME MATCHES "Linux")
+-  list(APPEND POCL_PUBLIC_LINK_LIST "rt")
+-endif()
+-
+ #################################################################
+ 
+ if(ANDROID)
+diff --git a/lib/CL/devices/CMakeLists.txt b/lib/CL/devices/CMakeLists.txt
+index 5710ba9a..99c5918f 100644
+--- a/lib/CL/devices/CMakeLists.txt
++++ b/lib/CL/devices/CMakeLists.txt
+@@ -23,6 +23,13 @@
+ #
+ #=============================================================================
+ 
++function(add_pocl_device_library name)
++  add_library(${name} SHARED ${ARGN})
++  target_link_libraries(${name} PUBLIC ${POCL_PUBLIC_LINK_LIST} PRIVATE ${POCL_LIBRARY_NAME} ${POCL_PRIVATE_LINK_LIST})
++  set_target_properties(${name} PROPERTIES PREFIX "lib" SUFFIX ".so")
++  install(TARGETS ${name} LIBRARY DESTINATION "${POCL_INSTALL_PRIVATE_LIBDIR}")
++endfunction()
++
+ if(BUILD_BASIC)
+   add_subdirectory("basic")
+ endif()
+@@ -36,25 +43,10 @@ if(BUILD_ACCEL)
+ endif()
+ 
+ add_subdirectory("topology")
+-if(Hwloc_LDFLAGS)
+-  set(POCL_DEVICES_LINK_LIST ${Hwloc_LDFLAGS})
+-else()
+-  set(POCL_DEVICES_LINK_LIST ${Hwloc_LIBRARIES})
+-endif()
+ 
+ set(POCL_DEVICES_OBJS "$<TARGET_OBJECTS:pocl-devices>"
+   "$<TARGET_OBJECTS:pocl-devices-topology>")
+ 
+-if(BUILD_BASIC)
+-  set(POCL_DEVICES_OBJS "${POCL_DEVICES_OBJS}"
+-    "$<TARGET_OBJECTS:pocl-devices-basic>")
+-endif()
+-
+-if(BUILD_PTHREAD)
+-  set(POCL_DEVICES_OBJS "${POCL_DEVICES_OBJS}"
+-    "$<TARGET_OBJECTS:pocl-devices-pthread>")
+-endif()
+-
+ if(BUILD_ACCEL)
+   set(POCL_DEVICES_OBJS "${POCL_DEVICES_OBJS}"
+     "$<TARGET_OBJECTS:pocl-devices-accel>")
+@@ -74,7 +66,6 @@ endif()
+ 
+ if(ENABLE_CUDA)
+   add_subdirectory("cuda")
+-  list(APPEND POCL_DEVICES_LINK_LIST cuda)
+ endif()
+ 
+ set(POCL_DEVICES_SOURCES
+diff --git a/lib/CL/devices/basic/CMakeLists.txt b/lib/CL/devices/basic/CMakeLists.txt
+index 29474b49..dad83b1f 100644
+--- a/lib/CL/devices/basic/CMakeLists.txt
++++ b/lib/CL/devices/basic/CMakeLists.txt
+@@ -26,4 +26,4 @@
+ if(MSVC)
+   set_source_files_properties( basic.h basic.c PROPERTIES LANGUAGE CXX )
+ endif(MSVC)
+-add_library("pocl-devices-basic" OBJECT basic.h basic.c)
++add_pocl_device_library("pocl-devices-basic" basic.h basic.c)
+diff --git a/lib/CL/devices/common.h b/lib/CL/devices/common.h
+index 56ab24d6..83bc3f04 100644
+--- a/lib/CL/devices/common.h
++++ b/lib/CL/devices/common.h
+@@ -60,10 +60,6 @@
+ extern "C" {
+ #endif
+ 
+-#ifdef __GNUC__
+-#pragma GCC visibility push(hidden)
+-#endif
+-
+ void pocl_init_cpu_device_infos (cl_device_id dev);
+ 
+ int llvm_codegen (char *output, unsigned device_i, cl_kernel kernel,
+@@ -119,10 +115,6 @@ void pocl_print_system_memory_stats();
+ void pocl_calculate_kernel_hash (cl_program program, unsigned kernel_i,
+                                  unsigned device_i);
+ 
+-#ifdef __GNUC__
+-#pragma GCC visibility pop
+-#endif
+-
+ #ifdef __cplusplus
+ }
+ #endif
+diff --git a/lib/CL/devices/cpuinfo.h b/lib/CL/devices/cpuinfo.h
+index f2feb8d8..152793d8 100644
+--- a/lib/CL/devices/cpuinfo.h
++++ b/lib/CL/devices/cpuinfo.h
+@@ -32,14 +32,6 @@
+ 
+ #include "pocl_cl.h"
+ 
+-#ifdef __GNUC__
+-#pragma GCC visibility push(hidden)
+-#endif
+-
+ void pocl_cpuinfo_detect_device_info(cl_device_id device);
+ 
+-#ifdef __GNUC__
+-#pragma GCC visibility pop
+-#endif
+-
+ #endif /* POCL_TOPOLOGY_H */
+diff --git a/lib/CL/devices/cuda/CMakeLists.txt b/lib/CL/devices/cuda/CMakeLists.txt
+index 1c41190a..14658bb4 100644
+--- a/lib/CL/devices/cuda/CMakeLists.txt
++++ b/lib/CL/devices/cuda/CMakeLists.txt
+@@ -29,6 +29,6 @@ message(STATUS "CUDA_TOOLKIT_ROOT_DIR = ${CUDA_TOOLKIT_ROOT_DIR}")
+ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${LLVM_CXXFLAGS}")
+ include_directories(${LLVM_INCLUDE_DIRS} ${CUDA_INCLUDE_DIRS} ${CMAKE_CURRENT_SOURCE_DIR}/../../../llvmopencl)
+ 
+-add_library("pocl-devices-cuda" OBJECT pocl-cuda.c pocl-cuda.h pocl-ptx-gen.cc pocl-ptx-gen.h)
++add_pocl_device_library("pocl-devices-cuda" pocl-cuda.c pocl-cuda.h pocl-ptx-gen.cc pocl-ptx-gen.h)
+ target_compile_definitions("pocl-devices-cuda" PRIVATE "-DCUDA_TOOLKIT_ROOT_DIR=\"${CUDA_TOOLKIT_ROOT_DIR}\"")
+-set(POCL_DEVICES_OBJS "${POCL_DEVICES_OBJS};$<TARGET_OBJECTS:pocl-devices-cuda>" PARENT_SCOPE)
++target_link_libraries(pocl-devices-cuda PUBLIC cuda)
+diff --git a/lib/CL/devices/devices.c b/lib/CL/devices/devices.c
+index e650693a..6bffdc10 100644
+--- a/lib/CL/devices/devices.c
++++ b/lib/CL/devices/devices.c
+@@ -42,11 +42,10 @@
+ #  include "vccompat.hpp"
+ #endif
+ 
++#include "config.h"
+ #include "devices.h"
+ #include "common.h"
+ #include "pocl_runtime_config.h"
+-#include "basic/basic.h"
+-#include "pthread/pocl-pthread.h"
+ #include "pocl_debug.h"
+ #include "pocl_tracing.h"
+ #include "pocl_cache.h"
+@@ -61,19 +60,27 @@
+ 
+ #include "hsa/pocl-hsa.h"
+ 
+-#if defined(BUILD_CUDA)
+-#include "cuda/pocl-cuda.h"
+-#endif
+-
+ #if defined(BUILD_ACCEL)
+ #include "accel/accel.h"
+ #endif
+ 
+ #define MAX_DEV_NAME_LEN 64
+ 
++#ifndef PATH_MAX
++#define PATH_MAX 4096
++#endif
++
++#ifdef HAVE_LIBDL
++#if defined(__APPLE__)
++#define _DARWIN_C_SOURCE
++#endif
++#include <dlfcn.h>
++#endif
++
+ /* the enabled devices */
+ static struct _cl_device_id* pocl_devices = NULL;
+ unsigned int pocl_num_devices = 0;
++unsigned int pocl_num_device_types = 0;
+ 
+ /* Init function prototype */
+ typedef void (*init_device_ops)(struct pocl_device_ops*);
+@@ -81,10 +88,10 @@ typedef void (*init_device_ops)(struct pocl_device_ops*);
+ /* All init function for device operations available to pocl */
+ static init_device_ops pocl_devices_init_ops[] = {
+ #ifdef BUILD_BASIC
+-  pocl_basic_init_device_ops,
++  NULL,
+ #endif
+ #ifdef BUILD_PTHREAD
+-  pocl_pthread_init_device_ops,
++  NULL,
+ #endif
+ #if defined(TCE_AVAILABLE)
+   pocl_ttasim_init_device_ops,
+@@ -93,7 +100,7 @@ static init_device_ops pocl_devices_init_ops[] = {
+   pocl_hsa_init_device_ops,
+ #endif
+ #if defined(BUILD_CUDA)
+-  pocl_cuda_init_device_ops,
++  NULL,
+ #endif
+ #if defined(BUILD_ACCEL)
+   pocl_accel_init_device_ops,
+@@ -102,6 +109,27 @@ static init_device_ops pocl_devices_init_ops[] = {
+ 
+ #define POCL_NUM_DEVICE_TYPES (sizeof(pocl_devices_init_ops) / sizeof((pocl_devices_init_ops)[0]))
+ 
++char pocl_device_types[POCL_NUM_DEVICE_TYPES][30] = {
++#ifdef BUILD_BASIC
++  "basic",
++#endif
++#ifdef BUILD_PTHREAD
++  "pthread",
++#endif
++#if defined(TCE_AVAILABLE)
++  "ttasim",
++#endif
++#if defined(BUILD_HSA)
++  "hsa",
++#endif
++#if defined(BUILD_CUDA)
++  "cuda",
++#endif
++#if defined(BUILD_ACCEL)
++  "accel",
++#endif
++};
++
+ static struct pocl_device_ops pocl_device_ops[POCL_NUM_DEVICE_TYPES];
+ 
+ // first setup
+@@ -114,6 +142,48 @@ static unsigned devices_active = 0;
+ 
+ static pocl_lock_t pocl_init_lock = POCL_LOCK_INITIALIZER;
+ 
++static void * pocl_device_handles[POCL_NUM_DEVICE_TYPES];
++
++#ifndef _MSC_VER
++#define POCL_PATH_SEPARATOR "/"
++#else
++#define POCL_PATH_SEPARATOR "\\"
++#endif
++
++static void
++get_pocl_device_lib_path (char *result, char *device_name)
++{
++  Dl_info info;
++  if (dladdr ((void *)get_pocl_device_lib_path, &info))
++    {
++      char const *soname = info.dli_fname;
++      strcpy (result, soname);
++      char *last_slash = strrchr (result, POCL_PATH_SEPARATOR[0]);
++      *(++last_slash) = '\0';
++      if (strlen (result) > 0)
++        {
++#ifdef ENABLE_POCL_BUILDING
++          if (pocl_get_bool_option ("POCL_BUILDING", 0))
++            {
++              strcat (result, "devices");
++              strcat (result, POCL_PATH_SEPARATOR);
++              strcat (result, device_name);
++              strcat (result, POCL_PATH_SEPARATOR);
++            }
++	  else
++#endif
++            {
++              strcat (result, POCL_INSTALL_PRIVATE_LIBDIR_REL);
++            }
++          strcat (result, POCL_PATH_SEPARATOR);
++          strcat (result, "libpocl-devices-");
++          strcat (result, device_name);
++          strcat (result, ".so");
++          return;
++        }
++    }
++}
++
+ /**
+  * Get the number of specified devices from environnement
+  */
+@@ -339,6 +409,8 @@ pocl_uninit_devices ()
+   cl_device_id d;
+   for (i = 0; i < POCL_NUM_DEVICE_TYPES; ++i)
+     {
++      if (pocl_devices_init_ops[i] == NULL)
++        continue;
+       assert (pocl_device_ops[i].init);
+       for (j = 0; j < device_count[i]; ++j)
+         {
+@@ -353,7 +425,9 @@ pocl_uninit_devices ()
+               retval = ret;
+               goto FINISH;
+             }
+-
++	  if (pocl_device_handles[i] != NULL) {
++              dlclose(pocl_device_handles[i]);
++	  }
+           ++dev_index;
+         }
+     }
+@@ -500,6 +574,32 @@ pocl_init_devices ()
+   /* Init operations */
+   for (i = 0; i < POCL_NUM_DEVICE_TYPES; ++i)
+     {
++      if (pocl_devices_init_ops[i] == NULL)
++        {
++          char device_library[PATH_MAX] = "";
++          get_pocl_device_lib_path (device_library, pocl_device_types[i]);
++          pocl_device_handles[i] = dlopen(device_library, RTLD_LAZY);
++          char init_device_ops_name[MAX_DEV_NAME_LEN + 21] = "";
++          strcat (init_device_ops_name, "pocl_");
++          strcat (init_device_ops_name, pocl_device_types[i]);
++          strcat (init_device_ops_name, "_init_device_ops");
++          if (pocl_device_handles[i] != NULL)
++            {
++              pocl_devices_init_ops[i] = (init_device_ops)dlsym (
++                  pocl_device_handles[i], init_device_ops_name);
++              pocl_devices_init_ops[i](&pocl_device_ops[i]);
++            }
++          else
++            {
++              POCL_MSG_WARN("Loading %s failed.\n", device_library);
++              device_count[i] = 0;
++              continue;
++            }
++        }
++      else
++        {
++          pocl_device_handles[i] = NULL;
++        }
+       pocl_devices_init_ops[i](&pocl_device_ops[i]);
+       assert(pocl_device_ops[i].device_name != NULL);
+ 
+@@ -521,6 +621,8 @@ pocl_init_devices ()
+   /* Init infos for each probed devices */
+   for (i = 0; i < POCL_NUM_DEVICE_TYPES; ++i)
+     {
++      if (pocl_devices_init_ops[i] == NULL)
++        continue;
+       str_toupper (dev_name, pocl_device_ops[i].device_name);
+       assert(pocl_device_ops[i].init);
+       for (j = 0; j < device_count[i]; ++j)
+diff --git a/lib/CL/devices/devices.h b/lib/CL/devices/devices.h
+index e756b96c..d7c5e83c 100644
+--- a/lib/CL/devices/devices.h
++++ b/lib/CL/devices/devices.h
+@@ -26,10 +26,7 @@
+ #define POCL_DEVICES_H
+ 
+ #include "../pocl_cl.h"
+-
+-#ifdef __GNUC__
+-#pragma GCC visibility push(hidden)
+-#endif
++#include "config.h"
+ 
+ #ifdef __cplusplus
+ extern "C" {
+@@ -80,10 +77,6 @@ int pocl_device_get_env_count(const char *dev_type);
+  */
+ int pocl_get_unique_global_mem_id();
+ 
+-#ifdef __GNUC__
+-#pragma GCC visibility pop
+-#endif
+-
+ /* the environment variable that lists the enabled devices */
+ #define POCL_DEVICES_ENV "POCL_DEVICES"
+ 
+diff --git a/lib/CL/devices/prototypes.inc b/lib/CL/devices/prototypes.inc
+index 25a6c1ff..91987eb7 100644
+--- a/lib/CL/devices/prototypes.inc
++++ b/lib/CL/devices/prototypes.inc
+@@ -21,16 +21,7 @@
+    THE SOFTWARE.
+ */
+ 
+-#ifdef _MSC_VER
+-#  define PUSH_VISIBILITY_HIDDEN
+-#  define POP_VISIBILITY_HIDDEN
+-#else
+-#  define PUSH_VISIBILITY_HIDDEN _Pragma ("GCC visibility push(hidden)")
+-#  define POP_VISIBILITY_HIDDEN _Pragma ("GCC visibility pop")
+-#endif
+-
+ #define GEN_PROTOTYPES(__DRV__)                                               \
+-  PUSH_VISIBILITY_HIDDEN                                                      \
+   void pocl_##__DRV__##_submit (_cl_command_node *node, cl_command_queue cq); \
+   void pocl_##__DRV__##_join (cl_device_id device, cl_command_queue cq);      \
+   void pocl_##__DRV__##_flush (cl_device_id device, cl_command_queue cq);     \
+@@ -151,4 +142,4 @@
+                                                    const char *kernel_name);  \
+   cl_int pocl_##__DRV__##_get_builtin_kernel_metadata (void *data,            \
+                const char *kernel_name, pocl_kernel_metadata_t *target);      \
+-  POP_VISIBILITY_HIDDEN
++
+diff --git a/lib/CL/devices/pthread/CMakeLists.txt b/lib/CL/devices/pthread/CMakeLists.txt
+index b0cf37c0..9c08dcf9 100644
+--- a/lib/CL/devices/pthread/CMakeLists.txt
++++ b/lib/CL/devices/pthread/CMakeLists.txt
+@@ -26,4 +26,5 @@
+ if(MSVC)
+   set_source_files_properties( pocl-pthread.h pthread.c pthread_scheduler.c pthread_utils.c PROPERTIES LANGUAGE CXX )
+ endif(MSVC)
+-add_library("pocl-devices-pthread" OBJECT pocl-pthread.h pthread.c pthread_scheduler.c pthread_utils.c)
++add_pocl_device_library(pocl-devices-pthread pocl-pthread.h pthread.c pthread_scheduler.c pthread_utils.c)
++target_link_libraries(pocl-devices-pthread PRIVATE pocl-devices-basic)
+diff --git a/lib/CL/devices/topology/pocl_topology.h b/lib/CL/devices/topology/pocl_topology.h
+index 49f949fa..cc390f9f 100644
+--- a/lib/CL/devices/topology/pocl_topology.h
++++ b/lib/CL/devices/topology/pocl_topology.h
+@@ -33,14 +33,6 @@
+ 
+ #include "pocl_cl.h"
+ 
+-#ifdef __GNUC__
+-#pragma GCC visibility push(hidden)
+-#endif
+-
+ int pocl_topology_detect_device_info(cl_device_id device);
+ 
+-#ifdef __GNUC__
+-#pragma GCC visibility pop
+-#endif
+-
+ #endif /* POCL_TOPOLOGY_H */
+diff --git a/lib/CL/pocl_cl.h b/lib/CL/pocl_cl.h
+index 7bfcf3ba..2c84f709 100644
+--- a/lib/CL/pocl_cl.h
++++ b/lib/CL/pocl_cl.h
+@@ -223,8 +223,9 @@ typedef pthread_mutex_t pocl_lock_t;
+ /* Symbol aliases are supported */
+ 
+ #  define POname(name) PO##name
+-#  define POdeclsym(name)                      \
+-  __typeof__(name) PO##name __attribute__((visibility("hidden")));
++
++#  define POdeclsym(name)                     \
++  __typeof__(name) PO##name;
+ #  define POCL_ALIAS_OPENCL_SYMBOL(name)                                \
+   __typeof__(name) name __attribute__((alias ("PO" #name), visibility("default")));
+ #  define POsymAlways(name) POCL_ALIAS_OPENCL_SYMBOL(name)
+diff --git a/lib/CL/pocl_debug.h b/lib/CL/pocl_debug.h
+index 2b1e9b05..9b9f9058 100644
+--- a/lib/CL/pocl_debug.h
++++ b/lib/CL/pocl_debug.h
+@@ -15,6 +15,8 @@
+ # include <inttypes.h>
+ #endif
+ 
++#include "config.h"
++
+ // size_t print spec
+ #ifndef PRIuS
+ # define PRIuS "zu"
+@@ -63,10 +65,6 @@ extern "C" {
+ #define POCL_FILTER_TYPE_WARN 2
+ #define POCL_FILTER_TYPE_ERR 3
+ 
+-#ifdef __GNUC__
+-#pragma GCC visibility push(hidden)
+-#endif
+-
+ /* Debugging macros. Also macros for marking unimplemented parts of specs or
+    untested parts of the implementation. */
+ 
+@@ -228,6 +226,8 @@ extern "C" {
+     #define POCL_MEASURE_FINISH(...)  do {} while (0)
+     #define POCL_DEBUG_EVENT_TIME(...)  do {} while (0)
+ 
++    #define POCL_MSG_PRINT_CUDA2(...)  do {} while (0)
++    #define POCL_MSG_PRINT_CUDA(...)  do {} while (0)
+     #define POCL_MSG_PRINT_HSA2(...)  do {} while (0)
+     #define POCL_MSG_PRINT_HSA(...)  do {} while (0)
+     #define POCL_MSG_PRINT_TCE2(...)  do {} while (0)
+@@ -320,10 +320,6 @@ extern "C" {
+     }                                                                         \
+   while (0)
+ 
+-#ifdef __GNUC__
+-#pragma GCC visibility pop
+-#endif
+-
+ #ifdef __cplusplus
+ }
+ #endif
+diff --git a/lib/CL/pocl_llvm.h b/lib/CL/pocl_llvm.h
+index 2332d722..bd1d47ff 100644
+--- a/lib/CL/pocl_llvm.h
++++ b/lib/CL/pocl_llvm.h
+@@ -29,10 +29,6 @@
+ extern "C" {
+ #endif
+ 
+-#ifdef __GNUC__
+-#pragma GCC visibility push(hidden)
+-#endif
+-
+ /* Returns the cpu name as reported by LLVM. */
+ char *get_llvm_cpu_name ();
+ /* Returns if the cpu supports FMA instruction (uses LLVM). */
+@@ -126,10 +122,6 @@ int pocl_llvm_link_program(cl_program program,
+ 
+ int pocl_invoke_clang(cl_device_id Device, const char** Args);
+ 
+-#ifdef __GNUC__
+-#pragma GCC visibility pop
+-#endif
+-
+ 
+ #ifdef __cplusplus
+ }
+diff --git a/lib/CL/pocl_timing.h b/lib/CL/pocl_timing.h
+index e01050ca..8aab4da7 100644
+--- a/lib/CL/pocl_timing.h
++++ b/lib/CL/pocl_timing.h
+@@ -1,24 +1,18 @@
+ #ifndef POCL_TIMING_H
+ #define POCL_TIMING_H
+ 
++#include "config.h"
++
+ #ifdef __cplusplus
+ extern "C" {
+ #endif
+ 
+-#ifdef __GNUC__
+-#pragma GCC visibility push(hidden)
+-#endif
+-
+ extern const unsigned pocl_timer_resolution;
+ 
+ uint64_t pocl_gettimemono_ns();
+ 
+ int pocl_gettimereal(int *year, int *mon, int *day, int *hour, int *min, int *sec, int* nanosec);
+ 
+-#ifdef __GNUC__
+-#pragma GCC visibility pop
+-#endif
+-
+ #ifdef __cplusplus
+ }
+ #endif
+diff --git a/lib/CL/pocl_util.h b/lib/CL/pocl_util.h
+index cd9adb52..ce104602 100644
+--- a/lib/CL/pocl_util.h
++++ b/lib/CL/pocl_util.h
+@@ -36,10 +36,6 @@
+ #error aligned malloc unavailable
+ #endif
+ 
+-#ifdef __GNUC__
+-#pragma GCC visibility push(hidden)
+-#endif
+-
+ #ifdef __cplusplus
+ extern "C" {
+ #endif
+@@ -220,10 +216,6 @@ float half_to_float (uint16_t value);
+ }
+ #endif
+ 
+-#ifdef __GNUC__
+-#pragma GCC visibility pop
+-#endif
+-
+ /* Common macro for cleaning up "*GetInfo" API call implementations.
+  * All the *GetInfo functions have been specified to look alike, 
+  * and have been implemented to use the same variable names, so this

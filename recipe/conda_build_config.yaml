@@ -1,3 +1,10 @@
 libhwloc:
   - 1
   - 2
+
+docker_image:                                   # [linux64]
+  - condaforge/linux-anvil-cuda:9.2             # [linux64]
+
+enable_cuda:
+  - True      # [linux64]
+  - False     # [not linux64]
