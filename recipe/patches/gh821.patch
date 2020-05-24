@@ -1,11 +1,11 @@
-commit 08e3fa0f25c7809d9850a5674198a698b68cf7a1
+commit aaa1e419458768071bd4419288bc079a5aa9672c
 Author: Isuru Fernando <isuruf@gmail.com>
 Date:   Sat May 23 17:21:40 2020 -0500
 
     Build device libraries separately and dlopen them
 
 diff --git a/CMakeLists.txt b/CMakeLists.txt
-index 6df8cee3..40243caf 100644
+index 1e39df7c..9f709550 100644
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
 @@ -626,6 +626,7 @@ if(ENABLE_RELOCATION)
@@ -17,7 +17,7 @@ index 6df8cee3..40243caf 100644
  ######################################################################################
  
 diff --git a/config.h.in.cmake b/config.h.in.cmake
-index 42c63f77..e53fe7f1 100644
+index 061a942a..56604c02 100644
 --- a/config.h.in.cmake
 +++ b/config.h.in.cmake
 @@ -184,6 +184,10 @@
@@ -216,7 +216,7 @@ index 29474b49..dad83b1f 100644
 -add_library("pocl-devices-basic" OBJECT basic.h basic.c)
 +add_pocl_device_library("pocl-devices-basic" basic.h basic.c)
 diff --git a/lib/CL/devices/common.h b/lib/CL/devices/common.h
-index 56ab24d6..83bc3f04 100644
+index 396b16cd..e9a6bca9 100644
 --- a/lib/CL/devices/common.h
 +++ b/lib/CL/devices/common.h
 @@ -60,10 +60,6 @@
@@ -227,12 +227,12 @@ index 56ab24d6..83bc3f04 100644
 -#pragma GCC visibility push(hidden)
 -#endif
 -
- void pocl_init_cpu_device_infos (cl_device_id dev);
- 
  int llvm_codegen (char *output, unsigned device_i, cl_kernel kernel,
-@@ -119,10 +115,6 @@ void pocl_print_system_memory_stats();
- void pocl_calculate_kernel_hash (cl_program program, unsigned kernel_i,
-                                  unsigned device_i);
+                   cl_device_id device, _cl_command_node *command,
+                   int specialize);
+@@ -119,10 +115,6 @@ void pocl_calculate_kernel_hash (cl_program program, unsigned kernel_i,
+ 
+ void pocl_init_default_device_infos (cl_device_id dev);
  
 -#ifdef __GNUC__
 -#pragma GCC visibility pop
@@ -274,22 +274,28 @@ index 1c41190a..14658bb4 100644
 -set(POCL_DEVICES_OBJS "${POCL_DEVICES_OBJS};$<TARGET_OBJECTS:pocl-devices-cuda>" PARENT_SCOPE)
 +target_link_libraries(pocl-devices-cuda PUBLIC cuda)
 diff --git a/lib/CL/devices/devices.c b/lib/CL/devices/devices.c
-index e650693a..6bffdc10 100644
+index e650693a..f2e76778 100644
 --- a/lib/CL/devices/devices.c
 +++ b/lib/CL/devices/devices.c
-@@ -42,11 +42,10 @@
+@@ -42,14 +42,13 @@
  #  include "vccompat.hpp"
  #endif
  
-+#include "config.h"
- #include "devices.h"
+-#include "devices.h"
  #include "common.h"
- #include "pocl_runtime_config.h"
+-#include "pocl_runtime_config.h"
 -#include "basic/basic.h"
 -#include "pthread/pocl-pthread.h"
++#include "config.h"
++#include "devices.h"
++#include "pocl_cache.h"
  #include "pocl_debug.h"
++#include "pocl_runtime_config.h"
  #include "pocl_tracing.h"
- #include "pocl_cache.h"
+-#include "pocl_cache.h"
+ 
+ #ifdef OCS_AVAILABLE
+ #include "pocl_llvm.h"
 @@ -61,19 +60,27 @@
  
  #include "hsa/pocl-hsa.h"
@@ -376,7 +382,7 @@ index e650693a..6bffdc10 100644
  
  static pocl_lock_t pocl_init_lock = POCL_LOCK_INITIALIZER;
  
-+static void * pocl_device_handles[POCL_NUM_DEVICE_TYPES];
++static void *pocl_device_handles[POCL_NUM_DEVICE_TYPES];
 +
 +#ifndef _MSC_VER
 +#define POCL_PATH_SEPARATOR "/"
@@ -404,7 +410,7 @@ index e650693a..6bffdc10 100644
 +              strcat (result, device_name);
 +              strcat (result, POCL_PATH_SEPARATOR);
 +            }
-+	  else
++          else
 +#endif
 +            {
 +              strcat (result, POCL_INSTALL_PRIVATE_LIBDIR_REL);
@@ -430,18 +436,19 @@ index e650693a..6bffdc10 100644
        assert (pocl_device_ops[i].init);
        for (j = 0; j < device_count[i]; ++j)
          {
-@@ -353,7 +425,9 @@ pocl_uninit_devices ()
+@@ -353,7 +425,10 @@ pocl_uninit_devices ()
                retval = ret;
                goto FINISH;
              }
 -
-+	  if (pocl_device_handles[i] != NULL) {
-+              dlclose(pocl_device_handles[i]);
-+	  }
++          if (pocl_device_handles[i] != NULL)
++            {
++              dlclose (pocl_device_handles[i]);
++            }
            ++dev_index;
          }
      }
-@@ -500,6 +574,32 @@ pocl_init_devices ()
+@@ -500,6 +575,32 @@ pocl_init_devices ()
    /* Init operations */
    for (i = 0; i < POCL_NUM_DEVICE_TYPES; ++i)
      {
@@ -449,7 +456,7 @@ index e650693a..6bffdc10 100644
 +        {
 +          char device_library[PATH_MAX] = "";
 +          get_pocl_device_lib_path (device_library, pocl_device_types[i]);
-+          pocl_device_handles[i] = dlopen(device_library, RTLD_LAZY);
++          pocl_device_handles[i] = dlopen (device_library, RTLD_LAZY);
 +          char init_device_ops_name[MAX_DEV_NAME_LEN + 21] = "";
 +          strcat (init_device_ops_name, "pocl_");
 +          strcat (init_device_ops_name, pocl_device_types[i]);
@@ -462,7 +469,7 @@ index e650693a..6bffdc10 100644
 +            }
 +          else
 +            {
-+              POCL_MSG_WARN("Loading %s failed.\n", device_library);
++              POCL_MSG_WARN ("Loading %s failed.\n", device_library);
 +              device_count[i] = 0;
 +              continue;
 +            }
@@ -474,7 +481,7 @@ index e650693a..6bffdc10 100644
        pocl_devices_init_ops[i](&pocl_device_ops[i]);
        assert(pocl_device_ops[i].device_name != NULL);
  
-@@ -521,6 +621,8 @@ pocl_init_devices ()
+@@ -521,6 +622,8 @@ pocl_init_devices ()
    /* Init infos for each probed devices */
    for (i = 0; i < POCL_NUM_DEVICE_TYPES; ++i)
      {
@@ -568,23 +575,22 @@ index 49f949fa..cc390f9f 100644
 -
  #endif /* POCL_TOPOLOGY_H */
 diff --git a/lib/CL/pocl_cl.h b/lib/CL/pocl_cl.h
-index 7bfcf3ba..2c84f709 100644
+index 7bfcf3ba..7ce3d916 100644
 --- a/lib/CL/pocl_cl.h
 +++ b/lib/CL/pocl_cl.h
-@@ -223,8 +223,9 @@ typedef pthread_mutex_t pocl_lock_t;
+@@ -223,8 +223,8 @@ typedef pthread_mutex_t pocl_lock_t;
  /* Symbol aliases are supported */
  
  #  define POname(name) PO##name
 -#  define POdeclsym(name)                      \
 -  __typeof__(name) PO##name __attribute__((visibility("hidden")));
 +
-+#  define POdeclsym(name)                     \
-+  __typeof__(name) PO##name;
++#define POdeclsym(name) __typeof__ (name) PO##name;
  #  define POCL_ALIAS_OPENCL_SYMBOL(name)                                \
    __typeof__(name) name __attribute__((alias ("PO" #name), visibility("default")));
  #  define POsymAlways(name) POCL_ALIAS_OPENCL_SYMBOL(name)
 diff --git a/lib/CL/pocl_debug.h b/lib/CL/pocl_debug.h
-index 2b1e9b05..9b9f9058 100644
+index 24927958..9b9f9058 100644
 --- a/lib/CL/pocl_debug.h
 +++ b/lib/CL/pocl_debug.h
 @@ -15,6 +15,8 @@
@@ -596,10 +602,11 @@ index 2b1e9b05..9b9f9058 100644
  // size_t print spec
  #ifndef PRIuS
  # define PRIuS "zu"
-@@ -63,10 +65,6 @@ extern "C" {
+@@ -63,11 +65,6 @@ extern "C" {
  #define POCL_FILTER_TYPE_WARN 2
  #define POCL_FILTER_TYPE_ERR 3
  
+-
 -#ifdef __GNUC__
 -#pragma GCC visibility push(hidden)
 -#endif
@@ -607,7 +614,7 @@ index 2b1e9b05..9b9f9058 100644
  /* Debugging macros. Also macros for marking unimplemented parts of specs or
     untested parts of the implementation. */
  
-@@ -228,6 +226,8 @@ extern "C" {
+@@ -229,6 +226,8 @@ extern "C" {
      #define POCL_MEASURE_FINISH(...)  do {} while (0)
      #define POCL_DEBUG_EVENT_TIME(...)  do {} while (0)
  
@@ -616,7 +623,7 @@ index 2b1e9b05..9b9f9058 100644
      #define POCL_MSG_PRINT_HSA2(...)  do {} while (0)
      #define POCL_MSG_PRINT_HSA(...)  do {} while (0)
      #define POCL_MSG_PRINT_TCE2(...)  do {} while (0)
-@@ -320,10 +320,6 @@ extern "C" {
+@@ -321,10 +320,6 @@ extern "C" {
      }                                                                         \
    while (0)
  
@@ -685,13 +692,14 @@ index e01050ca..8aab4da7 100644
  }
  #endif
 diff --git a/lib/CL/pocl_util.h b/lib/CL/pocl_util.h
-index cd9adb52..ce104602 100644
+index 7e2cdee3..ce104602 100644
 --- a/lib/CL/pocl_util.h
 +++ b/lib/CL/pocl_util.h
-@@ -36,10 +36,6 @@
+@@ -36,11 +36,6 @@
  #error aligned malloc unavailable
  #endif
  
+-
 -#ifdef __GNUC__
 -#pragma GCC visibility push(hidden)
 -#endif
@@ -699,7 +707,7 @@ index cd9adb52..ce104602 100644
  #ifdef __cplusplus
  extern "C" {
  #endif
-@@ -220,10 +216,6 @@ float half_to_float (uint16_t value);
+@@ -221,10 +216,6 @@ float half_to_float (uint16_t value);
  }
  #endif
  
