@@ -63,6 +63,8 @@ outputs:
   - name: pocl
 
   - name: pocl-cuda
+    build:
+      skip: True   # [not enable_cuda]
     script: install-cuda.sh
     requirements:
       host:
