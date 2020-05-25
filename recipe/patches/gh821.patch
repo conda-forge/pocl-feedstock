@@ -1,8 +1,30 @@
-commit aaa1e419458768071bd4419288bc079a5aa9672c
-Author: Isuru Fernando <isuruf@gmail.com>
-Date:   Sat May 23 17:21:40 2020 -0500
+From b883c34a1e9f6263244491ea60cc57c570cfadc8 Mon Sep 17 00:00:00 2001
+From: Isuru Fernando <isuruf@gmail.com>
+Date: Sat, 23 May 2020 17:21:40 -0500
+Subject: [PATCH] Build device libraries separately and dlopen them
 
-    Build device libraries separately and dlopen them
+---
+ CMakeLists.txt                          |   1 +
+ config.h.in.cmake                       |   4 +
+ include/pocl_cache.h                    |   8 --
+ include/pocl_file_util.h                |   8 --
+ lib/CL/CMakeLists.txt                   |  46 +++++----
+ lib/CL/devices/CMakeLists.txt           |  23 ++---
+ lib/CL/devices/basic/CMakeLists.txt     |   2 +-
+ lib/CL/devices/common.h                 |   8 --
+ lib/CL/devices/cpuinfo.h                |   8 --
+ lib/CL/devices/cuda/CMakeLists.txt      |   4 +-
+ lib/CL/devices/devices.c                | 129 +++++++++++++++++++++---
+ lib/CL/devices/devices.h                |   9 +-
+ lib/CL/devices/prototypes.inc           |  11 +-
+ lib/CL/devices/pthread/CMakeLists.txt   |   3 +-
+ lib/CL/devices/topology/pocl_topology.h |   8 --
+ lib/CL/pocl_cl.h                        |   4 +-
+ lib/CL/pocl_debug.h                     |  12 +--
+ lib/CL/pocl_llvm.h                      |   8 --
+ lib/CL/pocl_timing.h                    |  10 +-
+ lib/CL/pocl_util.h                      |   8 --
+ 20 files changed, 172 insertions(+), 142 deletions(-)
 
 diff --git a/CMakeLists.txt b/CMakeLists.txt
 index 1e39df7c..9f709550 100644
@@ -590,7 +612,7 @@ index 7bfcf3ba..7ce3d916 100644
    __typeof__(name) name __attribute__((alias ("PO" #name), visibility("default")));
  #  define POsymAlways(name) POCL_ALIAS_OPENCL_SYMBOL(name)
 diff --git a/lib/CL/pocl_debug.h b/lib/CL/pocl_debug.h
-index 24927958..9b9f9058 100644
+index 2b1e9b05..9b9f9058 100644
 --- a/lib/CL/pocl_debug.h
 +++ b/lib/CL/pocl_debug.h
 @@ -15,6 +15,8 @@
@@ -602,11 +624,10 @@ index 24927958..9b9f9058 100644
  // size_t print spec
  #ifndef PRIuS
  # define PRIuS "zu"
-@@ -63,11 +65,6 @@ extern "C" {
+@@ -63,10 +65,6 @@ extern "C" {
  #define POCL_FILTER_TYPE_WARN 2
  #define POCL_FILTER_TYPE_ERR 3
  
--
 -#ifdef __GNUC__
 -#pragma GCC visibility push(hidden)
 -#endif
@@ -614,7 +635,7 @@ index 24927958..9b9f9058 100644
  /* Debugging macros. Also macros for marking unimplemented parts of specs or
     untested parts of the implementation. */
  
-@@ -229,6 +226,8 @@ extern "C" {
+@@ -228,6 +226,8 @@ extern "C" {
      #define POCL_MEASURE_FINISH(...)  do {} while (0)
      #define POCL_DEBUG_EVENT_TIME(...)  do {} while (0)
  
@@ -623,7 +644,7 @@ index 24927958..9b9f9058 100644
      #define POCL_MSG_PRINT_HSA2(...)  do {} while (0)
      #define POCL_MSG_PRINT_HSA(...)  do {} while (0)
      #define POCL_MSG_PRINT_TCE2(...)  do {} while (0)
-@@ -321,10 +320,6 @@ extern "C" {
+@@ -320,10 +320,6 @@ extern "C" {
      }                                                                         \
    while (0)
  
@@ -692,14 +713,13 @@ index e01050ca..8aab4da7 100644
  }
  #endif
 diff --git a/lib/CL/pocl_util.h b/lib/CL/pocl_util.h
-index 7e2cdee3..ce104602 100644
+index cd9adb52..ce104602 100644
 --- a/lib/CL/pocl_util.h
 +++ b/lib/CL/pocl_util.h
-@@ -36,11 +36,6 @@
+@@ -36,10 +36,6 @@
  #error aligned malloc unavailable
  #endif
  
--
 -#ifdef __GNUC__
 -#pragma GCC visibility push(hidden)
 -#endif
@@ -707,7 +727,7 @@ index 7e2cdee3..ce104602 100644
  #ifdef __cplusplus
  extern "C" {
  #endif
-@@ -221,10 +216,6 @@ float half_to_float (uint16_t value);
+@@ -220,10 +216,6 @@ float half_to_float (uint16_t value);
  }
  #endif
  
@@ -718,3 +738,6 @@ index 7e2cdee3..ce104602 100644
  /* Common macro for cleaning up "*GetInfo" API call implementations.
   * All the *GetInfo functions have been specified to look alike, 
   * and have been implemented to use the same variable names, so this
+-- 
+2.24.0
+

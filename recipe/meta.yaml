@@ -38,7 +38,6 @@ requirements:
     - ocl-icd                            # [linux]
     - khronos-opencl-icd-loader          # [osx]
     - libhwloc
-    - libtool
     - llvmdev =={{ llvm_version }}
     - clangdev =={{ llvm_version }}
     - lld =={{ llvm_version }}
@@ -47,7 +46,6 @@ requirements:
     - ocl-icd                            # [linux]
     - khronos-opencl-icd-loader          # [osx]
     - {{ pin_compatible('libhwloc') }}
-    - libtool
 
 test:
   requires:
@@ -80,7 +78,9 @@ outputs:
 about:
   home: http://portablecl.org/
   license: MIT
-  license_file: LICENSE
+  license_file:
+    - LICENSE
+    - LLVM-License.txt
   summary: Portable Computing Language -- a CPU OpenCL implementation
   dev_url: https://github.com/pocl/pocl
 

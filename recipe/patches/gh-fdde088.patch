@@ -1,11 +1,22 @@
-commit 48e9af8f53c5e0d05c330ef6247d8711ddbe5110
-Author: Pekka Jääskeläinen <pekka.jaaskelainen@tuni.fi>
-Date:   Tue May 19 16:00:31 2020 +0300
+From 06f270d654a568317fbc7585e0ab72ec1ad20e34 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Pekka=20J=C3=A4=C3=A4skel=C3=A4inen?=
+ <pekka.jaaskelainen@tuni.fi>
+Date: Tue, 19 May 2020 16:00:31 +0300
+Subject: [PATCH] Rename pocl_init_cpu_device_infos() to
+ *_default_device_infos()
 
-    Rename pocl_init_cpu_device_infos() to *_default_device_infos()
-    
-    Also move it to common.c so we can (again) build pocl platforms
-    without the default CPU devices.
+Also move it to common.c so we can (again) build pocl platforms
+without the default CPU devices.
+---
+ CMakeLists.txt                   |   2 +
+ config.h.in.cmake                |   2 +-
+ lib/CL/devices/basic/basic.c     | 246 +------------------------------
+ lib/CL/devices/common.c          | 242 ++++++++++++++++++++++++++++++
+ lib/CL/devices/common.h          |   4 +-
+ lib/CL/devices/cuda/pocl-cuda.c  |   2 +-
+ lib/CL/devices/hsa/pocl-hsa.c    |   2 +-
+ lib/CL/devices/pthread/pthread.c |   3 +-
+ 8 files changed, 253 insertions(+), 250 deletions(-)
 
 diff --git a/CMakeLists.txt b/CMakeLists.txt
 index 6df8cee3..1e39df7c 100644
@@ -602,7 +613,7 @@ index 56ab24d6..396b16cd 100644
  #pragma GCC visibility pop
  #endif
 diff --git a/lib/CL/devices/cuda/pocl-cuda.c b/lib/CL/devices/cuda/pocl-cuda.c
-index 56887601..f61218ba 100644
+index 0db3f86a..952d0f48 100644
 --- a/lib/CL/devices/cuda/pocl-cuda.c
 +++ b/lib/CL/devices/cuda/pocl-cuda.c
 @@ -129,7 +129,7 @@ pocl_cuda_init (unsigned j, cl_device_id dev, const char *parameters)
@@ -641,3 +652,6 @@ index e535470f..d0f6d82f 100644
  
    device->on_host_queue_props
        = CL_QUEUE_OUT_OF_ORDER_EXEC_MODE_ENABLE | CL_QUEUE_PROFILING_ENABLE;
+-- 
+2.24.0
+
