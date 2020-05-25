@@ -1,6 +1,6 @@
 {% set name = "pocl" %}
 {% set version = "1.5" %}
-{% set build_number = 1 %}
+{% set build_number = 2 %}
 {% set sha256 = "4fcf4618171727d165fc044d465a66e3119217bb4577a97374f94fcd8aed330e" %}
 {% set llvm_version = "6.0.1" %}
 
@@ -16,8 +16,10 @@ source:
       - patches/gh819.patch
       - patches/gh822.patch
       - patches/gh824.patch
+      - patches/gh-fdde088.patch
       - patches/gh821.patch
       - patches/gh-459d0bb.patch
+      - patches/gh833.patch
 
 build:
   number: {{ build_number }}
@@ -36,7 +38,6 @@ requirements:
     - ocl-icd                            # [linux]
     - khronos-opencl-icd-loader          # [osx]
     - libhwloc
-    - libtool
     - llvmdev =={{ llvm_version }}
     - clangdev =={{ llvm_version }}
     - lld =={{ llvm_version }}
@@ -45,7 +46,6 @@ requirements:
     - ocl-icd                            # [linux]
     - khronos-opencl-icd-loader          # [osx]
     - {{ pin_compatible('libhwloc') }}
-    - libtool
 
 test:
   requires:
@@ -78,7 +78,9 @@ outputs:
 about:
   home: http://portablecl.org/
   license: MIT
-  license_file: LICENSE
+  license_file:
+    - LICENSE
+    - LLVM-License.txt
   summary: Portable Computing Language -- a CPU OpenCL implementation
   dev_url: https://github.com/pocl/pocl
 
