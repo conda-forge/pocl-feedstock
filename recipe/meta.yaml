@@ -19,6 +19,7 @@ source:
       - patches/gh-fdde088.patch
       - patches/gh821.patch
       - patches/gh-459d0bb.patch
+      - patches/gh833.patch
 
 build:
   number: {{ build_number }}

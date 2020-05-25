@@ -1,25 +1,14 @@
-From fdde08803302ec8154df35b026f1e22e6d50e05f Mon Sep 17 00:00:00 2001
-From: =?UTF-8?q?Pekka=20J=C3=A4=C3=A4skel=C3=A4inen?=
- <pekka.jaaskelainen@tuni.fi>
-Date: Tue, 19 May 2020 16:00:31 +0300
-Subject: [PATCH] Rename pocl_init_cpu_device_infos() to
- *_default_device_infos()
+commit 48e9af8f53c5e0d05c330ef6247d8711ddbe5110
+Author: Pekka Jääskeläinen <pekka.jaaskelainen@tuni.fi>
+Date:   Tue May 19 16:00:31 2020 +0300
 
-Also move it to common.c so we can (again) build pocl platforms
-without the default CPU devices.
----
- CMakeLists.txt                   |   2 +
- config.h.in.cmake                |   2 +-
- lib/CL/devices/basic/basic.c     | 246 +------------------------------
- lib/CL/devices/common.c          | 242 ++++++++++++++++++++++++++++++
- lib/CL/devices/common.h          |   4 +-
- lib/CL/devices/cuda/pocl-cuda.c  |   2 +-
- lib/CL/devices/hsa/pocl-hsa.c    |   2 +-
- lib/CL/devices/pthread/pthread.c |   3 +-
- 8 files changed, 253 insertions(+), 250 deletions(-)
+    Rename pocl_init_cpu_device_infos() to *_default_device_infos()
+    
+    Also move it to common.c so we can (again) build pocl platforms
+    without the default CPU devices.
 
 diff --git a/CMakeLists.txt b/CMakeLists.txt
-index 95b754b9e..58f4b2d3e 100644
+index 6df8cee3..1e39df7c 100644
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
 @@ -1013,10 +1013,12 @@ endif()
@@ -36,7 +25,7 @@ index 95b754b9e..58f4b2d3e 100644
  
  # must not be defined in HOST_DEVICE_EXTENSIONS list, because
 diff --git a/config.h.in.cmake b/config.h.in.cmake
-index 42c63f77f..061a942a2 100644
+index 42c63f77..061a942a 100644
 --- a/config.h.in.cmake
 +++ b/config.h.in.cmake
 @@ -94,7 +94,7 @@
@@ -49,10 +38,10 @@ index 42c63f77f..061a942a2 100644
  #ifdef BUILD_HSA
  
 diff --git a/lib/CL/devices/basic/basic.c b/lib/CL/devices/basic/basic.c
-index 59a03fb60..ab219e02c 100644
+index 071d9330..f32fc988 100644
 --- a/lib/CL/devices/basic/basic.c
 +++ b/lib/CL/devices/basic/basic.c
-@@ -54,10 +54,6 @@
+@@ -53,10 +53,6 @@
  #error Basic driver requires DL library
  #endif
  
@@ -63,7 +52,7 @@ index 59a03fb60..ab219e02c 100644
  struct data {
    /* Currently loaded kernel. */
    cl_kernel current_kernel;
-@@ -72,41 +68,6 @@ struct data {
+@@ -71,41 +67,6 @@ struct data {
    void *printf_buffer;
  };
  
@@ -105,7 +94,7 @@ index 59a03fb60..ab219e02c 100644
  void
  pocl_basic_init_device_ops(struct pocl_device_ops *ops)
  {
-@@ -173,210 +134,6 @@ pocl_basic_build_hash (cl_device_id device)
+@@ -171,210 +132,6 @@ pocl_basic_build_hash (cl_device_id device)
    return res;
  }
  
@@ -316,7 +305,7 @@ index 59a03fb60..ab219e02c 100644
  unsigned int
  pocl_basic_probe(struct pocl_device_ops *ops)
  {
-@@ -412,7 +169,8 @@ pocl_basic_init (unsigned j, cl_device_id device, const char* parameters)
+@@ -410,7 +167,8 @@ pocl_basic_init (unsigned j, cl_device_id device, const char* parameters)
    d->current_kernel = NULL;
    device->data = d;
  
@@ -327,7 +316,7 @@ index 59a03fb60..ab219e02c 100644
    /* hwloc probes OpenCL device info at its initialization in case
       the OpenCL extension is enabled. This causes to printout 
 diff --git a/lib/CL/devices/common.c b/lib/CL/devices/common.c
-index ad0059e8f..256b0e15b 100644
+index ad0059e8..256b0e15 100644
 --- a/lib/CL/devices/common.c
 +++ b/lib/CL/devices/common.c
 @@ -29,6 +29,7 @@
@@ -591,7 +580,7 @@ index ad0059e8f..256b0e15b 100644
 +
 +}
 diff --git a/lib/CL/devices/common.h b/lib/CL/devices/common.h
-index 56ab24d60..396b16cda 100644
+index 56ab24d6..396b16cd 100644
 --- a/lib/CL/devices/common.h
 +++ b/lib/CL/devices/common.h
 @@ -64,8 +64,6 @@ extern "C" {
@@ -613,10 +602,10 @@ index 56ab24d60..396b16cda 100644
  #pragma GCC visibility pop
  #endif
 diff --git a/lib/CL/devices/cuda/pocl-cuda.c b/lib/CL/devices/cuda/pocl-cuda.c
-index 16b6dc9e4..3ab7936b3 100644
+index 56887601..f61218ba 100644
 --- a/lib/CL/devices/cuda/pocl-cuda.c
 +++ b/lib/CL/devices/cuda/pocl-cuda.c
-@@ -170,7 +170,7 @@ pocl_cuda_init (unsigned j, cl_device_id dev, const char *parameters)
+@@ -129,7 +129,7 @@ pocl_cuda_init (unsigned j, cl_device_id dev, const char *parameters)
    if (dev->data)
      return ret;
  
@@ -626,10 +615,10 @@ index 16b6dc9e4..3ab7936b3 100644
    dev->vendor = "NVIDIA Corporation";
    dev->vendor_id = 0x10de; /* the PCIID for NVIDIA */
 diff --git a/lib/CL/devices/hsa/pocl-hsa.c b/lib/CL/devices/hsa/pocl-hsa.c
-index f0ae7e075..4593f17e3 100644
+index e0c228ee..9df53afd 100644
 --- a/lib/CL/devices/hsa/pocl-hsa.c
 +++ b/lib/CL/devices/hsa/pocl-hsa.c
-@@ -657,7 +657,7 @@ init_dev_data (cl_device_id dev, int count)
+@@ -669,7 +669,7 @@ init_dev_data (cl_device_id dev, int count)
  cl_int
  pocl_hsa_init (unsigned j, cl_device_id dev, const char *parameters)
  {
@@ -639,7 +628,7 @@ index f0ae7e075..4593f17e3 100644
    SETUP_DEVICE_CL_VERSION(HSA_DEVICE_CL_VERSION_MAJOR,
                            HSA_DEVICE_CL_VERSION_MINOR)
 diff --git a/lib/CL/devices/pthread/pthread.c b/lib/CL/devices/pthread/pthread.c
-index e535470f3..d0f6d82fd 100644
+index e535470f..d0f6d82f 100644
 --- a/lib/CL/devices/pthread/pthread.c
 +++ b/lib/CL/devices/pthread/pthread.c
 @@ -147,7 +147,8 @@ pocl_pthread_init (unsigned j, cl_device_id device, const char* parameters)
