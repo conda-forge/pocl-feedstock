@@ -7,6 +7,8 @@ cxx_compiler:
 cxx_compiler_version:
 - '8'
 docker_image:
-- condaforge/linux-anvil-ppc64le
+- condaforge/linux-anvil-ppc64le-cuda:9.2
+enable_cuda:
+- 'True'
 libhwloc:
 - '1'

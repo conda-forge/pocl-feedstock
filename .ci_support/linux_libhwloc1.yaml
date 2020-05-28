@@ -10,6 +10,8 @@ cxx_compiler_version:
 - '7'
 docker_image:
 - condaforge/linux-anvil-cuda:9.2
+enable_cuda:
+- 'True'
 libhwloc:
 - '1'
 pin_run_as_build:

@@ -14,5 +14,7 @@ cxx_compiler_version:
 - '7'
 docker_image:
 - condaforge/linux-anvil-aarch64
+enable_cuda:
+- 'False'
 libhwloc:
 - '2'

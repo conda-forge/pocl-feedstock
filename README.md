@@ -118,6 +118,7 @@ Current release info
 | Name | Downloads | Version | Platforms |
 | --- | --- | --- | --- |
 | [![Conda Recipe](https://img.shields.io/badge/recipe-pocl-green.svg)](https://anaconda.org/conda-forge/pocl) | [![Conda Downloads](https://img.shields.io/conda/dn/conda-forge/pocl.svg)](https://anaconda.org/conda-forge/pocl) | [![Conda Version](https://img.shields.io/conda/vn/conda-forge/pocl.svg)](https://anaconda.org/conda-forge/pocl) | [![Conda Platforms](https://img.shields.io/conda/pn/conda-forge/pocl.svg)](https://anaconda.org/conda-forge/pocl) |
+| [![Conda Recipe](https://img.shields.io/badge/recipe-pocl--cuda-green.svg)](https://anaconda.org/conda-forge/pocl-cuda) | [![Conda Downloads](https://img.shields.io/conda/dn/conda-forge/pocl-cuda.svg)](https://anaconda.org/conda-forge/pocl-cuda) | [![Conda Version](https://img.shields.io/conda/vn/conda-forge/pocl-cuda.svg)](https://anaconda.org/conda-forge/pocl-cuda) | [![Conda Platforms](https://img.shields.io/conda/pn/conda-forge/pocl-cuda.svg)](https://anaconda.org/conda-forge/pocl-cuda) |
 
 Installing pocl
 ===============
@@ -128,10 +129,10 @@ Installing `pocl` from the `conda-forge` channel can be achieved by adding `cond
 conda config --add channels conda-forge
 ```
 
-Once the `conda-forge` channel has been enabled, `pocl` can be installed with:
+Once the `conda-forge` channel has been enabled, `pocl, pocl-cuda` can be installed with:
 
 ```
-conda install pocl
+conda install pocl pocl-cuda
 ```
 
 It is possible to list all of the versions of `pocl` available on your platform with:
