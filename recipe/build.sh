@@ -37,7 +37,7 @@ elif [[ "$target_platform" == linux-ppc64le ]]; then
 fi
 
 if [[ "$enable_cuda" == "True" ]]; then
-  EXTRA_CMAKE_ARGS="$EXTRA_CMAKE_ARGS -DENABLE_CUDA=ON"
+  EXTRA_CMAKE_ARGS="$EXTRA_CMAKE_ARGS -DENABLE_CUDA=ON -DCUDA_TOOLKIT_ROOT_DIR=$CUDA_HOME"
   LDFLAGS="$LDFLAGS -L$CUDA_HOME/lib64/stubs"
 fi
 
