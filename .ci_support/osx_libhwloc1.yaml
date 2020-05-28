@@ -10,6 +10,8 @@ cxx_compiler:
 - clangxx
 cxx_compiler_version:
 - '9'
+enable_cuda:
+- 'False'
 libhwloc:
 - '1'
 macos_machine:
