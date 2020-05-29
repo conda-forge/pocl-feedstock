@@ -1,6 +1,6 @@
 {% set name = "pocl" %}
 {% set version = "1.5" %}
-{% set build_number = 3 %}
+{% set build_number = 4 %}
 {% set sha256 = "4fcf4618171727d165fc044d465a66e3119217bb4577a97374f94fcd8aed330e" %}
 {% set llvm_version = "6.0.1" %}
 
@@ -19,9 +19,10 @@ source:
       - patches/gh-fdde088.patch
       - patches/gh821.patch
       - patches/gh-459d0bb.patch
-      - patches/gh833.patch
       - patches/gh834.patch
       - patches/gh836.patch
+      - patches/gh-804bc73.patch
+      - patches/gh837.patch
 
 build:
   number: {{ build_number }}
