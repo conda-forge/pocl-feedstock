@@ -1,6 +1,6 @@
 {% set name = "pocl" %}
 {% set version = "1.5" %}
-{% set build_number = 5 %}
+{% set build_number = 6 %}
 {% set sha256 = "4fcf4618171727d165fc044d465a66e3119217bb4577a97374f94fcd8aed330e" %}
 {% set llvm_version = "6.0.1" %}
 
@@ -23,6 +23,7 @@ source:
       - patches/gh836.patch
       - patches/gh-804bc73.patch
       - patches/gh838.patch
+      - patches/gh-revert-6ba1495.patch
 
 build:
   number: {{ build_number }}
@@ -52,15 +53,15 @@ requirements:
 
 test:
   requires:
-    - pyopencl  # [x86_64]
-    - curl  # [x86_64]
+    - pyopencl
+    - curl
   commands:
     - test -f $PREFIX/lib/libpocl${SHLIB_EXT}     # [unix]
     # Remove apple icd so that only pocl is found
     - rm $PREFIX/etc/OpenCL/vendors/apple.icd     # [osx]
     - export OCL_ICD_DEBUG=15                     # [linux]
-    - curl -O https://raw.githubusercontent.com/inducer/pyopencl/master/examples/demo.py  # [x86_64]
-    - python demo.py  # [x86_64]
+    - curl -O https://raw.githubusercontent.com/inducer/pyopencl/master/examples/demo.py
+    - python demo.py
 
 outputs:
   - name: pocl
