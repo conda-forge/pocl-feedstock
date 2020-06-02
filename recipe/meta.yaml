@@ -1,6 +1,6 @@
 {% set name = "pocl" %}
 {% set version = "1.5" %}
-{% set build_number = 5 %}
+{% set build_number = 6 %}
 {% set sha256 = "4fcf4618171727d165fc044d465a66e3119217bb4577a97374f94fcd8aed330e" %}
 {% set llvm_version = "6.0.1" %}
 
@@ -23,6 +23,7 @@ source:
       - patches/gh836.patch
       - patches/gh-804bc73.patch
       - patches/gh838.patch
+      - patches/gh-revert-6ba1495.patch
 
 build:
   number: {{ build_number }}
