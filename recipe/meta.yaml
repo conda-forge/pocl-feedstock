@@ -48,10 +48,14 @@ requirements:
     - clangdev =={{ llvm_version }}
     - lld =={{ llvm_version }}
     - zlib                               # [osx]
+    - libllvm
   run:
     - ocl-icd                            # [linux]
     - khronos-opencl-icd-loader          # [osx]
     - {{ pin_compatible('libhwloc') }}
+    # TODO: Change this to libclang-cpp when `libclang-cpp` is separated
+    # into a different conda package
+    - clang
 
 test:
   requires:
