@@ -28,9 +28,9 @@ if [[ "$target_platform" == osx* ]]; then
 fi
 
 if [[ "$target_platform" == linux-aarch64 ]]; then
-  AARCH64_CPUS="generic;cortex-a35;cortex-a53;cortex-a55;cortex-a57;cortex-a72;cortex-a73;cortex-a75"
-  AARCH64_CPUS="${AARCH64_CPUS};cyclone;exynos-m1;exynos-m2;exynos-m3;falkor;kryo;saphira"
-  AARCH64_CPUS="${AARCH64_CPUS};thunderx;thunderx2t99;thunderxt81;thunderxt83;thunderxt88"
+  AARCH64_CPUS="generic;cortex-a35;cortex-a53;cortex-a55;cortex-a57;cortex-a65;cortex-a65e;cortex-a72;cortex-a73;cortex-a75;cortex-a76;cortex-a76e"
+  AARCH64_CPUS="${AARCH64_CPUS};cyclone;exynos-m3;exynos-m4;exynos-m5;falkor;kryo;neoverse-e1;neoverse-n1;saphira"
+  AARCH64_CPUS="${AARCH64_CPUS};thunderx;thunderx2t99;thunderxt81;thunderxt83;thunderxt88;tsv110"
   EXTRA_CMAKE_ARGS="-DKERNELLIB_HOST_CPU_VARIANTS='${AARCH64_CPUS}' -DLLC_HOST_CPU=cortex-a35 -DCLANG_MARCH_FLAG='-mcpu='"
 elif [[ "$target_platform" == linux-ppc64le ]]; then
   EXTRA_CMAKE_ARGS="-DKERNELLIB_HOST_CPU_VARIANTS='pwr8;pwr9;generic' -DCLANG_MARCH_FLAG='-mcpu='"
