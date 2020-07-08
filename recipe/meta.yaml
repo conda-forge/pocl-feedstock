@@ -12,6 +12,8 @@ source:
   - url: https://github.com/{{ name }}/{{ name }}/archive/v{{ version }}.tar.gz
     sha256: {{ sha256 }}
     patches:
+      # https://github.com/pocl/pocl/issues/757#issuecomment-655275263
+      - patches/gh757.patch
       - patches/gh814.patch
       - patches/gh819.patch
       - patches/gh822.patch

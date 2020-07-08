@@ -1,0 +1,20 @@
+diff --git a/lib/llvmopencl/ParallelRegion.cc b/lib/llvmopencl/ParallelRegion.cc
+index 187e8b52..4a635377 100644
+--- a/lib/llvmopencl/ParallelRegion.cc
++++ b/lib/llvmopencl/ParallelRegion.cc
+@@ -474,7 +474,14 @@ void ParallelRegion::AddParallelLoopMetadata(llvm::MDNode *Identifier) {
+     for (BasicBlock::iterator ii = bb->begin(), ee = bb->end();
+          ii != ee; ii++) {
+ 
+-      if (ii->mayReadOrWriteMemory()) {
++      if (ii->mayReadFromMemory()) {
++        // Parallel loop metadata on memory reads also implies that
++        // if-conversion (i.e., speculative execution within a loop
++        // iteration) is safe. This isn't guaranteed.
++        continue;
++      }
++
++      if (ii->mayWriteToMemory()) {
+         MDNode *NewMD = MDNode::get(bb->getContext(), Identifier);
+         MDNode *OldMD = ii->getMetadata(PARALLEL_MD_NAME);
+         if (OldMD != nullptr) {
