@@ -5,7 +5,7 @@ Home: http://portablecl.org/
 
 Package license: MIT
 
-Feedstock license: BSD 3-Clause
+Feedstock license: BSD-3-Clause
 
 Summary: Portable Computing Language -- a CPU OpenCL implementation
 

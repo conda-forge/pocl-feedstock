@@ -1,8 +1,8 @@
 {% set name = "pocl" %}
 {% set version = "1.5" %}
-{% set build_number = 6 %}
+{% set build_number = 7 %}
 {% set sha256 = "4fcf4618171727d165fc044d465a66e3119217bb4577a97374f94fcd8aed330e" %}
-{% set llvm_version = "6.0.1" %}
+{% set llvm_version = "10.0.0" %}
 
 package:
   name: {{ name|lower }}
@@ -12,6 +12,8 @@ source:
   - url: https://github.com/{{ name }}/{{ name }}/archive/v{{ version }}.tar.gz
     sha256: {{ sha256 }}
     patches:
+      # https://github.com/pocl/pocl/issues/757#issuecomment-655275263
+      - patches/gh757.patch
       - patches/gh814.patch
       - patches/gh819.patch
       - patches/gh822.patch
@@ -42,14 +44,18 @@ requirements:
     - ocl-icd                            # [linux]
     - khronos-opencl-icd-loader          # [osx]
     - libhwloc
-    - llvmdev =={{ llvm_version }}
-    - clangdev =={{ llvm_version }}
-    - lld =={{ llvm_version }}
+    - llvmdev {{ llvm_version }}.*
+    - clangdev {{ llvm_version }}.*
+    - llvm {{ llvm_version }}.*
+    - lld {{ llvm_version }}.*
     - zlib                               # [osx]
   run:
     - ocl-icd                            # [linux]
     - khronos-opencl-icd-loader          # [osx]
     - {{ pin_compatible('libhwloc') }}
+    # TODO: Change this to libclang-cpp when `libclang-cpp` is separated
+    # into a different conda package
+    - clang {{ llvm_version }}.*
 
 test:
   requires:
