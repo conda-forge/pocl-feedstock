@@ -1,16 +1,3 @@
-diff --git a/CHANGES b/CHANGES
-index 89c29428f..49d2b627a 100644
---- a/CHANGES
-+++ b/CHANGES
-@@ -34,6 +34,8 @@ Optimizations
- Notable Bug Fixes
- -----------------
- - Fix LLVM loop vectorizing remarks printing (POCL_VECTORIZER_REMARKS=1).
-+- Fix an issue in which the loop vectorizer produced code with invalid
-+  memory reads (issue #757).
- 
- 1.5 April 2020
- ==============
 diff --git a/lib/llvmopencl/ParallelRegion.cc b/lib/llvmopencl/ParallelRegion.cc
 index fe08e75cc..01f6dc3a7 100644
 --- a/lib/llvmopencl/ParallelRegion.cc
