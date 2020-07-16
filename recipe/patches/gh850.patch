@@ -1,0 +1,279 @@
+diff --git a/CHANGES b/CHANGES
+index 89c29428f..49d2b627a 100644
+--- a/CHANGES
++++ b/CHANGES
+@@ -34,6 +34,8 @@ Optimizations
+ Notable Bug Fixes
+ -----------------
+ - Fix LLVM loop vectorizing remarks printing (POCL_VECTORIZER_REMARKS=1).
++- Fix an issue in which the loop vectorizer produced code with invalid
++  memory reads (issue #757).
+ 
+ 1.5 April 2020
+ ==============
+diff --git a/lib/llvmopencl/ParallelRegion.cc b/lib/llvmopencl/ParallelRegion.cc
+index fe08e75cc..01f6dc3a7 100644
+--- a/lib/llvmopencl/ParallelRegion.cc
++++ b/lib/llvmopencl/ParallelRegion.cc
+@@ -441,6 +441,12 @@ ParallelRegion::Verify()
+   return true;
+ }
+ 
++#ifdef LLVM_OLDER_THAN_8_0
++#define PARALLEL_MD_NAME "llvm.mem.parallel_loop_access"
++#else
++#define PARALLEL_MD_NAME "llvm.access.group"
++#endif
++
+ /**
+  * Adds metadata to all the memory instructions to denote
+  * they originate from a parallel loop.
+@@ -448,40 +454,49 @@ ParallelRegion::Verify()
+  * Due to nested parallel loops, there can be multiple loop
+  * references.
+  *
+- * Format:
+- * llvm.mem.parallel_loop_access !0
++ * Format (LLVM 8+):
++ *
++ *     !llvm.access.group !0
+  *
+- * !0 { metadata !0 }
++ *     !0 distinct !{}
+  *
+  * In a 2-nested loop:
+  *
+- * llvm.mem.parallel_loop_access !0
++ *     !llvm.access.group !0
++ *
++ *     !0 { !1, !2 }
++ *     !1 distinct !{}
++ *     !2 distinct !{}
+  *
+- * !0 { metadata !1, metadata !2}
+- * !1 { metadata !1 }
+- * !2 { metadata !2 }
++ * Parallel loop metadata on memory reads also implies that
++ * if-conversion (i.e., speculative execution within a loop iteration)
++ * is safe. Given an instruction reading from memory,
++ * IsLoadUnconditionallySafe should return whether it is safe under
++ * (unconditional, unpredicated) speculative execution.
++ * See https://bugs.llvm.org/show_bug.cgi?id=46666
+  */
+-
+-#ifdef LLVM_OLDER_THAN_8_0
+-#define PARALLEL_MD_NAME "llvm.mem.parallel_loop_access"
+-#else
+-#define PARALLEL_MD_NAME "llvm.access.group"
+-#endif
+-
+-void ParallelRegion::AddParallelLoopMetadata(llvm::MDNode *Identifier) {
++void
++ParallelRegion::AddParallelLoopMetadata(
++    llvm::MDNode *Identifier,
++    std::function<bool(llvm::Instruction *)> IsLoadUnconditionallySafe) {
+   for (iterator i = begin(), e = end(); i != e; ++i) {
+     BasicBlock* bb = *i;      
+     for (BasicBlock::iterator ii = bb->begin(), ee = bb->end();
+          ii != ee; ii++) {
++      if (!ii->mayReadOrWriteMemory()) {
++        continue;
++      }
+ 
+-      if (ii->mayReadOrWriteMemory()) {
+-        MDNode *NewMD = MDNode::get(bb->getContext(), Identifier);
+-        MDNode *OldMD = ii->getMetadata(PARALLEL_MD_NAME);
+-        if (OldMD != nullptr) {
+-          NewMD = llvm::MDNode::concatenate(OldMD, NewMD);
+-        }
+-        ii->setMetadata(PARALLEL_MD_NAME, NewMD);
++      if (ii->mayReadFromMemory() && !IsLoadUnconditionallySafe(&*ii)) {
++        continue;
++      }
++
++      MDNode *NewMD = MDNode::get(bb->getContext(), Identifier);
++      MDNode *OldMD = ii->getMetadata(PARALLEL_MD_NAME);
++      if (OldMD != nullptr) {
++        NewMD = llvm::MDNode::concatenate(OldMD, NewMD);
+       }
++      ii->setMetadata(PARALLEL_MD_NAME, NewMD);
+     }
+   }
+ }
+diff --git a/lib/llvmopencl/ParallelRegion.h b/lib/llvmopencl/ParallelRegion.h
+index e3af93199..4e359068e 100644
+--- a/lib/llvmopencl/ParallelRegion.h
++++ b/lib/llvmopencl/ParallelRegion.h
+@@ -24,6 +24,7 @@
+ #ifndef _POCL_PARALLEL_REGION_H
+ #define _POCL_PARALLEL_REGION_H
+ 
++#include <functional>
+ #include <vector>
+ #include <sstream>
+ 
+@@ -79,7 +80,9 @@ class Kernel;
+                        std::size_t y = 0, 
+                        std::size_t z = 0);
+ 
+-    void AddParallelLoopMetadata(llvm::MDNode *Identifier);
++    void AddParallelLoopMetadata
++        (llvm::MDNode *Identifier,
++         std::function<bool(llvm::Instruction *)> IsLoadUnconditionallySafe);
+ 
+     bool HasBlock(llvm::BasicBlock *bb);
+ 
+diff --git a/lib/llvmopencl/WorkitemLoops.cc b/lib/llvmopencl/WorkitemLoops.cc
+index 64294111e..b156c5172 100644
+--- a/lib/llvmopencl/WorkitemLoops.cc
++++ b/lib/llvmopencl/WorkitemLoops.cc
+@@ -212,6 +212,16 @@ WorkitemLoops::CreateLoopAround
+ 
+   DTP->runOnFunction(*F);
+ 
++  /* Collect the basic blocks in the parallel region that dominate the
++     exit. These are used in determining whether load instructions may
++     be executed unconditionally in the parallel loop (see below). */
++  llvm::SmallPtrSet<llvm::BasicBlock *, 8> dominatesExitBB;
++  for (auto bb: region) {
++    if (DT->dominates(bb, exitBB)) {
++      dominatesExitBB.insert(bb);
++    }
++  }
++
+   //  F->viewCFG();
+   /* Fix the old edges jumping to the region to jump to the basic block
+      that starts the created loop. Back edges should still point to the
+@@ -308,10 +318,17 @@ WorkitemLoops::CreateLoopAround
+   //   !1 = metadata !{metadata !1} <- self-referential root
+   loopBranch->setMetadata("llvm.loop", Root);
+ 
++  auto IsLoadUnconditionallySafe =
++    [&dominatesExitBB](llvm::Instruction *insn) -> bool {
++      assert(insn->mayReadFromMemory());
++      // Checks that the instruction isn't in a conditional block.
++      return dominatesExitBB.count(insn->getParent());
++    };
++
+ #ifdef LLVM_OLDER_THAN_8_0
+-  region.AddParallelLoopMetadata(Root);
++  region.AddParallelLoopMetadata(Root, IsLoadUnconditionallySafe);
+ #else
+-  region.AddParallelLoopMetadata(AccessGroupMD);
++  region.AddParallelLoopMetadata(AccessGroupMD, IsLoadUnconditionallySafe);
+ #endif
+ 
+   builder.SetInsertPoint(loopEndBB);
+diff --git a/tests/regression/CMakeLists.txt b/tests/regression/CMakeLists.txt
+index 2c7e6b73f..3eb98a22e 100644
+--- a/tests/regression/CMakeLists.txt
++++ b/tests/regression/CMakeLists.txt
+@@ -43,7 +43,7 @@ set(PROGRAMS_TO_BUILD test_barrier_between_for_loops test_early_return
+   test_barrier_before_return test_infinite_loop test_constant_array
+   test_undominated_variable test_setargs test_null_arg
+   test_fors_with_var_iteration_counts test_issue_231 test_issue_445
+-  test_autolocals_in_constexprs test_issue_553 test_issue_577
++  test_autolocals_in_constexprs test_issue_553 test_issue_577 test_issue_757
+   test_flatten_barrier_subs
+   test_alignment_with_dynamic_wg test_alignment_with_dynamic_wg2 test_alignment_with_dynamic_wg3)
+ 
+@@ -72,6 +72,8 @@ add_test_pocl(NAME "regression/test_issue_553" COMMAND "test_issue_553")
+ 
+ add_test_pocl(NAME "regression/test_issue_577" COMMAND "test_issue_577")
+ 
++add_test_pocl(NAME "regression/test_issue_757" COMMAND "test_issue_757")
++
+ add_test_pocl(NAME "regression/test_flatten_barrier_subs" COMMAND "test_flatten_barrier_subs" EXPECTED_OUTPUT "test_flatten_barrier_subs.output")
+ 
+ # repl
+@@ -263,7 +265,8 @@ set_tests_properties("regression/setting_a_buffer_argument_to_NULL_causes_a_segf
+   "regression/struct_kernel_arguments" "regression/vector_kernel_arguments"
+   "regression/autolocals_in_constexprs" "regression/test_issue_231"
+   "regression/test_issue_445" "regression/test_issue_553"
+-  "regression/test_issue_577" "regression/test_flatten_barrier_subs"
++  "regression/test_issue_577" "regression/test_issue_757"
++  "regression/test_flatten_barrier_subs"
+   ${TCE_TESTS}
+   PROPERTIES
+     COST 1.5
+diff --git a/tests/regression/test_issue_757.cpp b/tests/regression/test_issue_757.cpp
+new file mode 100644
+index 000000000..2e27f7093
+--- /dev/null
++++ b/tests/regression/test_issue_757.cpp
+@@ -0,0 +1,75 @@
++// See https://github.com/pocl/pocl/issues/757
++// Caused an out of bounds read.
++
++#include <algorithm>
++#include <cassert>
++#include <iostream>
++#include <vector>
++
++#define CL_HPP_MINIMUM_OPENCL_VERSION 120
++#define CL_HPP_TARGET_OPENCL_VERSION 120
++#include <CL/cl2.hpp>
++
++const char *SOURCE = R"RAW(
++#define lid(N) ((int) get_local_id(N))
++#define gid(N) ((int) get_group_id(N))
++
++__kernel void __attribute__ ((reqd_work_group_size(128, 1, 1))) grudge_assign_0(
++  int const grdg_n,
++  __global double *__restrict__ expr_8,
++  int const expr_8_offset,
++  __global double const *__restrict__ grdg_sub_discr_dx0_dr0,
++  int const grdg_sub_discr_dx0_dr0_offset)
++{
++  if (-1 + -128 * gid(0) + -1 * lid(0) + grdg_n >= 0)
++    expr_8[expr_8_offset + 128 * gid(0) + lid(0)] = grdg_sub_discr_dx0_dr0[grdg_sub_discr_dx0_dr0_offset + 128 * gid(0) + lid(0)];
++}
++)RAW";
++
++int main(int argc, char *argv[]) {
++  int n = 8;
++
++  cl::Device device = cl::Device::getDefault();
++  cl::CommandQueue queue = cl::CommandQueue::getDefault();
++  cl::Program program(SOURCE, true);
++
++  // Create buffers on the device.
++  cl::Buffer buffer_A(CL_MEM_READ_WRITE, sizeof(double) * n);
++  cl::Buffer buffer_B(CL_MEM_READ_WRITE, sizeof(double) * n);
++
++  std::vector<double> A(n);
++  std::vector<double> B(n);
++  std::fill(B.begin(), B.end(), 1);
++
++  // Write arrays to the device.
++  queue.enqueueWriteBuffer(buffer_A, CL_TRUE, 0, sizeof(double) * n, A.data());
++  queue.enqueueWriteBuffer(buffer_B, CL_TRUE, 0, sizeof(double) * n, B.data());
++
++  // Run the kernel.
++  cl::Kernel knl(program, "grudge_assign_0");
++  int sz = 1;
++  knl.setArg(0, sz);
++  knl.setArg(1, buffer_A);
++  knl.setArg(2, 0);
++  knl.setArg(3, buffer_B);
++  knl.setArg(4, 0);
++  queue.enqueueNDRangeKernel(
++    knl,
++    cl::NullRange,
++    cl::NDRange(((sz+127)/128)*128),
++    cl::NDRange(128));
++  queue.finish();
++
++  // Read result A from the device.
++  queue.enqueueReadBuffer(buffer_A, CL_TRUE, 0, sizeof(double) * n, A.data());
++
++  for (int i = 0; i < n; ++i) {
++    if (i < sz) {
++      assert(A[i] == 1);
++    } else {
++      assert(A[i] == 0);
++    }
++  }
++  
++  return EXIT_SUCCESS;
++}
