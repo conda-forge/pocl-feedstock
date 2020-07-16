@@ -47,6 +47,7 @@ requirements:
     - clangdev {{ llvm_version }}.*
     - llvm {{ llvm_version }}.*
     - lld {{ llvm_version }}.*
+    - libclang-cpp {{ llvm_version }}.*
     - zlib                               # [osx]
   run:
     - ocl-icd                            # [linux]
@@ -54,9 +55,6 @@ requirements:
     # TODO: Remove this when LLVM 10.0.1 is released
     - ld64 >=530                         # [osx]
     - {{ pin_compatible('libhwloc') }}
-    # TODO: Change this to libclang-cpp when `libclang-cpp` is separated
-    # into a different conda package
-    - clang {{ llvm_version }}.*
 
 test:
   requires:
