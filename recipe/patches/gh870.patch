@@ -1,0 +1,24 @@
+From 2d87dd61e59ff45bf04dc06c34e95f0737b73f35 Mon Sep 17 00:00:00 2001
+From: Matthias Diener <mdiener@illinois.edu>
+Date: Thu, 17 Sep 2020 13:55:41 -0700
+Subject: [PATCH] Fix event timing data for CUDA
+
+In contrast to start and end, time_submit is not based on a CUDA event
+and therefore sometimes has a time stamp that is *after* start and end.
+---
+ lib/CL/devices/cuda/pocl-cuda.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/lib/CL/devices/cuda/pocl-cuda.c b/lib/CL/devices/cuda/pocl-cuda.c
+index 77c746490..07d7916b8 100644
+--- a/lib/CL/devices/cuda/pocl-cuda.c
++++ b/lib/CL/devices/cuda/pocl-cuda.c
+@@ -1454,7 +1454,7 @@ pocl_cuda_update_event (cl_device_id device, cl_event event)
+           event_data->start);
+       CUDA_CHECK (result, "cuEventElapsedTime");
+       event->time_start = (cl_ulong) (epoch + diff * 1e6);
+-      event->time_start = max (event->time_start, event->time_submit + 1);
++      event->time_start = max (event->time_start, epoch + 1);
+
+       result = cuEventElapsedTime (
+           &diff, ((pocl_cuda_device_data_t *)device->data)->epoch_event,

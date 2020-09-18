@@ -25,6 +25,7 @@ source:
       - patches/gh838.patch
       - patches/gh-revert-6ba1495.patch
       - patches/gh850.patch
+      - patches/gh870.patch
 
 build:
   number: {{ build_number }}
