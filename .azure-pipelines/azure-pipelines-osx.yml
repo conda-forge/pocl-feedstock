@@ -5,14 +5,14 @@
 jobs:
 - job: osx
   pool:
-    vmImage: macOS-10.14
+    vmImage: macOS-10.15
   strategy:
     matrix:
-      osx_libhwloc1:
-        CONFIG: osx_libhwloc1
+      osx_64_libhwloc1:
+        CONFIG: osx_64_libhwloc1
         UPLOAD_PACKAGES: 'True'
-      osx_libhwloc2:
-        CONFIG: osx_libhwloc2
+      osx_64_libhwloc2:
+        CONFIG: osx_64_libhwloc2
         UPLOAD_PACKAGES: 'True'
     maxParallel: 8
   timeoutInMinutes: 360

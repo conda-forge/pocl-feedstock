@@ -13,7 +13,7 @@ curl:
 cxx_compiler:
 - gxx
 cxx_compiler_version:
-- '7'
+- '7.5'
 docker_image:
 - condaforge/linux-anvil-aarch64
 enable_cuda:
@@ -23,3 +23,5 @@ libhwloc:
 pin_run_as_build:
   curl:
     max_pin: x
+target_platform:
+- linux-aarch64

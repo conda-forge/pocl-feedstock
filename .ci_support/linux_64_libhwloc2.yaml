@@ -1,5 +1,3 @@
-MACOSX_DEPLOYMENT_TARGET:
-- '10.9'
 channel_sources:
 - conda-forge,defaults
 channel_targets:
@@ -7,21 +5,17 @@ channel_targets:
 curl:
 - '7'
 cxx_compiler:
-- clangxx
+- gxx
 cxx_compiler_version:
-- '10'
+- '7'
+docker_image:
+- condaforge/linux-anvil-cuda:9.2
 enable_cuda:
-- 'False'
+- 'True'
 libhwloc:
-- '1'
-macos_machine:
-- x86_64-apple-darwin13.4.0
-macos_min_version:
-- '10.9'
+- '2'
 pin_run_as_build:
   curl:
     max_pin: x
-  zlib:
-    max_pin: x.x
-zlib:
-- '1.2'
+target_platform:
+- linux-64
