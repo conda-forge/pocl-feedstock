@@ -43,6 +43,20 @@ Current build status
         <table>
           <thead><tr><th>Variant</th><th>Status</th></tr></thead>
           <tbody><tr>
+              <td>linux_64_libhwloc1</td>
+              <td>
+                <a href="https://dev.azure.com/conda-forge/feedstock-builds/_build/latest?definitionId=794&branchName=master">
+                  <img src="https://dev.azure.com/conda-forge/feedstock-builds/_apis/build/status/pocl-feedstock?branchName=master&jobName=linux&configuration=linux_64_libhwloc1" alt="variant">
+                </a>
+              </td>
+            </tr><tr>
+              <td>linux_64_libhwloc2</td>
+              <td>
+                <a href="https://dev.azure.com/conda-forge/feedstock-builds/_build/latest?definitionId=794&branchName=master">
+                  <img src="https://dev.azure.com/conda-forge/feedstock-builds/_apis/build/status/pocl-feedstock?branchName=master&jobName=linux&configuration=linux_64_libhwloc2" alt="variant">
+                </a>
+              </td>
+            </tr><tr>
               <td>linux_aarch64_libhwloc1</td>
               <td>
                 <a href="https://dev.azure.com/conda-forge/feedstock-builds/_build/latest?definitionId=794&branchName=master">
@@ -54,20 +68,6 @@ Current build status
               <td>
                 <a href="https://dev.azure.com/conda-forge/feedstock-builds/_build/latest?definitionId=794&branchName=master">
                   <img src="https://dev.azure.com/conda-forge/feedstock-builds/_apis/build/status/pocl-feedstock?branchName=master&jobName=linux&configuration=linux_aarch64_libhwloc2" alt="variant">
-                </a>
-              </td>
-            </tr><tr>
-              <td>linux_libhwloc1</td>
-              <td>
-                <a href="https://dev.azure.com/conda-forge/feedstock-builds/_build/latest?definitionId=794&branchName=master">
-                  <img src="https://dev.azure.com/conda-forge/feedstock-builds/_apis/build/status/pocl-feedstock?branchName=master&jobName=linux&configuration=linux_libhwloc1" alt="variant">
-                </a>
-              </td>
-            </tr><tr>
-              <td>linux_libhwloc2</td>
-              <td>
-                <a href="https://dev.azure.com/conda-forge/feedstock-builds/_build/latest?definitionId=794&branchName=master">
-                  <img src="https://dev.azure.com/conda-forge/feedstock-builds/_apis/build/status/pocl-feedstock?branchName=master&jobName=linux&configuration=linux_libhwloc2" alt="variant">
                 </a>
               </td>
             </tr><tr>
@@ -85,29 +85,23 @@ Current build status
                 </a>
               </td>
             </tr><tr>
-              <td>osx_libhwloc1</td>
+              <td>osx_64_libhwloc1</td>
               <td>
                 <a href="https://dev.azure.com/conda-forge/feedstock-builds/_build/latest?definitionId=794&branchName=master">
-                  <img src="https://dev.azure.com/conda-forge/feedstock-builds/_apis/build/status/pocl-feedstock?branchName=master&jobName=osx&configuration=osx_libhwloc1" alt="variant">
+                  <img src="https://dev.azure.com/conda-forge/feedstock-builds/_apis/build/status/pocl-feedstock?branchName=master&jobName=osx&configuration=osx_64_libhwloc1" alt="variant">
                 </a>
               </td>
             </tr><tr>
-              <td>osx_libhwloc2</td>
+              <td>osx_64_libhwloc2</td>
               <td>
                 <a href="https://dev.azure.com/conda-forge/feedstock-builds/_build/latest?definitionId=794&branchName=master">
-                  <img src="https://dev.azure.com/conda-forge/feedstock-builds/_apis/build/status/pocl-feedstock?branchName=master&jobName=osx&configuration=osx_libhwloc2" alt="variant">
+                  <img src="https://dev.azure.com/conda-forge/feedstock-builds/_apis/build/status/pocl-feedstock?branchName=master&jobName=osx&configuration=osx_64_libhwloc2" alt="variant">
                 </a>
               </td>
             </tr>
           </tbody>
         </table>
       </details>
-    </td>
-  </tr>
-  <tr>
-    <td>Windows</td>
-    <td>
-      <img src="https://img.shields.io/badge/Windows-disabled-lightgrey.svg" alt="Windows disabled">
     </td>
   </tr>
 </table>
