@@ -1,6 +1,6 @@
 {% set name = "pocl" %}
 {% set version = "1.5" %}
-{% set build_number = 10 %}
+{% set build_number = 11 %}
 {% set sha256 = "4fcf4618171727d165fc044d465a66e3119217bb4577a97374f94fcd8aed330e" %}
 {% set llvm_version = "10.0.0" %}
 
@@ -77,8 +77,12 @@ outputs:
       skip: True   # [not enable_cuda]
     script: install-cuda.sh
     requirements:
+      build:
+        - {{ compiler('cxx') }}
       host:
         - {{ pin_subpackage("pocl", exact=True) }}
+        - llvm {{ llvm_version }}.*
+        - libhwloc
       run:
         - {{ pin_subpackage("pocl", exact=True) }}
     test:
