@@ -16,7 +16,6 @@ jobs:
         CONFIG: linux_64_libhwloc2
         UPLOAD_PACKAGES: 'True'
         DOCKER_IMAGE: condaforge/linux-anvil-cuda:9.2
-    maxParallel: 8
   timeoutInMinutes: 360
 
   steps:

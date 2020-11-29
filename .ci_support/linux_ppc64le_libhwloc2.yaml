@@ -1,3 +1,5 @@
+cdt_name:
+- cos7
 channel_sources:
 - conda-forge,defaults
 channel_targets:
@@ -7,7 +9,7 @@ curl:
 cxx_compiler:
 - gxx
 cxx_compiler_version:
-- '8'
+- '9'
 docker_image:
 - condaforge/linux-anvil-ppc64le-cuda:9.2
 enable_cuda:

@@ -13,9 +13,9 @@ curl:
 cxx_compiler:
 - gxx
 cxx_compiler_version:
-- '7.5'
+- '9'
 docker_image:
-- condaforge/linux-anvil-aarch64
+- quay.io/condaforge/linux-anvil-aarch64
 enable_cuda:
 - 'False'
 libhwloc:
