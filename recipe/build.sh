@@ -78,16 +78,6 @@ if [[ "$CONDA_BUILD_CROSS_COMPILATION" != "1" ]]; then
 sed -i.bak "s@ocl-vendors@ocl-vendors/@g" CTestCustom.cmake
 
 SKIP_TESTS="dummy"
-if [[ "$target_platform" == "linux-ppc64le" ]]; then
-  # Following tests fail on CI with 'LLVM ERROR: Do not know how to split the result of this operator!'
-  # On a power8 machine, they fail with the following error on LLVM<10. Looks like a harmless test failure
-  # where LLVM doesn't conform to strict OpenCL standards on rounding to integers for values close to
-  # the max of the integer type
-  # 'FAIL: convert_int16_sat_rtn(double16) - sample#: 7 element#: 0 original: 2147483648 expected: 0x7ffffffe actual: 0x7fffffff'
-  SKIP_TESTS="$SKIP_TESTS|kernel/test_convert_type_4|kernel/test_convert_type_8|kernel/test_convert_type_16"
-  # Following tests pass locally on power8, but segfaults on CI
-  SKIP_TESTS="$SKIP_TESTS|kernel/test_convert_type_2|kernel/test_sampler_address_clamp|kernel/test_image_query_funcs"
-fi
 
 export POCL_DEVICES=pthread
 
