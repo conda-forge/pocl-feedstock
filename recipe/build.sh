@@ -41,7 +41,8 @@ elif [[ "$target_platform" == osx-arm64 ]]; then
 fi
 
 if [[ "$enable_cuda" == "True" ]]; then
-  CMAKE_ARGS="$CMAKE_ARGS -DENABLE_CUDA=ON -DCUDA_TOOLKIT_ROOT_DIR=$CUDA_HOME"
+  CMAKE_ARGS="$CMAKE_ARGS -DENABLE_CUDA=ON -DCUDA_TOOLKIT_ROOT_DIR=$CUDA_HOME -DCUDA_INCLUDE_DIRS=$CUDA_HOME/include"
+  CMAKE_ARGS="$CMAKE_ARGS -DCUDA_CUDART_LIBRARY=$CUDA_HOME/lib64/libcudart.so"
   LDFLAGS="$LDFLAGS -L$CUDA_HOME/lib64/stubs"
 fi
 
