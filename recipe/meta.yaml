@@ -37,6 +37,7 @@ requirements:
     - llvm {{ llvm_version }}.*
     - libclang-cpp {{ llvm_version }}.*
     - zlib                               # [osx]
+    - ld64 >=530                         # [osx]
   run:
     - ocl-icd                            # [linux]
     - khronos-opencl-icd-loader          # [osx]
