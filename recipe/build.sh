@@ -3,6 +3,7 @@ if [[ "$target_platform" == linux* ]]; then
   sed -i 's/"-lm",//g' lib/CL/devices/basic/basic.c
 fi
 
+rm -rf build
 mkdir build
 cd build
 
@@ -21,23 +22,26 @@ if [[ "$cxx_compiler" == "gxx" ]]; then
   EXTRA_HOST_CLANG_FLAGS="-I$BUILD_PREFIX/$HOST/sysroot/usr/include"
 fi
 
-if [[ "$target_platform" == osx* ]]; then
-  export SDKROOT=$CONDA_BUILD_SYSROOT
-  export CC=$PREFIX/bin/clang
-  export CXX=$PREFIX/bin/clang++
+if [[ "$CONDA_BUILD_CROSS_COMPILATION" == "1" ]]; then
+  mv $BUILD_PREFIX/bin/llvm-config $PREFIX/bin/llvm-config
+  LLVM_TOOLS_PREFIX="$BUILD_PREFIX"
+else
+  LLVM_TOOLS_PREFIX="$PREFIX"
 fi
 
 if [[ "$target_platform" == linux-aarch64 ]]; then
   AARCH64_CPUS="generic;cortex-a35;cortex-a53;cortex-a55;cortex-a57;cortex-a65;cortex-a72;cortex-a73;cortex-a75;cortex-a76"
   AARCH64_CPUS="${AARCH64_CPUS};cyclone;exynos-m3;exynos-m4;exynos-m5;falkor;kryo;neoverse-e1;neoverse-n1;saphira"
   AARCH64_CPUS="${AARCH64_CPUS};thunderx;thunderx2t99;thunderxt81;thunderxt83;thunderxt88;tsv110"
-  EXTRA_CMAKE_ARGS="-DKERNELLIB_HOST_CPU_VARIANTS='${AARCH64_CPUS}' -DLLC_HOST_CPU=cortex-a35 -DCLANG_MARCH_FLAG='-mcpu='"
+  CMAKE_ARGS="$CMAKE_ARGS -DKERNELLIB_HOST_CPU_VARIANTS='${AARCH64_CPUS}' -DLLC_HOST_CPU=cortex-a35 -DCLANG_MARCH_FLAG='-mcpu='"
 elif [[ "$target_platform" == linux-ppc64le ]]; then
-  EXTRA_CMAKE_ARGS="-DKERNELLIB_HOST_CPU_VARIANTS='pwr8;pwr9;generic' -DCLANG_MARCH_FLAG='-mcpu='"
+  CMAKE_ARGS="$CMAKE_ARGS -DKERNELLIB_HOST_CPU_VARIANTS='pwr8;pwr9;generic' -DCLANG_MARCH_FLAG='-mcpu='"
+elif [[ "$target_platform" == osx-arm64 ]]; then
+  CMAKE_ARGS="$CMAKE_ARGS -DKERNELLIB_HOST_CPU_VARIANTS='cyclone' -DCLANG_MARCH_FLAG='-mcpu=' -DLLC_HOST_CPU=cyclone"
 fi
 
 if [[ "$enable_cuda" == "True" ]]; then
-  EXTRA_CMAKE_ARGS="$EXTRA_CMAKE_ARGS -DENABLE_CUDA=ON -DCUDA_TOOLKIT_ROOT_DIR=$CUDA_HOME"
+  CMAKE_ARGS="$CMAKE_ARGS -DENABLE_CUDA=ON -DCUDA_TOOLKIT_ROOT_DIR=$CUDA_HOME"
   LDFLAGS="$LDFLAGS -L$CUDA_HOME/lib64/stubs"
 fi
 
@@ -54,7 +58,9 @@ cmake \
   -D EXTRA_HOST_CLANG_FLAGS="${EXTRA_HOST_CLANG_FLAGS}" \
   -D CMAKE_INSTALL_LIBDIR=lib \
   -D ENABLE_ICD=on \
-  ${EXTRA_CMAKE_ARGS} \
+  -D LLVM_HOST_TARGET=$HOST \
+  -D LLVM_BINDIR=$BUILD_PREFIX/bin \
+  ${CMAKE_ARGS} \
   ..
 
 make -j ${CPU_COUNT} VERBOSE=1
@@ -66,6 +72,7 @@ if [[ "$enable_cuda" == "True" ]]; then
   mv $PREFIX/lib/pocl/libpocl-devices-cuda.so .
 fi
 
+if [[ "$CONDA_BUILD_CROSS_COMPILATION" != "1" ]]; then
 # Workaround for https://github.com/KhronosGroup/OpenCL-ICD-Loader/issues/104
 sed -i.bak "s@ocl-vendors@ocl-vendors/@g" CTestCustom.cmake
 
@@ -89,8 +96,9 @@ ctest -E "$SKIP_TESTS"
 # if [[ "$enable_cuda" == "True" ]]; then
 #   POCL_DEVICES=cuda ctest -L cuda
 # fi
+fi
 
 # For backwards compatibility
-if [[ "$target_platform" == osx* ]]; then
+if [[ "$target_platform" == osx-64 ]]; then
   ln -s $PREFIX/lib/libpocl.dylib $PREFIX/lib/libOpenCL.2.dylib
 fi

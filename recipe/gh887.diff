@@ -1,0 +1,234 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 2d6239f18..6dc4339d1 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -370,7 +370,7 @@ else()
+   endfunction()
+ endif()
+ 
+-if(UNIX AND (NOT CMAKE_CROSSCOMPILING))
++if(UNIX)
+   find_package(PkgConfig MODULE REQUIRED)
+   find_package(Hwloc)
+ 
+@@ -777,10 +777,6 @@ if(WIN32)
+ 
+ elseif(UNIX)
+ 
+-  if (CMAKE_CROSSCOMPILING AND (NOT ENABLE_HOST_CPU_DEVICES) AND (NOT ENABLE_HSA))
+-    message(STATUS "Cross-compiling without CPU/HSA devices -> skipping LIBDL search")
+-  else()
+-
+     find_library(DL_LIB "dl")
+     find_file(DL_H "dlfcn.h")
+     if(DL_LIB AND DL_H)
+@@ -797,7 +793,6 @@ elseif(UNIX)
+     else()
+       message(FATAL_ERROR "Could not find DL library!")
+     endif()
+-  endif()
+ 
+ else()
+   message(STATUS "Unknown OS, don't know how to load a dynamic library")
+@@ -838,11 +833,9 @@ if (MSVC)
+ else()
+ 
+   # pkg-config doesn't work with cross-compiling
+-  if (NOT CMAKE_CROSSCOMPILING)
+-    pkg_check_modules(OCL_ICD ocl-icd>=1.3)
+-  endif()
++  pkg_check_modules(OCL_ICD ocl-icd>=1.3)
+ 
+-  if (CMAKE_CROSSCOMPILING OR (NOT OCL_ICD_FOUND))
++  if (NOT OCL_ICD_FOUND)
+     find_path(OCL_ICD_INCLUDE_DIR
+       NAMES
+         ocl_icd.h
+@@ -862,21 +855,16 @@ else()
+     set(HAVE_OCL_ICD 1 CACHE INTERNAL "ICL library is ocl-icd")
+     set(OPENCL_FOUND 1 CACHE INTERNAL "opencl ICD/library found")
+     # duh, why doesn't ocl-icd set this in its .pc file ??
+-    if (CMAKE_CROSSCOMPILING)
+-      set(OPENCL_LIBRARIES "${OCL_ICD_LIBRARIES}" CACHE INTERNAL "opencl ICD/library link flags")
+-    else()
+-      separate_arguments(OCL_LDFLAGS UNIX_COMMAND "${OCL_ICD_LDFLAGS}")
+-      list(APPEND OCL_LDFLAGS "OpenCL")
+-      set(OPENCL_LIBRARIES "${OCL_LDFLAGS}" CACHE INTERNAL "opencl ICD/library link flags")
+-    endif()
++    separate_arguments(OCL_LDFLAGS UNIX_COMMAND "${OCL_ICD_LDFLAGS}")
++    list(APPEND OCL_LDFLAGS "OpenCL")
++    set(OPENCL_LIBRARIES "${OCL_LDFLAGS}" CACHE INTERNAL "opencl ICD/library link flags")
+     set(DEFAULT_ENABLE_ICD 1 CACHE INTERNAL "ICD loader availability")
+ 
+   else()
+ 
+-    set(HAVE_OCL_ICD 0 CACHE INTERNAL "ICL library is ocl-icd")
++    set(HAVE_OCL_ICD 0 CACHE INTERNAL "OCL library is ocl-icd")
+     unset (OPENCL_FOUND CACHE)
+ 
+-    if (NOT CMAKE_CROSSCOMPILING)
+       # fallback to other ICD loaders
+       message(STATUS "ocl-icd not found -> trying fallback ICD implementations")
+       pkg_check_modules(OPENCL OpenCL>=1.2)
+@@ -890,7 +878,6 @@ else()
+           CHECK_FUNCTION_EXISTS("clEnqueueFillImage" OPENCL_FOUND)
+         endif()
+       endif()
+-    endif()
+ 
+     if(OPENCL_FOUND)
+       # no ocl-icd, but libopencl
+@@ -1048,6 +1035,8 @@ if(KERNELLIB_HOST_CPU_VARIANTS STREQUAL "distro")
+     set(KERNELLIB_HOST_CPU_VARIANTS sse2 ssse3 sse41 avx avx_f16c avx_fma4 avx2 avx512)
+   elseif(POWERPC64LE)
+     set(KERNELLIB_HOST_CPU_VARIANTS pwr8 pwr9)
++  elseif(APPLE AND ARM64)
++    set(KERNELLIB_HOST_CPU_VARIANTS cyclone)
+   else()
+     message(FATAL_ERROR "Don't know what CPU variants to use for kernel library on this platform.")
+   endif()
+@@ -1268,7 +1257,7 @@ endif()
+ 
+ ##########################################################
+ 
+-if (OCS_AVAILABLE)
++if (OCS_AVAILABLE AND NOT CMAKE_CROSSCOMPILING)
+   CHECK_ALIGNOF("double16" "typedef double double16  __attribute__((__ext_vector_type__(16)));" ALIGNOF_DOUBLE16)
+ else()
+   set(ALIGNOF_DOUBLE16 128)
+diff --git a/ToolchainExample.cmake b/ToolchainExample.cmake
+index 85b0b7495..433c9e7da 100644
+--- a/ToolchainExample.cmake
++++ b/ToolchainExample.cmake
+@@ -1,17 +1,26 @@
+ # This is an example Toolchain file to cross-compile for ARM/MIPS/other
+-# boards from x86_64. Copy & modify
++# boards from x86_64. Copy & modify. Skip 4-8 if using LLVM less build
+ #
+ # Steps:
+ # 1) Install g++ and gcc cross-compilers
+ #    (apt install gcc-arm-linux-gnueabihf g++-arm-linux-gnueabihf)
+ # 2) On your board, install libltdl, ocl-icd and libhwloc + their development headers
+ # 3) copy the entire root filesystem of the board somewhere on your host,
+-     then set CMAKE_FIND_ROOT_PATH below to this path
+-# 4) run cmake like this:
+-#          cmake -DHOST_DEVICE_BUILD_HASH=<SOME_HASH> -DOCS_AVAILABLE=0
++#    then set CMAKE_FIND_ROOT_PATH below to this path
++# 4) Build clang and llvm for the build machine and install them. ($BUILD_PREFIX)
++# 5) Build clang and llvm for the host machine and install them. ($HOST_PREFIX)
++# 6) copy llvm-config from build to host. (cp $BUILD_PREFIX/bin/llvm-config $HOST_PREFIX/bin/llvm-config)
++# 7) Install pkg-config for build
++# 8) Install hwloc, ocl-icd for host and set `PKG_CONFIG_PATH` env variable to the paths
++#    eg: export PKG_CONFIG_PATH=/path/to/hwloc/prefix/lib/pkgconfig:/path/to/opencl/prefix/lib/pkgconfig
++# 9) run cmake like this:
++#          cmake -DHOST_DEVICE_BUILD_HASH=<SOME_HASH> -DOCS_AVAILABLE=<0 if LLVM-less, 1 if with LLVM>
+ #           -DCMAKE_TOOLCHAIN_FILE=<path-to-this-file>
++#           -DCMAKE_PREFIX_PATH=$HOST_PREFIX
+ #           -DLLC_TRIPLE=<your-triple (e.g.arm-gnueabihf-linux-gnu)
++#           -DLLVM_HOST_TARGET=<your-triple (e.g.arm-gnueabihf-linux-gnu)
+ #           -DLLC_HOST_CPU=<your-cpu (e.g. armv7a)>
++#           -DLLVM_BINDIR=$BUILD_PREFIX/bin
+ #           <path-to-pocl-source>
+ 
+ SET(CMAKE_SYSTEM_NAME Linux)
+diff --git a/cmake/FindHwloc.cmake b/cmake/FindHwloc.cmake
+index 976d28b9a..e473eed07 100644
+--- a/cmake/FindHwloc.cmake
++++ b/cmake/FindHwloc.cmake
+@@ -134,34 +134,10 @@ if(WIN32)
+ 
+ else()
+ 
+-  if(CMAKE_CROSSCOMPILING)
+-
+-  find_path(Hwloc_INCLUDE_DIRS
+-    NAMES
+-      hwloc.h
+-    PATHS
+-      ENV HWLOC_ROOT
+-  )
+-
+-  find_library(Hwloc_LIBRARIES
+-    NAMES
+-      hwloc
+-    PATHS
+-      ENV HWLOC_ROOT
+-  )
+-
+-  if(Hwloc_INCLUDE_DIRS AND Hwloc_LIBRARIES)
+-    message(WARNING "HWLOC library found using find_library() - cannot determine version. Assuming 1.7.0")
+-    set(Hwloc_FOUND 1)
+-    set(Hwloc_VERSION "1.7.0")
+-  endif()
+-
+-  else() # Find with pkgconfig for non-crosscompile builds
+-
+   find_package(PkgConfig)
+ 
+   if(HWLOC_ROOT)
+-    set(ENV{PKG_CONFIG_PATH} "${HWLOC_ROOT}/lib/pkgconfig")
++    set(ENV{PKG_CONFIG_PATH} "{HWLOC_ROOT}/lib/pkgconfig:$ENV{PKG_CONFIG_PATH}")
+   else()
+     foreach(PREFIX ${CMAKE_PREFIX_PATH})
+       set(PKG_CONFIG_PATH "${PKG_CONFIG_PATH}:${PREFIX}/lib/pkgconfig")
+@@ -208,7 +184,6 @@ else()
+     endif()
+   endif()
+ 
+-  endif() # cross-compile else
+ 
+ endif()
+ 
+diff --git a/cmake/LLVM.cmake b/cmake/LLVM.cmake
+index 05aded360..b2f2900c0 100644
+--- a/cmake/LLVM.cmake
++++ b/cmake/LLVM.cmake
+@@ -73,13 +73,14 @@ get_filename_component(LLVM_CONFIG_LOCATION "${LLVM_CONFIG}" DIRECTORY)
+ macro(run_llvm_config VARIABLE_NAME)
+   execute_process(
+     COMMAND "${LLVM_CONFIG}" ${ARGN}
+-    OUTPUT_VARIABLE ${VARIABLE_NAME}
++    OUTPUT_VARIABLE LLVM_CONFIG_VALUE
+     RESULT_VARIABLE LLVM_CONFIG_RETVAL
+     OUTPUT_STRIP_TRAILING_WHITESPACE
+   )
+   if(LLVM_CONFIG_RETVAL)
+     message(SEND_ERROR "Error running llvm-config with arguments: ${ARGN}")
+   else()
++    set(${VARIABLE_NAME} ${LLVM_CONFIG_VALUE} CACHE STRING "llvm-config's ${VARIABLE_NAME} value")
+     message(STATUS "llvm-config's ${VARIABLE_NAME} is: ${${VARIABLE_NAME}}")
+   endif()
+ endmacro(run_llvm_config)
+@@ -268,7 +269,13 @@ endforeach()
+ ####################################################################
+ 
+ macro(find_program_or_die OUTPUT_VAR PROG_NAME DOCSTRING)
+-  find_program(${OUTPUT_VAR} NAMES "${PROG_NAME}${LLVM_BINARY_SUFFIX}${CMAKE_EXECUTABLE_SUFFIX}" "${PROG_NAME}${CMAKE_EXECUTABLE_SUFFIX}" HINTS "${LLVM_BINDIR}" "${LLVM_CONFIG_LOCATION}" "${LLVM_PREFIX}" "${LLVM_PREFIX_BIN}" DOC "${DOCSTRING}")
++  find_program(${OUTPUT_VAR}
++    NAMES "${PROG_NAME}${LLVM_BINARY_SUFFIX}${CMAKE_EXECUTABLE_SUFFIX}" "${PROG_NAME}${CMAKE_EXECUTABLE_SUFFIX}"
++    HINTS "${LLVM_BINDIR}" "${LLVM_CONFIG_LOCATION}" "${LLVM_PREFIX}" "${LLVM_PREFIX_BIN}"
++    DOC "${DOCSTRING}"
++    NO_CMAKE_PATH
++    NO_CMAKE_ENVIRONMENT_PATH
++  )
+   if(${OUTPUT_VAR})
+     message(STATUS "Found ${PROG_NAME}: ${${OUTPUT_VAR}}")
+   else()
+diff --git a/doc/sphinx/source/install.rst b/doc/sphinx/source/install.rst
+index dc04b2d78..a328a8494 100644
+--- a/doc/sphinx/source/install.rst
++++ b/doc/sphinx/source/install.rst
+@@ -272,10 +272,10 @@ The string after "HSTR:" is the device build hash.
+   pocl needs to know which binaries it can load.
+ 
+ 
+-Cross-compile pocl LLVM-less build
+------------------------------------
++Cross-compile pocl
++------------------
+ It's now possible to cross-compile pocl on x86-64 to run on ARM/MIPS/etc,
+-but only the LLVM-less build. There is a ToolchainExample.cmake file;
++There is a ToolchainExample.cmake file;
+ copy it under different name, then follow the instructions in the file.
+ 
+ 
