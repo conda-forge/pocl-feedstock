@@ -1,8 +1,8 @@
 {% set name = "pocl" %}
-{% set version = "1.6.rc1" %}
+{% set version = "1.6" %}
 {% set build_number = 0 %}
-{% set sha256 = "4fcf4618171727d165fc044d465a66e3119217bb4577a97374f94fcd8aed330e" %}
-{% set llvm_version = "11.0.0" %}
+{% set sha256 = "b0a4c0c056371b6f0db726b88fbb76bbee94948fb2abd4dbc8d958f7c42f766c" %}
+{% set llvm_version = "10.0.1" %}
 
 package:
   name: {{ name|lower }}
@@ -10,6 +10,7 @@ package:
 
 source:
   - url: https://github.com/pocl/pocl/archive/v{{ version.replace(".rc", "-RC") }}.tar.gz
+    sha256: {{ sha256 }}
     patches:
       - gh887.diff
 
