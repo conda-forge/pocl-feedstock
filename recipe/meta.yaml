@@ -2,8 +2,12 @@
 {% set version = "1.6" %}
 {% set build_number = 0 %}
 {% set sha256 = "b0a4c0c056371b6f0db726b88fbb76bbee94948fb2abd4dbc8d958f7c42f766c" %}
+
+{% if target_platform is defined and target_platform.startswith("osx-") %}
 {% set llvm_version = "10.0.1" %}
-{% set osx_llvm_version = "11.0.0" %}
+{% else %}
+{% set llvm_version = "11.0.0" %}
+{% endif %}
 
 package:
   name: {{ name|lower }}
@@ -28,24 +32,17 @@ requirements:
     - make
     - pkg-config
     - {{ compiler('cxx') }}
-    - llvmdev {{ llvm_version }}.*       # [build_platform != target_platform and not osx]
-    - clangdev {{ llvm_version }}.*      # [build_platform != target_platform and not osx]
-    - llvmdev {{ osx_llvm_version }}.*       # [build_platform != target_platform and osx]
-    - clangdev {{ osx_llvm_version }}.*      # [build_platform != target_platform and osx]
+    - llvmdev {{ llvm_version }}.*       # [build_platform != target_platform]
+    - clangdev {{ llvm_version }}.*      # [build_platform != target_platform]
   host:
     - ocl-icd                            # [linux]
     - khronos-opencl-icd-loader          # [osx]
     - libhwloc
 
-    - llvmdev {{ llvm_version }}.*  # [not osx]
-    - clangdev {{ llvm_version }}.*  # [not osx]
-    - llvm {{ llvm_version }}.*  # [not osx]
-    - libclang-cpp {{ llvm_version }}.*  # [not osx]
-
-    - llvmdev {{ osx_llvm_version }}.*  # [osx]
-    - clangdev {{ osx_llvm_version }}.*  # [osx]
-    - llvm {{ osx_llvm_version }}.*  # [osx]
-    - libclang-cpp {{ osx_llvm_version }}.*  # [osx]
+    - llvmdev {{ llvm_version }}.*
+    - clangdev {{ llvm_version }}.*
+    - llvm {{ llvm_version }}.*
+    - libclang-cpp {{ llvm_version }}.*
 
     - zlib                               # [osx]
     - ld64 >=530                         # [osx]
@@ -79,8 +76,7 @@ outputs:
         - {{ compiler('cxx') }}
       host:
         - {{ pin_subpackage("pocl", exact=True) }}
-        - llvm {{ llvm_version }}.*  # [not osx]
-        - llvm {{ osx_llvm_version }}.*  # [osx]
+        - llvm {{ llvm_version }}.*
         - libhwloc
       run:
         - {{ pin_subpackage("pocl", exact=True) }}
