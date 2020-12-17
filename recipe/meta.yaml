@@ -4,9 +4,9 @@
 {% set sha256 = "b0a4c0c056371b6f0db726b88fbb76bbee94948fb2abd4dbc8d958f7c42f766c" %}
 
 {% if target_platform is defined and target_platform.startswith("osx-") %}
-{% set llvm_version = "10.0.1" %}
-{% else %}
 {% set llvm_version = "11.0.0" %}
+{% else %}
+{% set llvm_version = "10.0.1" %}
 {% endif %}
 
 package:
