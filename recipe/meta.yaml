@@ -3,6 +3,7 @@
 {% set build_number = 0 %}
 {% set sha256 = "b0a4c0c056371b6f0db726b88fbb76bbee94948fb2abd4dbc8d958f7c42f766c" %}
 
+{# Restricting to LLVM 10 where possible because of https://github.com/pocl/pocl/issues/893 #}
 {% if target_platform is defined and target_platform.startswith("osx-") %}
 {% set llvm_version = "11.0.0" %}
 {% else %}
