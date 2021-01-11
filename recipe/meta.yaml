@@ -58,6 +58,7 @@ test:
     - pyopencl
     - curl
   commands:
+    - ls -al $PREFIX/lib  # [unix]
     - test -f $PREFIX/lib/libpocl${SHLIB_EXT}     # [unix]
     # Remove apple icd so that only pocl is found
     - rm $PREFIX/etc/OpenCL/vendors/apple.icd     # [osx]
