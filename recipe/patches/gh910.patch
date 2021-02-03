@@ -1,0 +1,264 @@
+diff --git a/CHANGES b/CHANGES
+index 3166f7bb7..52449b19c 100644
+--- a/CHANGES
++++ b/CHANGES
+@@ -1,3 +1,12 @@
++1.7 unreleased
++==============
++
++Notable User Facing Changes
++---------------------------
++
++- Added support for the cl_nv_device_attribute_query extension on CUDA devices.
++
++
+ 1.6 December 2020
+ =================
+ 
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 84a944d54..57cf11748 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -1238,7 +1238,7 @@ if(ENABLE_CUDA)
+   # TODO unify with autotools
+   set(BUILD_CUDA 1)
+ 
+-  set(CUDA_DEVICE_EXTENSIONS "cl_khr_byte_addressable_store cl_khr_global_int32_base_atomics cl_khr_global_int32_extended_atomics cl_khr_local_int32_base_atomics cl_khr_local_int32_extended_atomics cl_khr_fp64 cl_khr_int64_base_atomics cl_khr_int64_extended_atomics")
++  set(CUDA_DEVICE_EXTENSIONS "cl_khr_byte_addressable_store cl_khr_global_int32_base_atomics cl_khr_global_int32_extended_atomics cl_khr_local_int32_base_atomics cl_khr_local_int32_extended_atomics cl_khr_fp64 cl_khr_int64_base_atomics cl_khr_int64_extended_atomics cl_nv_device_attribute_query")
+   if(ENABLE_SPIR)
+     set(CUDA_DEVICE_EXTENSIONS "${CUDA_DEVICE_EXTENSIONS} cl_khr_spir")
+   endif()
+@@ -1414,7 +1414,7 @@ if(ENABLE_ICD)
+   # write icd file for pocl testing
+   file(MAKE_DIRECTORY "${CMAKE_BINARY_DIR}/ocl-vendors")
+   file(GENERATE OUTPUT "${CMAKE_BINARY_DIR}/ocl-vendors/pocl-tests.icd" CONTENT "$<TARGET_FILE:pocl>" CONDITION 1)
+-  
++
+   cpack_add_component("icd")
+   set("CPACK_DEBIAN_ICD_PACKAGE_NAME" "pocl-opencl-icd")
+   list(APPEND CPACK_DEBIAN_ICD_PACKAGE_DEPENDS "libpocl2 (>= ${CPACK_PACKAGE_VERSION}~)")
+diff --git a/include/CL/cl.hpp b/include/CL/cl.hpp
+index 9edb0e477..aa23e529f 100644
+--- a/include/CL/cl.hpp
++++ b/include/CL/cl.hpp
+@@ -1501,6 +1501,15 @@ __CL_DECLARE_PARAM_TRAITS(cl_device_info, CL_DEVICE_KERNEL_EXEC_TIMEOUT_NV, cl_b
+ #ifdef CL_DEVICE_INTEGRATED_MEMORY_NV
+ __CL_DECLARE_PARAM_TRAITS(cl_device_info, CL_DEVICE_INTEGRATED_MEMORY_NV, cl_bool)
+ #endif
++#ifdef CL_DEVICE_PCI_BUS_ID_NV
++__CL_DECLARE_PARAM_TRAITS(cl_device_info, CL_DEVICE_PCI_BUS_ID_NV, cl_uint)
++#endif
++#ifdef CL_DEVICE_PCI_SLOT_ID_NV
++__CL_DECLARE_PARAM_TRAITS(cl_device_info, CL_DEVICE_PCI_SLOT_ID_NV, cl_uint)
++#endif
++#ifdef CL_DEVICE_PCI_DOMAIN_ID_NV
++__CL_DECLARE_PARAM_TRAITS(cl_device_info, CL_DEVICE_PCI_DOMAIN_ID_NV, cl_uint)
++#endif
+ 
+ // Convenience functions
+ 
+diff --git a/include/CL/cl2.hpp b/include/CL/cl2.hpp
+index da5ee88c1..bed70d34f 100644
+--- a/include/CL/cl2.hpp
++++ b/include/CL/cl2.hpp
+@@ -1487,6 +1487,15 @@ CL_HPP_DECLARE_PARAM_TRAITS_(cl_device_info, CL_DEVICE_KERNEL_EXEC_TIMEOUT_NV, c
+ #ifdef CL_DEVICE_INTEGRATED_MEMORY_NV
+ CL_HPP_DECLARE_PARAM_TRAITS_(cl_device_info, CL_DEVICE_INTEGRATED_MEMORY_NV, cl_bool)
+ #endif
++#ifdef CL_DEVICE_PCI_BUS_ID_NV
++CL_HPP_DECLARE_PARAM_TRAITS_(cl_device_info, CL_DEVICE_PCI_BUS_ID_NV, cl_uint)
++#endif
++#ifdef CL_DEVICE_PCI_SLOT_ID_NV
++CL_HPP_DECLARE_PARAM_TRAITS_(cl_device_info, CL_DEVICE_PCI_SLOT_ID_NV, cl_uint)
++#endif
++#ifdef CL_DEVICE_PCI_DOMAIN_ID_NV
++CL_HPP_DECLARE_PARAM_TRAITS_(cl_device_info, CL_DEVICE_PCI_DOMAIN_ID_NV, cl_uint)
++#endif
+ 
+ // Convenience functions
+ 
+diff --git a/include/CL/cl_ext.h b/include/CL/cl_ext.h
+index 5c185915c..2410649fa 100644
+--- a/include/CL/cl_ext.h
++++ b/include/CL/cl_ext.h
+@@ -235,6 +235,12 @@ typedef CL_API_ENTRY cl_command_queue
+ #define CL_DEVICE_GPU_OVERLAP_NV                    0x4004
+ #define CL_DEVICE_KERNEL_EXEC_TIMEOUT_NV            0x4005
+ #define CL_DEVICE_INTEGRATED_MEMORY_NV              0x4006
++#define CL_DEVICE_ATTRIBUTE_ASYNC_ENGINE_COUNT_NV   0x4007
++#define CL_DEVICE_PCI_BUS_ID_NV                     0x4008
++#define CL_DEVICE_PCI_SLOT_ID_NV                    0x4009
++
++/* extension to cl_nv_device_attribute_query */
++#define CL_DEVICE_PCI_DOMAIN_ID_NV                  0x4010
+ 
+ 
+ /*********************************
+diff --git a/lib/CL/clGetDeviceInfo.c b/lib/CL/clGetDeviceInfo.c
+index c43b14b20..c769be32f 100644
+--- a/lib/CL/clGetDeviceInfo.c
++++ b/lib/CL/clGetDeviceInfo.c
+@@ -194,7 +194,7 @@ POname(clGetDeviceInfo)(cl_device_id   device,
+     POCL_RETURN_GETINFO(cl_bool, device->compiler_available);
+   case CL_DEVICE_EXECUTION_CAPABILITIES            :
+     POCL_RETURN_GETINFO(cl_device_exec_capabilities, device->execution_capabilities);
+-   
++
+   case CL_DEVICE_NAME:
+     POCL_RETURN_GETINFO_STR(device->long_name);
+    
+@@ -324,6 +324,12 @@ POname(clGetDeviceInfo)(cl_device_id   device,
+   case CL_DEVICE_IL_VERSION:
+     POCL_RETURN_GETINFO_STR (device->spirv_version);
+   }
++
++  if(device->ops->get_device_info_ext != NULL) {
++    return device->ops->get_device_info_ext(device, param_name, param_value_size,
++                                            param_value, param_value_size_ret);
++  }
++
+   return CL_INVALID_VALUE;
+ }
+ POsym(clGetDeviceInfo)
+diff --git a/lib/CL/devices/basic/basic.c b/lib/CL/devices/basic/basic.c
+index 99f8572d2..0fbae01c4 100644
+--- a/lib/CL/devices/basic/basic.c
++++ b/lib/CL/devices/basic/basic.c
+@@ -99,6 +99,8 @@ pocl_basic_init_device_ops(struct pocl_device_ops *ops)
+   ops->build_hash = pocl_basic_build_hash;
+   ops->compute_local_size = pocl_default_local_size_optimizer;
+ 
++  ops->get_device_info_ext = NULL;
++
+   ops->svm_free = pocl_basic_svm_free;
+   ops->svm_alloc = pocl_basic_svm_alloc;
+   /* no need to implement these two as they're noop
+diff --git a/lib/CL/devices/cuda/pocl-cuda.c b/lib/CL/devices/cuda/pocl-cuda.c
+index 766bb1b69..cd9e04434 100644
+--- a/lib/CL/devices/cuda/pocl-cuda.c
++++ b/lib/CL/devices/cuda/pocl-cuda.c
+@@ -41,6 +41,7 @@
+ #include <string.h>
+ 
+ #include <cuda.h>
++#include <cuda_runtime.h>
+ 
+ typedef struct pocl_cuda_device_data_s
+ {
+@@ -126,6 +127,67 @@ pocl_cuda_error (CUresult result, unsigned line, const char *func,
+ #define CUDA_CHECK_ERROR(result, api)                                         \
+   pocl_cuda_error (result, __LINE__, __FUNCTION__, #result, api)
+ 
++cl_int pocl_cuda_handle_cl_nv_device_attribute_query(cl_device_id   device,
++                                                     cl_device_info param_name,
++                                                     size_t         param_value_size,
++                                                     void *         param_value,
++                                                     size_t *       param_value_size_ret)
++{
++  CUdevice cudaDev = ((pocl_cuda_device_data_t *)device->data)->device;
++  unsigned int value;
++  CUresult res;
++
++  switch(param_name) {
++    case CL_DEVICE_COMPUTE_CAPABILITY_MAJOR_NV:
++      res = cuDeviceGetAttribute(&value, CU_DEVICE_ATTRIBUTE_COMPUTE_CAPABILITY_MAJOR, cudaDev);
++      CUDA_CHECK(res, "cuDeviceGetAttribute");
++      POCL_RETURN_GETINFO(cl_uint, value);
++    case CL_DEVICE_COMPUTE_CAPABILITY_MINOR_NV:
++      res = cuDeviceGetAttribute(&value, CU_DEVICE_ATTRIBUTE_COMPUTE_CAPABILITY_MINOR, cudaDev);
++      CUDA_CHECK(res, "cuDeviceGetAttribute");
++      POCL_RETURN_GETINFO(cl_uint, value);
++    case CL_DEVICE_REGISTERS_PER_BLOCK_NV:
++      res = cuDeviceGetAttribute(&value, CU_DEVICE_ATTRIBUTE_MAX_REGISTERS_PER_BLOCK, cudaDev);
++      CUDA_CHECK(res, "cuDeviceGetAttribute");
++      POCL_RETURN_GETINFO(cl_uint, value);
++    case CL_DEVICE_WARP_SIZE_NV:
++      res = cuDeviceGetAttribute(&value, CU_DEVICE_ATTRIBUTE_WARP_SIZE, cudaDev);
++      CUDA_CHECK(res, "cuDeviceGetAttribute");
++      POCL_RETURN_GETINFO(cl_uint, value);
++    case CL_DEVICE_GPU_OVERLAP_NV:
++      res = cuDeviceGetAttribute(&value, CU_DEVICE_ATTRIBUTE_GPU_OVERLAP, cudaDev);
++      CUDA_CHECK(res, "cuDeviceGetAttribute");
++      POCL_RETURN_GETINFO(cl_bool, value);
++    case CL_DEVICE_KERNEL_EXEC_TIMEOUT_NV:
++      res = cuDeviceGetAttribute(&value, CU_DEVICE_ATTRIBUTE_KERNEL_EXEC_TIMEOUT, cudaDev);
++      CUDA_CHECK(res, "cuDeviceGetAttribute");
++      POCL_RETURN_GETINFO(cl_bool, value);
++    case CL_DEVICE_INTEGRATED_MEMORY_NV:
++      res = cuDeviceGetAttribute(&value, CU_DEVICE_ATTRIBUTE_INTEGRATED, cudaDev);
++      CUDA_CHECK(res, "cuDeviceGetAttribute");
++      POCL_RETURN_GETINFO(cl_bool, value);
++    case CL_DEVICE_ATTRIBUTE_ASYNC_ENGINE_COUNT_NV:
++      res = cuDeviceGetAttribute(&value, CU_DEVICE_ATTRIBUTE_ASYNC_ENGINE_COUNT, cudaDev);
++      CUDA_CHECK(res, "cuDeviceGetAttribute");
++      POCL_RETURN_GETINFO(cl_uint, value);
++    case CL_DEVICE_PCI_BUS_ID_NV:
++      res = cuDeviceGetAttribute(&value, CU_DEVICE_ATTRIBUTE_PCI_BUS_ID, cudaDev);
++      CUDA_CHECK(res, "cuDeviceGetAttribute");
++      POCL_RETURN_GETINFO(cl_uint, value);
++    case CL_DEVICE_PCI_SLOT_ID_NV:
++      res = cuDeviceGetAttribute(&value, CU_DEVICE_ATTRIBUTE_PCI_DEVICE_ID, cudaDev);
++      CUDA_CHECK(res, "cuDeviceGetAttribute");
++      POCL_RETURN_GETINFO(cl_uint, value);
++    case CL_DEVICE_PCI_DOMAIN_ID_NV:
++      res = cuDeviceGetAttribute(&value, CU_DEVICE_ATTRIBUTE_PCI_DOMAIN_ID, cudaDev);
++      CUDA_CHECK(res, "cuDeviceGetAttribute");
++      POCL_RETURN_GETINFO(cl_uint, value);
++    default:
++      return CL_INVALID_VALUE;
++  }
++
++}
++
+ void
+ pocl_cuda_init_device_ops (struct pocl_device_ops *ops)
+ {
+@@ -152,6 +214,8 @@ pocl_cuda_init_device_ops (struct pocl_device_ops *ops)
+   // TODO
+   ops->map_mem = pocl_cuda_map_mem;
+ 
++  ops->get_device_info_ext = pocl_cuda_handle_cl_nv_device_attribute_query;
++
+   ops->read = NULL;
+   ops->read_rect = NULL;
+   ops->write = NULL;
+diff --git a/lib/CL/devices/hsa/pocl-hsa.c b/lib/CL/devices/hsa/pocl-hsa.c
+index a6878d9e3..66314739b 100644
+--- a/lib/CL/devices/hsa/pocl-hsa.c
++++ b/lib/CL/devices/hsa/pocl-hsa.c
+@@ -251,6 +251,8 @@ pocl_hsa_init_device_ops(struct pocl_device_ops *ops)
+   ops->copy = pocl_hsa_copy;
+   ops->compute_local_size = pocl_default_local_size_optimizer;
+ 
++  ops->get_device_info_ext = NULL;
++
+   ops->svm_free = pocl_hsa_svm_free;
+   ops->svm_alloc = pocl_hsa_svm_alloc;
+   ops->svm_copy = pocl_hsa_svm_copy;
+diff --git a/lib/CL/devices/tce/ttasim/ttasim.cc b/lib/CL/devices/tce/ttasim/ttasim.cc
+index 672f00ba4..4840a161c 100644
+--- a/lib/CL/devices/tce/ttasim/ttasim.cc
++++ b/lib/CL/devices/tce/ttasim/ttasim.cc
+@@ -99,6 +99,7 @@ pocl_ttasim_init_device_ops(struct pocl_device_ops *ops)
+   ops->broadcast = pocl_broadcast;
+   ops->notify = pocl_tce_notify;
+   ops->build_hash = pocl_tce_build_hash;
++  ops->get_device_info_ext = NULL;
+ }
+ 
+ 
+diff --git a/lib/CL/pocl_cl.h b/lib/CL/pocl_cl.h
+index fa7b1f6dc..51d77feff 100644
+--- a/lib/CL/pocl_cl.h
++++ b/lib/CL/pocl_cl.h
+@@ -629,6 +629,10 @@ struct pocl_device_ops {
+                               size_t global_y, size_t global_z,
+                               size_t *local_x, size_t *local_y,
+                               size_t *local_z);
++
++  cl_int (*get_device_info_ext) (cl_device_id dev, cl_device_info param_name,
++                                 size_t param_value_size, void * param_value,
++                                 size_t * param_value_size_ret);
+ };
+ 
+ typedef struct pocl_global_mem_t {
