@@ -80,6 +80,7 @@ sed -i.bak "s@ocl-vendors@ocl-vendors/@g" CTestCustom.cmake
 SKIP_TESTS="dummy"
 
 export POCL_DEVICES=pthread
+export POCL_DEBUG=1
 
 ctest -E "$SKIP_TESTS" --output-on-failure
 
