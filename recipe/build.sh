@@ -81,7 +81,7 @@ SKIP_TESTS="dummy"
 
 export POCL_DEVICES=pthread
 
-ctest -E "$SKIP_TESTS"
+ctest -E "$SKIP_TESTS" --output-on-failure
 
 # Can't run cuda tests without a GPU
 # if [[ "$enable_cuda" == "True" ]]; then
