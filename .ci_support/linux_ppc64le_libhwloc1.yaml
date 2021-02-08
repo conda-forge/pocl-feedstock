@@ -11,7 +11,7 @@ cxx_compiler:
 cxx_compiler_version:
 - '9'
 docker_image:
-- condaforge/linux-anvil-ppc64le-cuda:9.2
+- quay.io/condaforge/linux-anvil-ppc64le-cuda:9.2
 enable_cuda:
 - 'True'
 libhwloc:
