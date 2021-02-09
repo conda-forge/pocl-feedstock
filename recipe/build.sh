@@ -23,7 +23,8 @@ if [[ "$cxx_compiler" == "gxx" ]]; then
 fi
 
 if [[ "$CONDA_BUILD_CROSS_COMPILATION" == "1" ]]; then
-  mv $BUILD_PREFIX/bin/llvm-config $PREFIX/bin/llvm-config
+  rm $PREFIX/bin/llvm-config
+  ln -sf $BUILD_PREFIX/bin/llvm-config $PREFIX/bin/llvm-config
   LLVM_TOOLS_PREFIX="$BUILD_PREFIX"
 else
   LLVM_TOOLS_PREFIX="$PREFIX"
