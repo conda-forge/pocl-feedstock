@@ -3,11 +3,14 @@ libhwloc:
   - 2
 
 docker_image:                                   # [linux64 or ppc64le]
-  - condaforge/linux-anvil-cuda:9.2             # [linux64]
-  - condaforge/linux-anvil-ppc64le-cuda:9.2     # [ppc64le]
+  - quay.io/condaforge/linux-anvil-cuda:9.2             # [linux64]
+  - quay.io/condaforge/linux-anvil-ppc64le-cuda:9.2     # [ppc64le]
 
 cuda_compiler_version:
-  - '*'
+  - None
+
+cudnn:
+  - undefined
 
 enable_cuda:
   - True      # [linux64 or ppc64le]

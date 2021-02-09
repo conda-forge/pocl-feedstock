@@ -23,7 +23,11 @@ if [[ "$cxx_compiler" == "gxx" ]]; then
 fi
 
 if [[ "$CONDA_BUILD_CROSS_COMPILATION" == "1" ]]; then
-  mv $BUILD_PREFIX/bin/llvm-config $PREFIX/bin/llvm-config
+  rm $PREFIX/bin/llvm-config
+  cp $BUILD_PREFIX/bin/llvm-config $PREFIX/bin/llvm-config
+  if [[ "$target_platform" == osx-* ]]; then
+    ${INSTALL_NAME_TOOL} -add_rpath $BUILD_PREFIX/lib $PREFIX/bin/llvm-config
+  fi
   LLVM_TOOLS_PREFIX="$BUILD_PREFIX"
 else
   LLVM_TOOLS_PREFIX="$PREFIX"
@@ -80,8 +84,9 @@ sed -i.bak "s@ocl-vendors@ocl-vendors/@g" CTestCustom.cmake
 SKIP_TESTS="dummy"
 
 export POCL_DEVICES=pthread
+export POCL_DEBUG=1
 
-ctest -E "$SKIP_TESTS"
+ctest -E "$SKIP_TESTS" --output-on-failure
 
 # Can't run cuda tests without a GPU
 # if [[ "$enable_cuda" == "True" ]]; then
