@@ -11,8 +11,6 @@ cuda_compiler_version:
   
 cdt_name:  # [linux64 or ppc64le]
   - cos6   # [linux64]
-  - cos6   # [linux64]
-  - cos7   # [ppc64le]
   - cos7   # [ppc64le]
 
 cudnn:
