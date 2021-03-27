@@ -16,7 +16,7 @@ source:
       - patches/gh887.diff
       - patches/gh904.patch
       - patches/gh910.patch
-      - patches/gh933.patch
+      - patches/gh933.diff
 
 build:
   number: {{ build_number }}
