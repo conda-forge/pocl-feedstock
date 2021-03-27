@@ -2,12 +2,18 @@ libhwloc:
   - 1      # [not (osx and arm64)]
   - 2
 
-docker_image:                                   # [linux64 or ppc64le]
+docker_image:                                           # [linux64 or ppc64le]
   - quay.io/condaforge/linux-anvil-cuda:9.2             # [linux64]
   - quay.io/condaforge/linux-anvil-ppc64le-cuda:9.2     # [ppc64le]
 
 cuda_compiler_version:
   - None
+  
+cdt_name:  # [linux64 or ppc64le]
+  - cos6   # [linux64]
+  - cos6   # [linux64]
+  - cos7   # [ppc64le]
+  - cos7   # [ppc64le]
 
 cudnn:
   - undefined
