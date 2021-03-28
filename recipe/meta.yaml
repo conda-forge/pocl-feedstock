@@ -1,9 +1,9 @@
 {% set name = "pocl" %}
 {% set version = "1.6" %}
-{% set build_number = 2 %}
+{% set build_number = 3 %}
 {% set sha256 = "b0a4c0c056371b6f0db726b88fbb76bbee94948fb2abd4dbc8d958f7c42f766c" %}
 
-{% set llvm_version = "11.0.1" %}
+{% set llvm_version = "11.1.0" %}
 
 package:
   name: {{ name|lower }}
@@ -13,9 +13,10 @@ source:
   - url: https://github.com/pocl/pocl/archive/v{{ version.replace(".rc", "-RC") }}.tar.gz
     sha256: {{ sha256 }}
     patches:
-      - gh887.diff
+      - patches/gh887.diff
       - patches/gh904.patch
       - patches/gh910.patch
+      - patches/gh933.diff
 
 build:
   number: {{ build_number }}
