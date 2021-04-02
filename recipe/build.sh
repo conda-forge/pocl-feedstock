@@ -3,6 +3,7 @@ if [[ "$target_platform" == linux* ]]; then
 fi
 
 sed -i.bak 's/"-lm",//g' lib/CL/devices/common.c
+sed -i.bak 's/-dynamiclib -w -lm/-dynamiclib -w/g' CMakeLists.txt
 
 rm -rf build
 mkdir build
