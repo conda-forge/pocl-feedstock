@@ -1,7 +1,9 @@
 if [[ "$target_platform" == linux* ]]; then
-  sed -i 's/add_subdirectory("matrix1")//g' examples/CMakeLists.txt
-  sed -i 's/"-lm",//g' lib/CL/devices/common.c
+  sed -i.bak 's/add_subdirectory("matrix1")//g' examples/CMakeLists.txt
 fi
+
+sed -i.bak 's/"-lm",//g' lib/CL/devices/common.c
+sed -i.bak 's/-dynamiclib -w -lm/-dynamiclib -w/g' CMakeLists.txt
 
 rm -rf build
 mkdir build
@@ -17,9 +19,13 @@ fi
 EXTRA_HOST_CLANG_FLAGS=""
 OPENCL_LIBRARIES="${PREFIX}/lib/libOpenCL${SHLIB_EXT}"
 
-if [[ "$cxx_compiler" == "gxx" ]]; then
-  EXTRA_HOST_LD_FLAGS="$EXTRA_HOST_LD_FLAGS -nodefaultlibs -L$BUILD_PREFIX/$HOST/sysroot/usr/lib"
+EXTRA_HOST_LD_FLAGS="$EXTRA_HOST_LD_FLAGS -nodefaultlibs"
+
+if [[ "$target_platform" == linux-* ]]; then
+  EXTRA_HOST_LD_FLAGS="$EXTRA_HOST_LD_FLAGS -L$BUILD_PREFIX/$HOST/sysroot/usr/lib"
   EXTRA_HOST_CLANG_FLAGS="-I$BUILD_PREFIX/$HOST/sysroot/usr/include"
+elif [[ "$target_platform" == osx-* ]]; then
+  EXTRA_HOST_LD_FLAGS="$EXTRA_HOST_LD_FLAGS -undefined dynamic_lookup"
 fi
 
 if [[ "$CONDA_BUILD_CROSS_COMPILATION" == "1" ]]; then
@@ -78,20 +84,26 @@ if [[ "$enable_cuda" == "True" ]]; then
 fi
 
 if [[ "$CONDA_BUILD_CROSS_COMPILATION" != "1" ]]; then
-# Workaround for https://github.com/KhronosGroup/OpenCL-ICD-Loader/issues/104
-sed -i.bak "s@ocl-vendors@ocl-vendors/@g" CTestCustom.cmake
+  # Workaround for https://github.com/KhronosGroup/OpenCL-ICD-Loader/issues/104
+  sed -i.bak "s@ocl-vendors@ocl-vendors/@g" CTestCustom.cmake
 
-SKIP_TESTS="dummy"
+  SKIP_TESTS="dummy"
 
-export POCL_DEVICES=pthread
-export POCL_DEBUG=1
+  export POCL_DEVICES=pthread
+  export POCL_DEBUG=1
 
-ctest -E "$SKIP_TESTS" --output-on-failure
+  if [[ "$target_platform" == osx-* ]]; then
+    # Check that we don't need the SDK
+    unset SDKROOT
+    unset CONDA_BUILD_SYSROOT
+  fi
 
-# Can't run cuda tests without a GPU
-# if [[ "$enable_cuda" == "True" ]]; then
-#   POCL_DEVICES=cuda ctest -L cuda
-# fi
+  ctest -E "$SKIP_TESTS" --output-on-failure
+
+  # Can't run cuda tests without a GPU
+  # if [[ "$enable_cuda" == "True" ]]; then
+  #   POCL_DEVICES=cuda ctest -L cuda
+  # fi
 fi
 
 # For backwards compatibility
