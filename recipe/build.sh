@@ -101,9 +101,9 @@ if [[ "$CONDA_BUILD_CROSS_COMPILATION" != "1" ]]; then
   ctest -E "$SKIP_TESTS" --output-on-failure
 
   # Can't run cuda tests without a GPU
-  # if [[ "$enable_cuda" == "True" ]]; then
-  #   POCL_DEVICES=cuda ctest -L cuda
-  # fi
+  if [[ "$enable_cuda" == "True" ]]; then
+    POCL_DEVICES=cuda ctest -L cuda || true
+  fi
 fi
 
 # For backwards compatibility
