@@ -1,7 +1,7 @@
 {% set name = "pocl" %}
-{% set version = "1.6" %}
-{% set build_number = 4 %}
-{% set sha256 = "b0a4c0c056371b6f0db726b88fbb76bbee94948fb2abd4dbc8d958f7c42f766c" %}
+{% set version = "1.7" %}
+{% set build_number = 0 %}
+{% set sha256 = "5f6bbc391ba144bc7becc3b90888b25468460d5aa6830f63a3b066137e7bfac3" %}
 
 {% set llvm_version = "11.1.0" %}
 
@@ -22,7 +22,7 @@ build:
   number: {{ build_number }}
   skip: true  # [win]
   merge_build_host: true  # [cxx_compiler=='gxx']
-  script_env:     # [enable_cuda]
+  script_env:   # [enable_cuda]
     - CUDA_HOME   # [enable_cuda]
 
 requirements:
@@ -68,7 +68,7 @@ outputs:
 
   - name: pocl-cuda
     build:
-      skip: True   # [not enable_cuda]
+      skip: true  # [not enable_cuda]
     script: install-cuda.sh
     requirements:
       build:
