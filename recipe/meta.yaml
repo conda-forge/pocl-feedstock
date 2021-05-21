@@ -3,7 +3,7 @@
 {% set build_number = 0 %}
 {% set sha256 = "5f6bbc391ba144bc7becc3b90888b25468460d5aa6830f63a3b066137e7bfac3" %}
 
-{% set llvm_version = "11.1.0" %}
+{% set llvm_version = "12.0.0" %}
 
 package:
   name: {{ name|lower }}
