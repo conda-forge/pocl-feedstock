@@ -31,6 +31,7 @@ requirements:
     - {{ compiler('cxx') }}
     - llvmdev {{ llvm_version }}.*       # [build_platform != target_platform]
     - clangdev {{ llvm_version }}.*      # [build_platform != target_platform]
+    - clang-{{ llvm_version.split(".")[0] }}           # [osx]
   host:
     - ocl-icd                            # [linux]
     - khronos-opencl-icd-loader          # [osx]
