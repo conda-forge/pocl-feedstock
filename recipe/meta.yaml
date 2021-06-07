@@ -28,7 +28,10 @@ requirements:
     - cmake
     - make
     - pkg-config
-    - {{ compiler('cxx') }}
+
+    # disabled on osx because it seems to install a conflicting version of clang
+    - {{ compiler('cxx') }}  # [not osx]
+    
     - llvmdev {{ llvm_version }}.*       # [build_platform != target_platform]
     - clangdev {{ llvm_version }}.*      # [build_platform != target_platform]
     - clang-{{ llvm_version.split(".")[0] }}           # [osx]
