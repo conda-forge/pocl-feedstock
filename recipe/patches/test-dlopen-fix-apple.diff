@@ -1,5 +1,5 @@
 diff --git a/tests/runtime/test_dlopen.c b/tests/runtime/test_dlopen.c
-index be4bf5eb..cc97fdb8 100644
+index be4bf5eb..442826e0 100644
 --- a/tests/runtime/test_dlopen.c
 +++ b/tests/runtime/test_dlopen.c
 @@ -28,7 +28,13 @@ int
@@ -7,7 +7,7 @@ index be4bf5eb..cc97fdb8 100644
  {
    int ret = 0;
 -  const char *libpocl = "$ORIGIN/../../lib/CL/libpocl.so";
-+  const char *libpocl = "$ORIGIN/../../lib/CL/libpocl"
++  const char *libpocl = "$ORIGIN/../../lib/libpocl"
 +#ifdef __APPLE__
 +          ".dylib";
 +#else
