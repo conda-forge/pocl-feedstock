@@ -56,6 +56,8 @@ if [[ "$enable_cuda" == "True" ]]; then
   LDFLAGS="$LDFLAGS -L$CUDA_HOME/lib64/stubs"
 fi
 
+set
+
 cmake \
   -D CMAKE_BUILD_TYPE="Release" \
   -D CMAKE_INSTALL_PREFIX="${PREFIX}" \
@@ -69,6 +71,7 @@ cmake \
   -D EXTRA_HOST_CLANG_FLAGS="${EXTRA_HOST_CLANG_FLAGS}" \
   -D CMAKE_INSTALL_LIBDIR=lib \
   -D ENABLE_ICD=on \
+  -D LLVM_HOST_TARGET=$HOST \
   -D LLVM_BINDIR=$BUILD_PREFIX/bin \
   ${CMAKE_ARGS} \
   ..
