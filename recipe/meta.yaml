@@ -13,8 +13,7 @@ source:
   - url: https://github.com/pocl/pocl/archive/v{{ version.replace(".rc", "-RC") }}.tar.gz
     sha256: {{ sha256 }}
     patches:
-      # pocl/pocl#936
-      - patches/test-dlopen-fix-apple.diff 
+      - patches/drop-test-dlopen.diff
 
 build:
   number: {{ build_number }}
