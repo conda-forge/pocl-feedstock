@@ -32,7 +32,7 @@ if [[ "$CONDA_BUILD_CROSS_COMPILATION" == "1" ]]; then
   rm $PREFIX/bin/llvm-config
   cp $BUILD_PREFIX/bin/llvm-config $PREFIX/bin/llvm-config
   if [[ "$target_platform" == osx-* ]]; then
-    ${INSTALL_NAME_TOOL} -add_rpath $BUILD_PREFIX/lib $PREFIX/bin/llvm-config
+    install_name_tool -add_rpath $BUILD_PREFIX/lib $PREFIX/bin/llvm-config
   fi
   LLVM_TOOLS_PREFIX="$BUILD_PREFIX"
 else
@@ -55,6 +55,8 @@ if [[ "$enable_cuda" == "True" ]]; then
   CMAKE_ARGS="$CMAKE_ARGS -DCUDA_CUDART_LIBRARY=$CUDA_HOME/lib64/libcudart.so -DCUDA_TOOLKIT_ROOT_DIR_INTERNAL=$CUDA_HOME"
   LDFLAGS="$LDFLAGS -L$CUDA_HOME/lib64/stubs"
 fi
+
+set
 
 cmake \
   -D CMAKE_BUILD_TYPE="Release" \

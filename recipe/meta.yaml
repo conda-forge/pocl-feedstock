@@ -1,7 +1,7 @@
 {% set name = "pocl" %}
-{% set version = "1.6" %}
-{% set build_number = 4 %}
-{% set sha256 = "b0a4c0c056371b6f0db726b88fbb76bbee94948fb2abd4dbc8d958f7c42f766c" %}
+{% set version = "1.7" %}
+{% set build_number = 0 %}
+{% set sha256 = "5f6bbc391ba144bc7becc3b90888b25468460d5aa6830f63a3b066137e7bfac3" %}
 
 {% set llvm_version = "11.1.0" %}
 
@@ -13,16 +13,14 @@ source:
   - url: https://github.com/pocl/pocl/archive/v{{ version.replace(".rc", "-RC") }}.tar.gz
     sha256: {{ sha256 }}
     patches:
-      - patches/gh887.diff
-      - patches/gh904.patch
-      - patches/gh910.patch
-      - patches/gh933.diff
+      # pocl/pocl#936
+      - patches/test-dlopen-fix-apple.diff 
 
 build:
   number: {{ build_number }}
   skip: true  # [win]
   merge_build_host: true  # [cxx_compiler=='gxx']
-  script_env:     # [enable_cuda]
+  script_env:   # [enable_cuda]
     - CUDA_HOME   # [enable_cuda]
 
 requirements:
@@ -31,8 +29,10 @@ requirements:
     - make
     - pkg-config
     - {{ compiler('cxx') }}
+    
     - llvmdev {{ llvm_version }}.*       # [build_platform != target_platform]
     - clangdev {{ llvm_version }}.*      # [build_platform != target_platform]
+    - clang-{{ llvm_version.split(".")[0] }}           # [osx]
   host:
     - ocl-icd                            # [linux]
     - khronos-opencl-icd-loader          # [osx]
@@ -58,7 +58,7 @@ test:
   commands:
     - test -f $PREFIX/lib/libpocl${SHLIB_EXT}     # [unix]
     # Remove apple icd so that only pocl is found
-    - rm $PREFIX/etc/OpenCL/vendors/apple.icd     # [osx]
+    - rm -f $PREFIX/etc/OpenCL/vendors/apple.icd     # [osx]
     - export OCL_ICD_DEBUG=15                     # [linux]
     - curl -O https://raw.githubusercontent.com/inducer/pyopencl/master/examples/demo.py
     - python demo.py
@@ -68,7 +68,7 @@ outputs:
 
   - name: pocl-cuda
     build:
-      skip: True   # [not enable_cuda]
+      skip: true  # [not enable_cuda]
     script: install-cuda.sh
     requirements:
       build:
