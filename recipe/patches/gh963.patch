@@ -1,0 +1,489 @@
+From de2f2f256e6ee11319c6a97d080f975b3f5b8991 Mon Sep 17 00:00:00 2001
+From: Isuru Fernando <idf2@illinois.edu>
+Date: Fri, 2 Jul 2021 01:53:31 -0500
+Subject: [PATCH] Fix cuda atomics after rename
+
+Rename done in b3e616e2b81689755f7f310dc48191d3208317fb was incomplete
+---
+ lib/kernel/cuda/atomic_add.ll | 16 ++++++++--------
+ lib/kernel/cuda/atomic_and.ll | 16 ++++++++--------
+ lib/kernel/cuda/atomic_dec.ll | 16 ++++++++--------
+ lib/kernel/cuda/atomic_inc.ll | 16 ++++++++--------
+ lib/kernel/cuda/atomic_max.ll | 16 ++++++++--------
+ lib/kernel/cuda/atomic_min.ll | 16 ++++++++--------
+ lib/kernel/cuda/atomic_sub.ll | 16 ++++++++--------
+ lib/kernel/cuda/atomic_xor.ll | 16 ++++++++--------
+ 8 files changed, 64 insertions(+), 64 deletions(-)
+
+diff --git a/lib/kernel/cuda/atomic_add.ll b/lib/kernel/cuda/atomic_add.ll
+index c343198ad..4084720b5 100644
+--- a/lib/kernel/cuda/atomic_add.ll
++++ b/lib/kernel/cuda/atomic_add.ll
+@@ -1,46 +1,46 @@
+-define i32 @_Z10atomic_addPU3AS1Vii(i32 addrspace(1)* %ptr, i32 %val) {
++define i32 @_Z14_cl_atomic_addPU3AS1Vii(i32 addrspace(1)* %ptr, i32 %val) {
+ entry:
+   %0 = atomicrmw add i32 addrspace(1)* %ptr, i32 %val monotonic
+   ret i32 %0
+ }
+ 
+-define i32 @_Z10atomic_addPU3AS1Vjj(i32 addrspace(1)* %ptr, i32 %val) {
++define i32 @_Z14_cl_atomic_addPU3AS1Vjj(i32 addrspace(1)* %ptr, i32 %val) {
+ entry:
+   %0 = atomicrmw add i32 addrspace(1)* %ptr, i32 %val monotonic
+   ret i32 %0
+ }
+ 
+-define i32 @_Z10atomic_addPU3AS3Vii(i32 addrspace(3)* %ptr, i32 %val) {
++define i32 @_Z14_cl_atomic_addPU3AS3Vii(i32 addrspace(3)* %ptr, i32 %val) {
+ entry:
+   %0 = atomicrmw add i32 addrspace(3)* %ptr, i32 %val monotonic
+   ret i32 %0
+ }
+ 
+-define i32 @_Z10atomic_addPU3AS3Vjj(i32 addrspace(3)* %ptr, i32 %val) {
++define i32 @_Z14_cl_atomic_addPU3AS3Vjj(i32 addrspace(3)* %ptr, i32 %val) {
+ entry:
+   %0 = atomicrmw add i32 addrspace(3)* %ptr, i32 %val monotonic
+   ret i32 %0
+ }
+ 
+-define i64 @_Z10atomic_addPU3AS1Vll(i64 addrspace(1)* %ptr, i64 %val) {
++define i64 @_Z14_cl_atomic_addPU3AS1Vll(i64 addrspace(1)* %ptr, i64 %val) {
+ entry:
+   %0 = atomicrmw add i64 addrspace(1)* %ptr, i64 %val monotonic
+   ret i64 %0
+ }
+ 
+-define i64 @_Z10atomic_addPU3AS1Vmm(i64 addrspace(1)* %ptr, i64 %val) {
++define i64 @_Z14_cl_atomic_addPU3AS1Vmm(i64 addrspace(1)* %ptr, i64 %val) {
+ entry:
+   %0 = atomicrmw add i64 addrspace(1)* %ptr, i64 %val monotonic
+   ret i64 %0
+ }
+ 
+-define i64 @_Z10atomic_addPU3AS3Vll(i64 addrspace(3)* %ptr, i64 %val) {
++define i64 @_Z14_cl_atomic_addPU3AS3Vll(i64 addrspace(3)* %ptr, i64 %val) {
+ entry:
+   %0 = atomicrmw add i64 addrspace(3)* %ptr, i64 %val monotonic
+   ret i64 %0
+ }
+ 
+-define i64 @_Z10atomic_addPU3AS3Vmm(i64 addrspace(3)* %ptr, i64 %val) {
++define i64 @_Z14_cl_atomic_addPU3AS3Vmm(i64 addrspace(3)* %ptr, i64 %val) {
+ entry:
+   %0 = atomicrmw add i64 addrspace(3)* %ptr, i64 %val monotonic
+   ret i64 %0
+diff --git a/lib/kernel/cuda/atomic_and.ll b/lib/kernel/cuda/atomic_and.ll
+index 20ecdefb4..9c95adc16 100644
+--- a/lib/kernel/cuda/atomic_and.ll
++++ b/lib/kernel/cuda/atomic_and.ll
+@@ -1,46 +1,46 @@
+-define i32 @_Z10atomic_andPU3AS1Vii(i32 addrspace(1)* %ptr, i32 %val) {
++define i32 @_Z14_cl_atomic_andPU3AS1Vii(i32 addrspace(1)* %ptr, i32 %val) {
+ entry:
+   %0 = atomicrmw and i32 addrspace(1)* %ptr, i32 %val monotonic
+   ret i32 %0
+ }
+ 
+-define i32 @_Z10atomic_andPU3AS1Vjj(i32 addrspace(1)* %ptr, i32 %val) {
++define i32 @_Z14_cl_atomic_andPU3AS1Vjj(i32 addrspace(1)* %ptr, i32 %val) {
+ entry:
+   %0 = atomicrmw and i32 addrspace(1)* %ptr, i32 %val monotonic
+   ret i32 %0
+ }
+ 
+-define i32 @_Z10atomic_andPU3AS3Vii(i32 addrspace(3)* %ptr, i32 %val) {
++define i32 @_Z14_cl_atomic_andPU3AS3Vii(i32 addrspace(3)* %ptr, i32 %val) {
+ entry:
+   %0 = atomicrmw and i32 addrspace(3)* %ptr, i32 %val monotonic
+   ret i32 %0
+ }
+ 
+-define i32 @_Z10atomic_andPU3AS3Vjj(i32 addrspace(3)* %ptr, i32 %val) {
++define i32 @_Z14_cl_atomic_andPU3AS3Vjj(i32 addrspace(3)* %ptr, i32 %val) {
+ entry:
+   %0 = atomicrmw and i32 addrspace(3)* %ptr, i32 %val monotonic
+   ret i32 %0
+ }
+ 
+-define i64 @_Z10atomic_andPU3AS1Vll(i64 addrspace(1)* %ptr, i64 %val) {
++define i64 @_Z14_cl_atomic_andPU3AS1Vll(i64 addrspace(1)* %ptr, i64 %val) {
+ entry:
+   %0 = atomicrmw and i64 addrspace(1)* %ptr, i64 %val monotonic
+   ret i64 %0
+ }
+ 
+-define i64 @_Z10atomic_andPU3AS1Vmm(i64 addrspace(1)* %ptr, i64 %val) {
++define i64 @_Z14_cl_atomic_andPU3AS1Vmm(i64 addrspace(1)* %ptr, i64 %val) {
+ entry:
+   %0 = atomicrmw and i64 addrspace(1)* %ptr, i64 %val monotonic
+   ret i64 %0
+ }
+ 
+-define i64 @_Z10atomic_andPU3AS3Vll(i64 addrspace(3)* %ptr, i64 %val) {
++define i64 @_Z14_cl_atomic_andPU3AS3Vll(i64 addrspace(3)* %ptr, i64 %val) {
+ entry:
+   %0 = atomicrmw and i64 addrspace(3)* %ptr, i64 %val monotonic
+   ret i64 %0
+ }
+ 
+-define i64 @_Z10atomic_andPU3AS3Vmm(i64 addrspace(3)* %ptr, i64 %val) {
++define i64 @_Z14_cl_atomic_andPU3AS3Vmm(i64 addrspace(3)* %ptr, i64 %val) {
+ entry:
+   %0 = atomicrmw and i64 addrspace(3)* %ptr, i64 %val monotonic
+   ret i64 %0
+diff --git a/lib/kernel/cuda/atomic_dec.ll b/lib/kernel/cuda/atomic_dec.ll
+index fd0984293..87d77c868 100644
+--- a/lib/kernel/cuda/atomic_dec.ll
++++ b/lib/kernel/cuda/atomic_dec.ll
+@@ -1,46 +1,46 @@
+-define i32 @_Z10atomic_decPU3AS1Vi(i32 addrspace(1)* %ptr) {
++define i32 @_Z14_cl_atomic_decPU3AS1Vi(i32 addrspace(1)* %ptr) {
+ entry:
+   %0 = atomicrmw sub i32 addrspace(1)* %ptr, i32 1 monotonic
+   ret i32 %0
+ }
+ 
+-define i32 @_Z10atomic_decPU3AS1Vj(i32 addrspace(1)* %ptr) {
++define i32 @_Z14_cl_atomic_decPU3AS1Vj(i32 addrspace(1)* %ptr) {
+ entry:
+   %0 = atomicrmw sub i32 addrspace(1)* %ptr, i32 1 monotonic
+   ret i32 %0
+ }
+ 
+-define i32 @_Z10atomic_decPU3AS3Vi(i32 addrspace(3)* %ptr) {
++define i32 @_Z14_cl_atomic_decPU3AS3Vi(i32 addrspace(3)* %ptr) {
+ entry:
+   %0 = atomicrmw sub i32 addrspace(3)* %ptr, i32 1 monotonic
+   ret i32 %0
+ }
+ 
+-define i32 @_Z10atomic_decPU3AS3Vj(i32 addrspace(3)* %ptr) {
++define i32 @_Z14_cl_atomic_decPU3AS3Vj(i32 addrspace(3)* %ptr) {
+ entry:
+   %0 = atomicrmw sub i32 addrspace(3)* %ptr, i32 1 monotonic
+   ret i32 %0
+ }
+ 
+-define i64 @_Z10atomic_decPU3AS1Vl(i64 addrspace(1)* %ptr) {
++define i64 @_Z14_cl_atomic_decPU3AS1Vl(i64 addrspace(1)* %ptr) {
+ entry:
+   %0 = atomicrmw sub i64 addrspace(1)* %ptr, i64 1 monotonic
+   ret i64 %0
+ }
+ 
+-define i64 @_Z10atomic_decPU3AS1Vm(i64 addrspace(1)* %ptr) {
++define i64 @_Z14_cl_atomic_decPU3AS1Vm(i64 addrspace(1)* %ptr) {
+ entry:
+   %0 = atomicrmw sub i64 addrspace(1)* %ptr, i64 1 monotonic
+   ret i64 %0
+ }
+ 
+-define i64 @_Z10atomic_decPU3AS3Vl(i64 addrspace(3)* %ptr) {
++define i64 @_Z14_cl_atomic_decPU3AS3Vl(i64 addrspace(3)* %ptr) {
+ entry:
+   %0 = atomicrmw sub i64 addrspace(3)* %ptr, i64 1 monotonic
+   ret i64 %0
+ }
+ 
+-define i64 @_Z10atomic_decPU3AS3Vm(i64 addrspace(3)* %ptr) {
++define i64 @_Z14_cl_atomic_decPU3AS3Vm(i64 addrspace(3)* %ptr) {
+ entry:
+   %0 = atomicrmw sub i64 addrspace(3)* %ptr, i64 1 monotonic
+   ret i64 %0
+diff --git a/lib/kernel/cuda/atomic_inc.ll b/lib/kernel/cuda/atomic_inc.ll
+index cbf9af124..d58a2837c 100644
+--- a/lib/kernel/cuda/atomic_inc.ll
++++ b/lib/kernel/cuda/atomic_inc.ll
+@@ -1,46 +1,46 @@
+-define i32 @_Z10atomic_incPU3AS1Vi(i32 addrspace(1)* %ptr) {
++define i32 @_Z14_cl_atomic_incPU3AS1Vi(i32 addrspace(1)* %ptr) {
+ entry:
+   %0 = atomicrmw add i32 addrspace(1)* %ptr, i32 1 monotonic
+   ret i32 %0
+ }
+ 
+-define i32 @_Z10atomic_incPU3AS1Vj(i32 addrspace(1)* %ptr) {
++define i32 @_Z14_cl_atomic_incPU3AS1Vj(i32 addrspace(1)* %ptr) {
+ entry:
+   %0 = atomicrmw add i32 addrspace(1)* %ptr, i32 1 monotonic
+   ret i32 %0
+ }
+ 
+-define i32 @_Z10atomic_incPU3AS3Vi(i32 addrspace(3)* %ptr) {
++define i32 @_Z14_cl_atomic_incPU3AS3Vi(i32 addrspace(3)* %ptr) {
+ entry:
+   %0 = atomicrmw add i32 addrspace(3)* %ptr, i32 1 monotonic
+   ret i32 %0
+ }
+ 
+-define i32 @_Z10atomic_incPU3AS3Vj(i32 addrspace(3)* %ptr) {
++define i32 @_Z14_cl_atomic_incPU3AS3Vj(i32 addrspace(3)* %ptr) {
+ entry:
+   %0 = atomicrmw add i32 addrspace(3)* %ptr, i32 1 monotonic
+   ret i32 %0
+ }
+ 
+-define i64 @_Z10atomic_incPU3AS1Vl(i64 addrspace(1)* %ptr) {
++define i64 @_Z14_cl_atomic_incPU3AS1Vl(i64 addrspace(1)* %ptr) {
+ entry:
+   %0 = atomicrmw add i64 addrspace(1)* %ptr, i64 1 monotonic
+   ret i64 %0
+ }
+ 
+-define i64 @_Z10atomic_incPU3AS1Vm(i64 addrspace(1)* %ptr) {
++define i64 @_Z14_cl_atomic_incPU3AS1Vm(i64 addrspace(1)* %ptr) {
+ entry:
+   %0 = atomicrmw add i64 addrspace(1)* %ptr, i64 1 monotonic
+   ret i64 %0
+ }
+ 
+-define i64 @_Z10atomic_incPU3AS3Vl(i64 addrspace(3)* %ptr) {
++define i64 @_Z14_cl_atomic_incPU3AS3Vl(i64 addrspace(3)* %ptr) {
+ entry:
+   %0 = atomicrmw add i64 addrspace(3)* %ptr, i64 1 monotonic
+   ret i64 %0
+ }
+ 
+-define i64 @_Z10atomic_incPU3AS3Vm(i64 addrspace(3)* %ptr) {
++define i64 @_Z14_cl_atomic_incPU3AS3Vm(i64 addrspace(3)* %ptr) {
+ entry:
+   %0 = atomicrmw add i64 addrspace(3)* %ptr, i64 1 monotonic
+   ret i64 %0
+diff --git a/lib/kernel/cuda/atomic_max.ll b/lib/kernel/cuda/atomic_max.ll
+index 256a9b9be..39a2ee827 100644
+--- a/lib/kernel/cuda/atomic_max.ll
++++ b/lib/kernel/cuda/atomic_max.ll
+@@ -1,46 +1,46 @@
+-define i32 @_Z10atomic_maxPU3AS1Vii(i32 addrspace(1)* %ptr, i32 %val) {
++define i32 @_Z14_cl_atomic_maxPU3AS1Vii(i32 addrspace(1)* %ptr, i32 %val) {
+ entry:
+   %0 = atomicrmw max i32 addrspace(1)* %ptr, i32 %val monotonic
+   ret i32 %0
+ }
+ 
+-define i32 @_Z10atomic_maxPU3AS1Vjj(i32 addrspace(1)* %ptr, i32 %val) {
++define i32 @_Z14_cl_atomic_maxPU3AS1Vjj(i32 addrspace(1)* %ptr, i32 %val) {
+ entry:
+   %0 = atomicrmw max i32 addrspace(1)* %ptr, i32 %val monotonic
+   ret i32 %0
+ }
+ 
+-define i32 @_Z10atomic_maxPU3AS3Vii(i32 addrspace(3)* %ptr, i32 %val) {
++define i32 @_Z14_cl_atomic_maxPU3AS3Vii(i32 addrspace(3)* %ptr, i32 %val) {
+ entry:
+   %0 = atomicrmw max i32 addrspace(3)* %ptr, i32 %val monotonic
+   ret i32 %0
+ }
+ 
+-define i32 @_Z10atomic_maxPU3AS3Vjj(i32 addrspace(3)* %ptr, i32 %val) {
++define i32 @_Z14_cl_atomic_maxPU3AS3Vjj(i32 addrspace(3)* %ptr, i32 %val) {
+ entry:
+   %0 = atomicrmw max i32 addrspace(3)* %ptr, i32 %val monotonic
+   ret i32 %0
+ }
+ 
+-define i64 @_Z10atomic_maxPU3AS1Vll(i64 addrspace(1)* %ptr, i64 %val) {
++define i64 @_Z14_cl_atomic_maxPU3AS1Vll(i64 addrspace(1)* %ptr, i64 %val) {
+ entry:
+   %0 = atomicrmw max i64 addrspace(1)* %ptr, i64 %val monotonic
+   ret i64 %0
+ }
+ 
+-define i64 @_Z10atomic_maxPU3AS1Vmm(i64 addrspace(1)* %ptr, i64 %val) {
++define i64 @_Z14_cl_atomic_maxPU3AS1Vmm(i64 addrspace(1)* %ptr, i64 %val) {
+ entry:
+   %0 = atomicrmw max i64 addrspace(1)* %ptr, i64 %val monotonic
+   ret i64 %0
+ }
+ 
+-define i64 @_Z10atomic_maxPU3AS3Vll(i64 addrspace(3)* %ptr, i64 %val) {
++define i64 @_Z14_cl_atomic_maxPU3AS3Vll(i64 addrspace(3)* %ptr, i64 %val) {
+ entry:
+   %0 = atomicrmw max i64 addrspace(3)* %ptr, i64 %val monotonic
+   ret i64 %0
+ }
+ 
+-define i64 @_Z10atomic_maxPU3AS3Vmm(i64 addrspace(3)* %ptr, i64 %val) {
++define i64 @_Z14_cl_atomic_maxPU3AS3Vmm(i64 addrspace(3)* %ptr, i64 %val) {
+ entry:
+   %0 = atomicrmw max i64 addrspace(3)* %ptr, i64 %val monotonic
+   ret i64 %0
+diff --git a/lib/kernel/cuda/atomic_min.ll b/lib/kernel/cuda/atomic_min.ll
+index a38727335..c413f813d 100644
+--- a/lib/kernel/cuda/atomic_min.ll
++++ b/lib/kernel/cuda/atomic_min.ll
+@@ -1,46 +1,46 @@
+-define i32 @_Z10atomic_minPU3AS1Vii(i32 addrspace(1)* %ptr, i32 %val) {
++define i32 @_Z14_cl_atomic_minPU3AS1Vii(i32 addrspace(1)* %ptr, i32 %val) {
+ entry:
+   %0 = atomicrmw min i32 addrspace(1)* %ptr, i32 %val monotonic
+   ret i32 %0
+ }
+ 
+-define i32 @_Z10atomic_minPU3AS1Vjj(i32 addrspace(1)* %ptr, i32 %val) {
++define i32 @_Z14_cl_atomic_minPU3AS1Vjj(i32 addrspace(1)* %ptr, i32 %val) {
+ entry:
+   %0 = atomicrmw umin i32 addrspace(1)* %ptr, i32 %val monotonic
+   ret i32 %0
+ }
+ 
+-define i32 @_Z10atomic_minPU3AS3Vii(i32 addrspace(3)* %ptr, i32 %val) {
++define i32 @_Z14_cl_atomic_minPU3AS3Vii(i32 addrspace(3)* %ptr, i32 %val) {
+ entry:
+   %0 = atomicrmw min i32 addrspace(3)* %ptr, i32 %val monotonic
+   ret i32 %0
+ }
+ 
+-define i32 @_Z10atomic_minPU3AS3Vjj(i32 addrspace(3)* %ptr, i32 %val) {
++define i32 @_Z14_cl_atomic_minPU3AS3Vjj(i32 addrspace(3)* %ptr, i32 %val) {
+ entry:
+   %0 = atomicrmw umin i32 addrspace(3)* %ptr, i32 %val monotonic
+   ret i32 %0
+ }
+ 
+-define i64 @_Z10atomic_minPU3AS1Vll(i64 addrspace(1)* %ptr, i64 %val) {
++define i64 @_Z14_cl_atomic_minPU3AS1Vll(i64 addrspace(1)* %ptr, i64 %val) {
+ entry:
+   %0 = atomicrmw min i64 addrspace(1)* %ptr, i64 %val monotonic
+   ret i64 %0
+ }
+ 
+-define i64 @_Z10atomic_minPU3AS1Vmm(i64 addrspace(1)* %ptr, i64 %val) {
++define i64 @_Z14_cl_atomic_minPU3AS1Vmm(i64 addrspace(1)* %ptr, i64 %val) {
+ entry:
+   %0 = atomicrmw umin i64 addrspace(1)* %ptr, i64 %val monotonic
+   ret i64 %0
+ }
+ 
+-define i64 @_Z10atomic_minPU3AS3Vll(i64 addrspace(3)* %ptr, i64 %val) {
++define i64 @_Z14_cl_atomic_minPU3AS3Vll(i64 addrspace(3)* %ptr, i64 %val) {
+ entry:
+   %0 = atomicrmw min i64 addrspace(3)* %ptr, i64 %val monotonic
+   ret i64 %0
+ }
+ 
+-define i64 @_Z10atomic_minPU3AS3Vmm(i64 addrspace(3)* %ptr, i64 %val) {
++define i64 @_Z14_cl_atomic_minPU3AS3Vmm(i64 addrspace(3)* %ptr, i64 %val) {
+ entry:
+   %0 = atomicrmw umin i64 addrspace(3)* %ptr, i64 %val monotonic
+   ret i64 %0
+diff --git a/lib/kernel/cuda/atomic_sub.ll b/lib/kernel/cuda/atomic_sub.ll
+index 31d1f10c0..494905ae4 100644
+--- a/lib/kernel/cuda/atomic_sub.ll
++++ b/lib/kernel/cuda/atomic_sub.ll
+@@ -1,46 +1,46 @@
+-define i32 @_Z10atomic_subPU3AS1Vii(i32 addrspace(1)* %ptr, i32 %val) {
++define i32 @_Z14_cl_atomic_subPU3AS1Vii(i32 addrspace(1)* %ptr, i32 %val) {
+ entry:
+   %0 = atomicrmw sub i32 addrspace(1)* %ptr, i32 %val monotonic
+   ret i32 %0
+ }
+ 
+-define i32 @_Z10atomic_subPU3AS1Vjj(i32 addrspace(1)* %ptr, i32 %val) {
++define i32 @_Z14_cl_atomic_subPU3AS1Vjj(i32 addrspace(1)* %ptr, i32 %val) {
+ entry:
+   %0 = atomicrmw sub i32 addrspace(1)* %ptr, i32 %val monotonic
+   ret i32 %0
+ }
+ 
+-define i32 @_Z10atomic_subPU3AS3Vii(i32 addrspace(3)* %ptr, i32 %val) {
++define i32 @_Z14_cl_atomic_subPU3AS3Vii(i32 addrspace(3)* %ptr, i32 %val) {
+ entry:
+   %0 = atomicrmw sub i32 addrspace(3)* %ptr, i32 %val monotonic
+   ret i32 %0
+ }
+ 
+-define i32 @_Z10atomic_subPU3AS3Vjj(i32 addrspace(3)* %ptr, i32 %val) {
++define i32 @_Z14_cl_atomic_subPU3AS3Vjj(i32 addrspace(3)* %ptr, i32 %val) {
+ entry:
+   %0 = atomicrmw sub i32 addrspace(3)* %ptr, i32 %val monotonic
+   ret i32 %0
+ }
+ 
+-define i64 @_Z10atomic_subPU3AS1Vll(i64 addrspace(1)* %ptr, i64 %val) {
++define i64 @_Z14_cl_atomic_subPU3AS1Vll(i64 addrspace(1)* %ptr, i64 %val) {
+ entry:
+   %0 = atomicrmw sub i64 addrspace(1)* %ptr, i64 %val monotonic
+   ret i64 %0
+ }
+ 
+-define i64 @_Z10atomic_subPU3AS1Vmm(i64 addrspace(1)* %ptr, i64 %val) {
++define i64 @_Z14_cl_atomic_subPU3AS1Vmm(i64 addrspace(1)* %ptr, i64 %val) {
+ entry:
+   %0 = atomicrmw sub i64 addrspace(1)* %ptr, i64 %val monotonic
+   ret i64 %0
+ }
+ 
+-define i64 @_Z10atomic_subPU3AS3Vll(i64 addrspace(3)* %ptr, i64 %val) {
++define i64 @_Z14_cl_atomic_subPU3AS3Vll(i64 addrspace(3)* %ptr, i64 %val) {
+ entry:
+   %0 = atomicrmw sub i64 addrspace(3)* %ptr, i64 %val monotonic
+   ret i64 %0
+ }
+ 
+-define i64 @_Z10atomic_subPU3AS3Vmm(i64 addrspace(3)* %ptr, i64 %val) {
++define i64 @_Z14_cl_atomic_subPU3AS3Vmm(i64 addrspace(3)* %ptr, i64 %val) {
+ entry:
+   %0 = atomicrmw sub i64 addrspace(3)* %ptr, i64 %val monotonic
+   ret i64 %0
+diff --git a/lib/kernel/cuda/atomic_xor.ll b/lib/kernel/cuda/atomic_xor.ll
+index 795f5bce0..a634d2181 100644
+--- a/lib/kernel/cuda/atomic_xor.ll
++++ b/lib/kernel/cuda/atomic_xor.ll
+@@ -1,46 +1,46 @@
+-define i32 @_Z10atomic_xorPU3AS1Vii(i32 addrspace(1)* %ptr, i32 %val) {
++define i32 @_Z14_cl_atomic_xorPU3AS1Vii(i32 addrspace(1)* %ptr, i32 %val) {
+ entry:
+   %0 = atomicrmw xor i32 addrspace(1)* %ptr, i32 %val monotonic
+   ret i32 %0
+ }
+ 
+-define i32 @_Z10atomic_xorPU3AS1Vjj(i32 addrspace(1)* %ptr, i32 %val) {
++define i32 @_Z14_cl_atomic_xorPU3AS1Vjj(i32 addrspace(1)* %ptr, i32 %val) {
+ entry:
+   %0 = atomicrmw xor i32 addrspace(1)* %ptr, i32 %val monotonic
+   ret i32 %0
+ }
+ 
+-define i32 @_Z10atomic_xorPU3AS3Vii(i32 addrspace(3)* %ptr, i32 %val) {
++define i32 @_Z14_cl_atomic_xorPU3AS3Vii(i32 addrspace(3)* %ptr, i32 %val) {
+ entry:
+   %0 = atomicrmw xor i32 addrspace(3)* %ptr, i32 %val monotonic
+   ret i32 %0
+ }
+ 
+-define i32 @_Z10atomic_xorPU3AS3Vjj(i32 addrspace(3)* %ptr, i32 %val) {
++define i32 @_Z14_cl_atomic_xorPU3AS3Vjj(i32 addrspace(3)* %ptr, i32 %val) {
+ entry:
+   %0 = atomicrmw xor i32 addrspace(3)* %ptr, i32 %val monotonic
+   ret i32 %0
+ }
+ 
+-define i64 @_Z10atomic_xorPU3AS1Vll(i64 addrspace(1)* %ptr, i64 %val) {
++define i64 @_Z14_cl_atomic_xorPU3AS1Vll(i64 addrspace(1)* %ptr, i64 %val) {
+ entry:
+   %0 = atomicrmw xor i64 addrspace(1)* %ptr, i64 %val monotonic
+   ret i64 %0
+ }
+ 
+-define i64 @_Z10atomic_xorPU3AS1Vmm(i64 addrspace(1)* %ptr, i64 %val) {
++define i64 @_Z14_cl_atomic_xorPU3AS1Vmm(i64 addrspace(1)* %ptr, i64 %val) {
+ entry:
+   %0 = atomicrmw xor i64 addrspace(1)* %ptr, i64 %val monotonic
+   ret i64 %0
+ }
+ 
+-define i64 @_Z10atomic_xorPU3AS3Vll(i64 addrspace(3)* %ptr, i64 %val) {
++define i64 @_Z14_cl_atomic_xorPU3AS3Vll(i64 addrspace(3)* %ptr, i64 %val) {
+ entry:
+   %0 = atomicrmw xor i64 addrspace(3)* %ptr, i64 %val monotonic
+   ret i64 %0
+ }
+ 
+-define i64 @_Z10atomic_xorPU3AS3Vmm(i64 addrspace(3)* %ptr, i64 %val) {
++define i64 @_Z14_cl_atomic_xorPU3AS3Vmm(i64 addrspace(3)* %ptr, i64 %val) {
+ entry:
+   %0 = atomicrmw xor i64 addrspace(3)* %ptr, i64 %val monotonic
+   ret i64 %0

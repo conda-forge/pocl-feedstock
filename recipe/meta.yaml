@@ -1,6 +1,6 @@
 {% set name = "pocl" %}
 {% set version = "1.7" %}
-{% set build_number = 0 %}
+{% set build_number = 1 %}
 {% set sha256 = "5f6bbc391ba144bc7becc3b90888b25468460d5aa6830f63a3b066137e7bfac3" %}
 
 {% set llvm_version = "11.1.0" %}
@@ -14,7 +14,8 @@ source:
     sha256: {{ sha256 }}
     patches:
       # pocl/pocl#936
-      - patches/test-dlopen-fix-apple.diff 
+      - patches/test-dlopen-fix-apple.diff
+      - patches/gh963.patch
 
 build:
   number: {{ build_number }}
