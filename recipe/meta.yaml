@@ -26,11 +26,10 @@ requirements:
     - cmake
     - make
     - pkg-config
-    - {{ compiler('cxx') }}
-
+    - {{ compiler('cxx') }}                                   # [not osx]
+    - clangxx_{{ target_platform }} {{ llvm_version }}.*      # [osx]
     - llvmdev {{ llvm_version }}.*       # [build_platform != target_platform]
     - clangdev {{ llvm_version }}.*      # [build_platform != target_platform]
-    - clang-{{ llvm_version.split(".")[0] }}           # [osx]
   host:
     - ocl-icd                            # [linux]
     - khronos-opencl-icd-loader          # [osx]
