@@ -18,7 +18,6 @@ source:
 build:
   number: {{ build_number }}
   skip: true  # [win]
-  merge_build_host: true  # [cxx_compiler=='gxx']
   script_env:   # [enable_cuda]
     - CUDA_HOME   # [enable_cuda]
 
