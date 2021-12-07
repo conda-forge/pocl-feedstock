@@ -92,7 +92,9 @@ if [[ "$CONDA_BUILD_CROSS_COMPILATION" != "1" ]]; then
   SKIP_TESTS="dummy"
 
   export POCL_DEVICES=pthread
-  export POCL_DEBUG=1
+
+  # Setting this will produce extra output that confuses the test result parser
+  # export POCL_DEBUG=1
 
   if [[ "$target_platform" == osx-* ]]; then
     # Check that we don't need the SDK
