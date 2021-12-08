@@ -28,7 +28,7 @@ elif [[ "$target_platform" == osx-* ]]; then
   EXTRA_HOST_LD_FLAGS="$EXTRA_HOST_LD_FLAGS -undefined dynamic_lookup"
 fi
 
-if [[ "$CONDA_BUILD_CROSS_COMPILATION" == "1" ]]; then
+if [[ "$CONDA_BUILD_CROSS_COMPILATION" == "1" && "${CMAKE_CROSSCOMPILING_EMULATOR:-}" == "" ]]; then
   rm $PREFIX/bin/llvm-config
   cp $BUILD_PREFIX/bin/llvm-config $PREFIX/bin/llvm-config
   if [[ "$target_platform" == osx-* ]]; then
@@ -92,7 +92,9 @@ if [[ "$CONDA_BUILD_CROSS_COMPILATION" != "1" ]]; then
   SKIP_TESTS="dummy"
 
   export POCL_DEVICES=pthread
-  export POCL_DEBUG=1
+
+  # Setting this will produce extra output that confuses the test result parser
+  # export POCL_DEBUG=1
 
   if [[ "$target_platform" == osx-* ]]; then
     # Check that we don't need the SDK

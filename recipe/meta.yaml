@@ -1,9 +1,9 @@
 {% set name = "pocl" %}
-{% set version = "1.7" %}
-{% set build_number = 2 %}
-{% set sha256 = "5f6bbc391ba144bc7becc3b90888b25468460d5aa6830f63a3b066137e7bfac3" %}
+{% set version = "1.8" %}
+{% set build_number = 0 %}
+{% set sha256 = "0f63377ae1826e16e90038fc8e7f65029be4ff6f9b059f6907174b5c0d1f8ab2" %}
 
-{% set llvm_version = "11.1.0" %}
+{% set llvm_version = "12.0.1" %}
 
 package:
   name: {{ name|lower }}
@@ -12,15 +12,12 @@ package:
 source:
   - url: https://github.com/pocl/pocl/archive/v{{ version.replace(".rc", "-RC") }}.tar.gz
     sha256: {{ sha256 }}
-    patches:
-      # pocl/pocl#936
-      - patches/test-dlopen-fix-apple.diff
-      - patches/gh963.patch
+    # patches:
+    #  - patches/gh963.patch
 
 build:
   number: {{ build_number }}
   skip: true  # [win]
-  merge_build_host: true  # [cxx_compiler=='gxx']
   script_env:   # [enable_cuda]
     - CUDA_HOME   # [enable_cuda]
 
@@ -29,11 +26,10 @@ requirements:
     - cmake
     - make
     - pkg-config
-    - {{ compiler('cxx') }}
-    
+    - {{ compiler('cxx') }}                                   # [not osx]
+    - clangxx_{{ target_platform }} {{ llvm_version }}.*      # [osx]
     - llvmdev {{ llvm_version }}.*       # [build_platform != target_platform]
     - clangdev {{ llvm_version }}.*      # [build_platform != target_platform]
-    - clang-{{ llvm_version.split(".")[0] }}           # [osx]
   host:
     - ocl-icd                            # [linux]
     - khronos-opencl-icd-loader          # [osx]
@@ -61,7 +57,7 @@ test:
     # Remove apple icd so that only pocl is found
     - rm -f $PREFIX/etc/OpenCL/vendors/apple.icd     # [osx]
     - export OCL_ICD_DEBUG=15                     # [linux]
-    - curl -O https://raw.githubusercontent.com/inducer/pyopencl/master/examples/demo.py
+    - curl -O https://raw.githubusercontent.com/inducer/pyopencl/main/examples/demo.py
     - python demo.py
 
 outputs:

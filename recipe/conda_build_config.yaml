@@ -8,7 +8,7 @@ docker_image:                                           # [linux64 or ppc64le]
 
 cuda_compiler_version:
   - None
-  
+
 cdt_name:  # [linux64 or ppc64le]
   - cos6   # [linux64]
   - cos7   # [ppc64le]
