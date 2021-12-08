@@ -28,7 +28,7 @@ elif [[ "$target_platform" == osx-* ]]; then
   EXTRA_HOST_LD_FLAGS="$EXTRA_HOST_LD_FLAGS -undefined dynamic_lookup"
 fi
 
-if [[ "$CONDA_BUILD_CROSS_COMPILATION" == "1" ]]; then
+if [[ "$CONDA_BUILD_CROSS_COMPILATION" == "1" && "${CMAKE_CROSSCOMPILING_EMULATOR:-}" == "" ]]; then
   rm $PREFIX/bin/llvm-config
   cp $BUILD_PREFIX/bin/llvm-config $PREFIX/bin/llvm-config
   if [[ "$target_platform" == osx-* ]]; then
