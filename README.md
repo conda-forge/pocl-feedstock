@@ -203,5 +203,6 @@ Feedstock Maintainers
 
 * [@inducer](https://github.com/inducer/)
 * [@isuruf](https://github.com/isuruf/)
+* [@matthiasdiener](https://github.com/matthiasdiener/)
 * [@mattwala](https://github.com/mattwala/)
 
