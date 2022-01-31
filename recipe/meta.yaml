@@ -1,6 +1,6 @@
 {% set name = "pocl" %}
 {% set version = "1.8" %}
-{% set build_number = 1 %}
+{% set build_number = 2 %}
 {% set sha256 = "0f63377ae1826e16e90038fc8e7f65029be4ff6f9b059f6907174b5c0d1f8ab2" %}
 
 {% set llvm_version = "12.0.1" %}
@@ -28,7 +28,7 @@ requirements:
     - make
     - pkg-config
     - {{ compiler('cxx') }}                                   # [not osx]
-    - clangxx_{{ target_platform }} {{ llvm_version }}.*      # [osx]
+    - clangxx {{ llvm_version }}.*
     - llvmdev {{ llvm_version }}.*       # [build_platform != target_platform]
     - clangdev {{ llvm_version }}.*      # [build_platform != target_platform]
   host:
