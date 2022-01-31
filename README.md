@@ -11,18 +11,13 @@ Summary: Portable Computing Language -- a CPU OpenCL implementation
 
 Development: https://github.com/pocl/pocl
 
+Documentation: http://portablecl.org/docs/html/
+
 Current build status
 ====================
 
 
-<table><tr>
-    <td>Travis</td>
-    <td>
-      <a href="https://travis-ci.com/conda-forge/pocl-feedstock">
-        <img alt="macOS" src="https://img.shields.io/travis/com/conda-forge/pocl-feedstock/master.svg?label=macOS">
-      </a>
-    </td>
-  </tr>
+<table>
     
   <tr>
     <td>Azure</td>
