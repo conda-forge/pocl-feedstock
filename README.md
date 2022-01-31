@@ -7,9 +7,11 @@ Package license: MIT
 
 Feedstock license: [BSD-3-Clause](https://github.com/conda-forge/pocl-feedstock/blob/master/LICENSE.txt)
 
-Summary: Portable Computing Language -- a CPU OpenCL implementation
+Summary: Portable Computing Language -- a portable open source implementation of the OpenCL standard
 
 Development: https://github.com/pocl/pocl
+
+Documentation: http://portablecl.org/docs/html/
 
 Current build status
 ====================
