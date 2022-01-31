@@ -87,7 +87,7 @@ about:
   license_file:
     - LICENSE
     - LLVM-License.txt
-  summary: Portable Computing Language -- a CPU OpenCL implementation
+  summary: Portable Computing Language -- a portable open source implementation of the OpenCL standard
   dev_url: https://github.com/pocl/pocl
   doc_url: http://portablecl.org/docs/html/
 
