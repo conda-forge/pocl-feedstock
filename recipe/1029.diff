@@ -1,0 +1,79 @@
+diff --git a/doc/sphinx/source/using.rst b/doc/sphinx/source/using.rst
+index b8189d1c3..0d3bc1081 100644
+--- a/doc/sphinx/source/using.rst
++++ b/doc/sphinx/source/using.rst
+@@ -131,7 +131,7 @@ pocl.
+ 
+  The old way (setting POCL_DEBUG to 1) has been updated to support categories.
+  Using this limits the amount of debug messages produced. Current options are:
+- error,warning,general,memory,llvm,events,cache,locking,refcounts,timing,hsa,tce,all.
++ error,warning,general,memory,llvm,events,cache,locking,refcounts,timing,hsa,tce,cuda,vulkan,proxy,all.
+  Note: setting POCL_DEBUG to 1 still works and equals error+warning+general.
+ 
+ - **POCL_SIGUSR2_HANDLER**
+diff --git a/lib/CL/devices/cuda/pocl-cuda.c b/lib/CL/devices/cuda/pocl-cuda.c
+index a48ce02f2..6ea3f7c22 100644
+--- a/lib/CL/devices/cuda/pocl-cuda.c
++++ b/lib/CL/devices/cuda/pocl-cuda.c
+@@ -44,6 +44,11 @@
+ #include <cuda.h>
+ #include <cuda_runtime.h>
+ 
++#include <fcntl.h>
++#include <sys/stat.h>
++#include <sys/types.h>
++#include <unistd.h>
++
+ typedef struct pocl_cuda_device_data_s
+ {
+   CUdevice device;
+@@ -964,8 +969,47 @@ load_or_generate_kernel (cl_kernel kernel, cl_device_id device,
+   /* Load PTX module */
+   /* TODO: When can we unload the module? */
+   CUmodule module;
+-  result = cuModuleLoad (&module, ptx_filename);
+-  CUDA_CHECK (result, "cuModuleLoad");
++
++  if (!(pocl_debug_messages_filter & POCL_DEBUG_FLAG_CUDA))
++    {
++      result = cuModuleLoad (&module, ptx_filename);
++      CUDA_CHECK (result, "cuModuleLoad");
++    }
++  else
++    {
++      struct stat st;
++      stat (ptx_filename, &st);
++
++      const int fd = open (ptx_filename, O_RDONLY);
++      assert (fd != -1);
++
++      char *buffer = (char *)malloc (st.st_size + 1);
++      const ssize_t r = read (fd, buffer, st.st_size);
++      assert (r == st.st_size);
++
++      buffer[r] = '\0';
++      close (fd);
++
++      unsigned int log_size = 1 << 12;
++      char *log = (char *)malloc (log_size);
++
++      CUjit_option opt[]
++          = { CU_JIT_ERROR_LOG_BUFFER, CU_JIT_ERROR_LOG_BUFFER_SIZE_BYTES };
++      void *val[] = { log, (void *)log_size };
++      result = cuModuleLoadDataEx (&module, buffer,
++                                   sizeof (opt) / sizeof (opt[0]), opt, val);
++
++      unsigned int out_size = (unsigned int)val[1];
++
++      if (out_size > 0 || result != CUDA_SUCCESS)
++        POCL_MSG_PRINT_CUDA ("cuModuleLoadDataEx(%s) log: %s\n", ptx_filename,
++                             log);
++
++      CUDA_CHECK (result, "cuModuleLoadDataEx");
++
++      free (log);
++      free (buffer);
++    }
+ 
+   /* Get kernel function */
+   CUfunction function;
