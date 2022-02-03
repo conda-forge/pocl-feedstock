@@ -30,6 +30,7 @@ requirements:
     - pkg-config
     - {{ compiler('cxx') }}                                   # [not osx]
     - clangxx_{{ target_platform }} {{ llvm_version }}.*      # [osx]
+    - clangxx {{ llvm_version }}.*       # [not osx]
     - llvmdev {{ llvm_version }}.*       # [build_platform != target_platform]
     - clangdev {{ llvm_version }}.*      # [build_platform != target_platform]
   host:
