@@ -1,8 +1,7 @@
-provider: {linux_aarch64: default, linux_ppc64le: native}
+provider: {linux_aarch64: native, linux_ppc64le: native}
 conda_forge_output_validation: true
 build_platform:
   osx_arm64: osx_64
-  linux_aarch64: linux_64
 test: native
 github:
   branch_name: main
