@@ -1,22 +1,5 @@
-diff --git a/CHANGES b/CHANGES
-index 6f8644ae6..021910575 100644
---- a/CHANGES
-+++ b/CHANGES
-@@ -120,6 +120,12 @@ Notable User Facing Changes
-     - CL_DEVICE_ATOMIC_MEMORY_CAPABILITIES (Minimal implementation)
-     - CL_DEVICE_ATOMIC_FENCE_CAPABILITIES (Minimal implementation)
- 
-+Notable Bug Fixes
-+-----------------
-+
-+- Added support for arm CUDA platforms without cuMemHostRegister
-+  support.
-+
- 1.6 December 2020
- =================
- 
 diff --git a/lib/CL/devices/cuda/pocl-cuda.c b/lib/CL/devices/cuda/pocl-cuda.c
-index dc96727ef..accb83628 100644
+index f126873c..bcfe9b97 100644
 --- a/lib/CL/devices/cuda/pocl-cuda.c
 +++ b/lib/CL/devices/cuda/pocl-cuda.c
 @@ -52,6 +52,7 @@ typedef struct pocl_cuda_device_data_s
@@ -27,7 +10,7 @@ index dc96727ef..accb83628 100644
  } pocl_cuda_device_data_t;
  
  typedef struct pocl_cuda_queue_data_s
-@@ -328,6 +329,16 @@ pocl_cuda_init (unsigned j, cl_device_id dev, const char *parameters)
+@@ -325,6 +326,16 @@ pocl_cuda_init (unsigned j, cl_device_id dev, const char *parameters)
        dev->max_clock_frequency /= 1000;
        GET_CU_PROP (TEXTURE_ALIGNMENT, dev->mem_base_addr_align);
        GET_CU_PROP (INTEGRATED, dev->host_unified_memory);
@@ -44,7 +27,7 @@ index dc96727ef..accb83628 100644
      }
    if (CUDA_CHECK_ERROR (result, "cuDeviceGetAttribute"))
      ret = CL_INVALID_DEVICE;
-@@ -559,30 +570,33 @@ pocl_cuda_alloc_mem_obj (cl_device_id device, cl_mem mem, void *host_ptr)
+@@ -551,30 +562,33 @@ pocl_cuda_alloc_mem_obj (cl_device_id device, cl_mem mem, void *host_ptr)
  
    if (flags & CL_MEM_USE_HOST_PTR)
      {
@@ -99,7 +82,27 @@ index dc96727ef..accb83628 100644
      }
    /* preallocate host visible memory */
    else if ((flags & CL_MEM_ALLOC_HOST_PTR) && (mem->mem_host_ptr == NULL))
-@@ -1090,16 +1104,15 @@ pocl_cuda_submit_kernel (CUstream stream, _cl_command_node *cmd,
+@@ -627,12 +641,13 @@ pocl_cuda_free (cl_device_id device, cl_mem mem_obj)
+ 
+   if (mem_obj->flags & CL_MEM_USE_HOST_PTR)
+     {
+-#if defined __arm__
+-      cuMemFree ((CUdeviceptr)p->mem_ptr);
+-#else
+-      assert (p->extra_ptr == NULL);
+-      cuMemHostUnregister (mem_obj->mem_host_ptr);
+-#endif
++      if (((pocl_cuda_device_data_t *)device->data)->supports_cu_mem_host_register)
++        {
++          assert (p->extra_ptr == NULL);
++          cuMemHostUnregister (mem_obj->mem_host_ptr);
++        }
++      else
++        cuMemFree ((CUdeviceptr)p->mem_ptr);
+     }
+   else if (p->extra_ptr)
+     {
+@@ -1082,16 +1097,15 @@ pocl_cuda_submit_kernel (CUstream stream, _cl_command_node *cmd,
                      params[i] = &mem->device_ptrs[device->global_mem_id].mem_ptr
                                  + arguments[i].offset;
  
@@ -118,7 +121,7 @@ index dc96727ef..accb83628 100644
                    }
                  else
                    {
-@@ -1477,31 +1490,32 @@ pocl_cuda_finalize_command (cl_device_id device, cl_event event)
+@@ -1475,31 +1489,32 @@ pocl_cuda_finalize_command (cl_device_id device, cl_event event)
    if (event->command_type == CL_COMMAND_NDRANGE_KERNEL
        || event->command_type == CL_COMMAND_TASK)
      {
@@ -165,6 +168,6 @@ index dc96727ef..accb83628 100644
          }
 -#endif
 -
+       pocl_ndrange_node_cleanup (event->command);
      }
- 
-   /* Handle failed events */
+   else
