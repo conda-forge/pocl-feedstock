@@ -13,11 +13,11 @@ curl:
 cxx_compiler:
 - gxx
 cxx_compiler_version:
-- '9'
+- '10'
 docker_image:
-- quay.io/condaforge/linux-anvil-cos7-x86_64
+- quay.io/condaforge/linux-anvil-ppc64le-cuda:11.0
 enable_cuda:
-- 'False'
+- 'True'
 libhwloc:
 - '2'
 pin_run_as_build:
