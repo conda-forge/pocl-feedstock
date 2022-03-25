@@ -50,6 +50,10 @@ elif [[ "$target_platform" == osx-arm64 ]]; then
   CMAKE_ARGS="$CMAKE_ARGS -DKERNELLIB_HOST_CPU_VARIANTS='cyclone' -DCLANG_MARCH_FLAG='-mcpu=' -DLLC_HOST_CPU=cyclone"
 fi
 
+if [[ "$target_platform" != "linux-aarch64" || "${CI}" != "travis" ]]; then
+  CMAKE_ARGS="$CMAKE_ARGS -DCMAKE_VERBOSE_MAKEFILE=1"
+fi
+
 if [[ "$enable_cuda" == "True" ]]; then
   CMAKE_ARGS="$CMAKE_ARGS -DENABLE_CUDA=ON -DCUDA_TOOLKIT_ROOT_DIR=$CUDA_HOME -DCUDA_INCLUDE_DIRS=$CUDA_HOME/include -DCUDA_TOOLKIT_INCLUDE=$CUDA_HOME/include"
   CMAKE_ARGS="$CMAKE_ARGS -DCUDA_CUDART_LIBRARY=$CUDA_HOME/lib64/libcudart.so -DCUDA_TOOLKIT_ROOT_DIR_INTERNAL=$CUDA_HOME"
@@ -76,7 +80,7 @@ cmake \
   ${CMAKE_ARGS} \
   ..
 
-make -j ${CPU_COUNT} VERBOSE=1
+make -j ${CPU_COUNT}
 # install needs to come first for the pocl.icd to be found
 make install
 

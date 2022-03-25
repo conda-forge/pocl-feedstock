@@ -16,14 +16,6 @@ jobs:
         CONFIG: linux_64_libhwloc2
         UPLOAD_PACKAGES: 'True'
         DOCKER_IMAGE: quay.io/condaforge/linux-anvil-cuda:9.2
-      linux_aarch64_libhwloc1:
-        CONFIG: linux_aarch64_libhwloc1
-        UPLOAD_PACKAGES: 'True'
-        DOCKER_IMAGE: quay.io/condaforge/linux-anvil-cos7-x86_64
-      linux_aarch64_libhwloc2:
-        CONFIG: linux_aarch64_libhwloc2
-        UPLOAD_PACKAGES: 'True'
-        DOCKER_IMAGE: quay.io/condaforge/linux-anvil-cos7-x86_64
   timeoutInMinutes: 360
 
   steps:
