@@ -10,7 +10,7 @@ docker_image:                                           # [linux64 or ppc64le or
 cuda_compiler_version:
   - None
 
-cdt_name:  # [linux64 or ppc64le]
+cdt_name:  # [linux64 or ppc64le or aarch64]
   - cos6   # [linux64]
   - cos7   # [ppc64le]
   - cos7   # [aarch64]
