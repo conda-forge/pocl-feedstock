@@ -1,0 +1,170 @@
+diff --git a/CHANGES b/CHANGES
+index 6f8644ae6..021910575 100644
+--- a/CHANGES
++++ b/CHANGES
+@@ -120,6 +120,12 @@ Notable User Facing Changes
+     - CL_DEVICE_ATOMIC_MEMORY_CAPABILITIES (Minimal implementation)
+     - CL_DEVICE_ATOMIC_FENCE_CAPABILITIES (Minimal implementation)
+ 
++Notable Bug Fixes
++-----------------
++
++- Added support for arm CUDA platforms without cuMemHostRegister
++  support.
++
+ 1.6 December 2020
+ =================
+ 
+diff --git a/lib/CL/devices/cuda/pocl-cuda.c b/lib/CL/devices/cuda/pocl-cuda.c
+index dc96727ef..accb83628 100644
+--- a/lib/CL/devices/cuda/pocl-cuda.c
++++ b/lib/CL/devices/cuda/pocl-cuda.c
+@@ -52,6 +52,7 @@ typedef struct pocl_cuda_device_data_s
+   cl_ulong epoch;
+   char libdevice[PATH_MAX];
+   pocl_lock_t compile_lock;
++  int supports_cu_mem_host_register;
+ } pocl_cuda_device_data_t;
+ 
+ typedef struct pocl_cuda_queue_data_s
+@@ -328,6 +329,16 @@ pocl_cuda_init (unsigned j, cl_device_id dev, const char *parameters)
+       dev->max_clock_frequency /= 1000;
+       GET_CU_PROP (TEXTURE_ALIGNMENT, dev->mem_base_addr_align);
+       GET_CU_PROP (INTEGRATED, dev->host_unified_memory);
++#if CUDA_VERSION >= 11010
++      GET_CU_PROP (READ_ONLY_HOST_REGISTER_SUPPORTED, data->supports_cu_mem_host_register);
++#elif defined(__aarch64__) || defined(__arm__)
++      // For cuda < 11.1, we don't know if the device supports cuMemHostRegister
++      // or not. Let's assume that it doesn't in ARM devices.
++      // This gives a false negative for Jetson Xavier, but it is the best we could do.
++      data->supports_cu_mem_host_register = false;
++#else
++      data->supports_cu_mem_host_register = true;
++#endif
+     }
+   if (CUDA_CHECK_ERROR (result, "cuDeviceGetAttribute"))
+     ret = CL_INVALID_DEVICE;
+@@ -559,30 +570,33 @@ pocl_cuda_alloc_mem_obj (cl_device_id device, cl_mem mem, void *host_ptr)
+ 
+   if (flags & CL_MEM_USE_HOST_PTR)
+     {
+-#if defined __arm__
+-          /* cuMemHostRegister is not supported on ARM.
++      if (!((pocl_cuda_device_data_t *)device->data)->supports_cu_mem_host_register)
++        {
++          /* cuMemHostRegister is not supported on some ARM devices like the Nano, but supported on Xavier.
+            * Allocate device memory and perform explicit copies
+            * before and after running a kernel */
+-          result = cuMemAlloc ((CUdeviceptr *)&b, mem_obj->size);
++          result = cuMemAlloc ((CUdeviceptr *)&b, mem->size);
+           CUDA_CHECK (result, "cuMemAlloc");
+-#else
+-      POCL_RETURN_ERROR_ON ((pocl_alloc_or_retain_mem_host_ptr (mem) != 0),
+-                            CL_OUT_OF_HOST_MEMORY,
+-                            "Cannot allocate backing memory!\n");
+-
+-      result = cuMemHostRegister (mem->mem_host_ptr, mem->size,
+-                                  CU_MEMHOSTREGISTER_DEVICEMAP);
+-      if (result != CUDA_SUCCESS
+-          && result != CUDA_ERROR_HOST_MEMORY_ALREADY_REGISTERED)
+-        CUDA_CHECK (result, "cuMemHostRegister");
+-      result = cuMemHostGetDevicePointer ((CUdeviceptr *)&b, mem->mem_host_ptr,
+-                                          0);
+-      CUDA_CHECK (result, "cuMemHostGetDevicePointer");
+-
+-      /* TODO can we assume cuMemHostRegister copies
+-       * the content of host memory to the device ? for now, lets not */
+-      p->version = 0;
+-#endif
++        }
++      else
++        {
++          POCL_RETURN_ERROR_ON ((pocl_alloc_or_retain_mem_host_ptr (mem) != 0),
++                                CL_OUT_OF_HOST_MEMORY,
++                                "Cannot allocate backing memory!\n");
++
++          result = cuMemHostRegister (mem->mem_host_ptr, mem->size,
++                                      CU_MEMHOSTREGISTER_DEVICEMAP);
++          if (result != CUDA_SUCCESS
++              && result != CUDA_ERROR_HOST_MEMORY_ALREADY_REGISTERED)
++            CUDA_CHECK (result, "cuMemHostRegister");
++          result = cuMemHostGetDevicePointer ((CUdeviceptr *)&b, mem->mem_host_ptr,
++                                              0);
++          CUDA_CHECK (result, "cuMemHostGetDevicePointer");
++
++          /* TODO can we assume cuMemHostRegister copies
++           * the content of host memory to the device ? for now, lets not */
++          p->version = 0;
++        }
+     }
+   /* preallocate host visible memory */
+   else if ((flags & CL_MEM_ALLOC_HOST_PTR) && (mem->mem_host_ptr == NULL))
+@@ -1090,16 +1104,15 @@ pocl_cuda_submit_kernel (CUstream stream, _cl_command_node *cmd,
+                     params[i] = &mem->device_ptrs[device->global_mem_id].mem_ptr
+                                 + arguments[i].offset;
+ 
+-#if defined __arm__
+                     /* On ARM with USE_HOST_PTR, perform explicit copy to
+                      * device */
+-                    if (mem->flags & CL_MEM_USE_HOST_PTR)
++                    if ((mem->flags & CL_MEM_USE_HOST_PTR) &&
++                        !((pocl_cuda_device_data_t *)device->data)->supports_cu_mem_host_register)
+                       {
+                         cuMemcpyHtoD (*(CUdeviceptr *)(params[i]),
+                                       mem->mem_host_ptr, mem->size);
+                         cuStreamSynchronize (0);
+                       }
+-#endif
+                   }
+                 else
+                   {
+@@ -1477,31 +1490,32 @@ pocl_cuda_finalize_command (cl_device_id device, cl_event event)
+   if (event->command_type == CL_COMMAND_NDRANGE_KERNEL
+       || event->command_type == CL_COMMAND_TASK)
+     {
+-#if defined __arm__
+-      /* On ARM with USE_HOST_PTR, perform explict copies back from device */
+-      cl_kernel kernel = event->command.run.kernel;
+-      pocl_argument *arguments = event->command.run.arguments;
+-      unsigned i;
+-      for (i = 0; i < meta->num_args; i++)
++      if (!((pocl_cuda_device_data_t *)device->data)->supports_cu_mem_host_register)
+         {
+-          if (meta->arg_info[i].type == POCL_ARG_TYPE_POINTER)
++          /* On ARM with USE_HOST_PTR, perform explict copies back from device */
++          cl_kernel kernel = event->command->command.run.kernel;
++          pocl_argument *arguments = event->command->command.run.arguments;
++          unsigned i;
++          pocl_kernel_metadata_t *meta = kernel->meta;
++          for (i = 0; i < meta->num_args; i++)
+             {
+-              if (!ARG_IS_LOCAL (meta->arg_info[i]) && arguments[i].value)
++              if (meta->arg_info[i].type == POCL_ARG_TYPE_POINTER)
+                 {
+-                  cl_mem mem = *(void **)arguments[i].value;
+-                  if (mem->flags & CL_MEM_USE_HOST_PTR)
++                  if (!ARG_IS_LOCAL (meta->arg_info[i]) && arguments[i].value)
+                     {
+-                      CUdeviceptr ptr
+-                          = (CUdeviceptr)mem->device_ptrs[device->global_mem_id]
+-                                .mem_ptr;
+-                      cuMemcpyDtoH (mem->mem_host_ptr, ptr, mem->size);
+-                      cuStreamSynchronize (0);
++                      cl_mem mem = *(void **)arguments[i].value;
++                      if (mem->flags & CL_MEM_USE_HOST_PTR)
++                        {
++                          CUdeviceptr ptr
++                              = (CUdeviceptr)mem->device_ptrs[device->global_mem_id]
++                                    .mem_ptr;
++                          cuMemcpyDtoH (mem->mem_host_ptr, ptr, mem->size);
++                          cuStreamSynchronize (0);
++                        }
+                     }
+                 }
+             }
+         }
+-#endif
+-
+     }
+ 
+   /* Handle failed events */

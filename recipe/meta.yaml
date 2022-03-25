@@ -1,6 +1,6 @@
 {% set name = "pocl" %}
 {% set version = "1.8" %}
-{% set build_number = 2 %}
+{% set build_number = 3 %}
 {% set sha256 = "0f63377ae1826e16e90038fc8e7f65029be4ff6f9b059f6907174b5c0d1f8ab2" %}
 
 {% set llvm_version = "12.0.1" %}
@@ -16,6 +16,7 @@ source:
       # Likely unnecessary with pocl v1.9+
       - 1029.diff
       - 1030.patch
+      - 890.diff
 
 build:
   number: {{ build_number }}
