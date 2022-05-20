@@ -25,7 +25,9 @@ if [[ "$target_platform" == linux-* ]]; then
   EXTRA_HOST_LD_FLAGS="$EXTRA_HOST_LD_FLAGS -L$BUILD_PREFIX/$HOST/sysroot/usr/lib"
   EXTRA_HOST_CLANG_FLAGS="-I$BUILD_PREFIX/$HOST/sysroot/usr/include"
 elif [[ "$target_platform" == osx-* ]]; then
-  EXTRA_HOST_LD_FLAGS="$EXTRA_HOST_LD_FLAGS -undefined dynamic_lookup"
+  EXTRA_HOST_LD_FLAGS="$EXTRA_HOST_LD_FLAGS -undefined dynamic_lookup -B $PREFIX/libexec/pocl"
+  mkdir -p $PREFIX/libexec/pocl
+  ln -sf $PREFIX/bin/ld $PREFIX/libexec/pocl/ld
 fi
 
 if [[ "$CONDA_BUILD_CROSS_COMPILATION" == "1" && "${CMAKE_CROSSCOMPILING_EMULATOR:-}" == "" ]]; then
