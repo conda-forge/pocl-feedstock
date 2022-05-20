@@ -25,7 +25,16 @@ if [[ "$target_platform" == linux-* ]]; then
   EXTRA_HOST_LD_FLAGS="$EXTRA_HOST_LD_FLAGS -L$BUILD_PREFIX/$HOST/sysroot/usr/lib"
   EXTRA_HOST_CLANG_FLAGS="-I$BUILD_PREFIX/$HOST/sysroot/usr/include"
 elif [[ "$target_platform" == osx-* ]]; then
-  EXTRA_HOST_LD_FLAGS="$EXTRA_HOST_LD_FLAGS -undefined dynamic_lookup"
+  # We are using `-nodefaultlibs` to avoid the need to have the macOS SDK
+  # on the user machine.
+  # However, there's a bug in the apple provided linker that doesn't let you
+  # link with no dynamic libraries. (rdar://39514191)
+  # This is patched by the linker packaged in conda, but when the environment is
+  # not activated, clang tries to use the system linker.
+  # Adding -B $PREFIX/libexec/pocl makes clang look there for the linker first.
+  EXTRA_HOST_LD_FLAGS="$EXTRA_HOST_LD_FLAGS -undefined dynamic_lookup -B $PREFIX/libexec/pocl"
+  mkdir -p $PREFIX/libexec/pocl
+  ln -sf $PREFIX/bin/ld $PREFIX/libexec/pocl/ld
 fi
 
 if [[ "$CONDA_BUILD_CROSS_COMPILATION" == "1" && "${CMAKE_CROSSCOMPILING_EMULATOR:-}" == "" ]]; then
