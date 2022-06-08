@@ -87,6 +87,7 @@ cmake \
   -D LLVM_HOST_TARGET=$HOST \
   -D LLVM_BINDIR=$BUILD_PREFIX/bin \
   -D OPENCL_H="${PREFIX}/include/CL/opencl.h" \
+  -D OPENCL_HPP="${PREFIX}/include/CL/opencl.hpp" \
   ${CMAKE_ARGS} \
   ..
 

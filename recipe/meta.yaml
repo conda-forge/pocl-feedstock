@@ -34,6 +34,7 @@ requirements:
     - ocl-icd                            # [linux]
     - khronos-opencl-icd-loader          # [osx]
     - libhwloc
+    - clhpp
 
     - llvmdev {{ llvm_version }}.*
     - clangdev {{ llvm_version }}.*
