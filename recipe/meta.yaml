@@ -13,7 +13,7 @@ source:
   - url: https://github.com/pocl/pocl/archive/refs/tags/v{{ version.replace(".rc", "-RC") }}.tar.gz
     sha256: {{ sha256 }}
     patches:
-      - macos.diff
+      - gh1062.patch
 
 build:
   number: {{ build_number }}
@@ -86,6 +86,7 @@ about:
   license_file:
     - LICENSE
     - LLVM-License.txt
+    - LICENSE_THIRDPARTY  # [osx]
   summary: Portable Computing Language -- a portable open source implementation of the OpenCL standard
   dev_url: https://github.com/pocl/pocl
   doc_url: http://portablecl.org/docs/html/
