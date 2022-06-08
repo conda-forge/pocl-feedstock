@@ -1,7 +1,7 @@
 {% set name = "pocl" %}
-{% set version = "1.8" %}
-{% set build_number = 4 %}
-{% set sha256 = "0f63377ae1826e16e90038fc8e7f65029be4ff6f9b059f6907174b5c0d1f8ab2" %}
+{% set version = "3.0.rc1" %}
+{% set build_number = 0 %}
+{% set sha256 = "98f0dc924dfc9d236bd98f1964d074f23fba85e8571a5b76b37d4e22c64531d8" %}
 
 {% set llvm_version = "12.0.1" %}
 
@@ -10,13 +10,8 @@ package:
   version: {{ version }}
 
 source:
-  - url: https://github.com/pocl/pocl/archive/v{{ version.replace(".rc", "-RC") }}.tar.gz
+  - url: https://github.com/pocl/pocl/archive/refs/tags/v{{ version.replace(".rc", "-RC") }}.tar.gz
     sha256: {{ sha256 }}
-    patches:
-      # Likely unnecessary with pocl v1.9+
-      - 1029.diff
-      - 1030.patch
-      - 890.diff
 
 build:
   number: {{ build_number }}
