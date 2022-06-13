@@ -37,6 +37,10 @@ elif [[ "$target_platform" == osx-* ]]; then
   ln -sf $PREFIX/bin/ld $PREFIX/libexec/pocl/ld
 fi
 
+if [[ "$target_platform" == linux-ppc64le ]]; then
+  EXTRA_HOST_CLANG_FLAGS="${EXTRA_HOST_CLANG_FLAGS} -faltivec-src-compat=gcc"
+fi
+
 if [[ "$CONDA_BUILD_CROSS_COMPILATION" == "1" && "${CMAKE_CROSSCOMPILING_EMULATOR:-}" == "" ]]; then
   rm $PREFIX/bin/llvm-config
   cp $BUILD_PREFIX/bin/llvm-config $PREFIX/bin/llvm-config
