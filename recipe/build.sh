@@ -96,7 +96,7 @@ cmake \
   ${CMAKE_ARGS} \
   ..
 
-make -j ${CPU_COUNT}
+make -j ${CPU_COUNT} -k
 # install needs to come first for the pocl.icd to be found
 make install
 
