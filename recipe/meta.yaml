@@ -12,11 +12,6 @@ package:
 source:
   - url: https://github.com/pocl/pocl/archive/v{{ version.replace(".rc", "-RC") }}.tar.gz
     sha256: {{ sha256 }}
-    patches:
-      # Likely unnecessary with pocl v1.9+
-      - 1029.diff
-      - 1030.patch
-      - 890.diff
 
 build:
   number: {{ build_number }}
