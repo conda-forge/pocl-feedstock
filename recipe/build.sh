@@ -86,6 +86,9 @@ cmake \
   -D ENABLE_ICD=on \
   -D LLVM_HOST_TARGET=$HOST \
   -D LLVM_BINDIR=$BUILD_PREFIX/bin \
+  -D OPENCL_H="${PREFIX}/include/CL/opencl.h" \
+  -D OPENCL_HPP="${PREFIX}/include/CL/opencl.hpp" \
+  -D OCL_ICD_INCLUDE_DIRS="${PREFIX}/include" \
   ${CMAKE_ARGS} \
   ..
 
