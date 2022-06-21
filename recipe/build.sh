@@ -38,7 +38,7 @@ elif [[ "$target_platform" == osx-* ]]; then
 fi
 
 if [[ "$target_platform" == linux-ppc64le ]]; then
-  EXTRA_HOST_CLANG_FLAGS="${EXTRA_HOST_CLANG_FLAGS} -faltivec-src-compat=mixed"
+  EXTRA_HOST_CLANG_FLAGS="${EXTRA_HOST_CLANG_FLAGS} -faltivec-src-compat=mixed -Wno-deprecated-altivec-src-compat"
 fi
 
 if [[ "$CONDA_BUILD_CROSS_COMPILATION" == "1" && "${CMAKE_CROSSCOMPILING_EMULATOR:-}" == "" ]]; then
