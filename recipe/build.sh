@@ -37,6 +37,10 @@ elif [[ "$target_platform" == osx-* ]]; then
   ln -sf $PREFIX/bin/ld $PREFIX/libexec/pocl/ld
 fi
 
+if [[ "$target_platform" == linux-ppc64le ]]; then
+  EXTRA_HOST_CLANG_FLAGS="${EXTRA_HOST_CLANG_FLAGS} -faltivec-src-compat=mixed -Wno-deprecated-altivec-src-compat"
+fi
+
 if [[ "$CONDA_BUILD_CROSS_COMPILATION" == "1" && "${CMAKE_CROSSCOMPILING_EMULATOR:-}" == "" ]]; then
   rm $PREFIX/bin/llvm-config
   cp $BUILD_PREFIX/bin/llvm-config $PREFIX/bin/llvm-config
@@ -86,10 +90,13 @@ cmake \
   -D ENABLE_ICD=on \
   -D LLVM_HOST_TARGET=$HOST \
   -D LLVM_BINDIR=$BUILD_PREFIX/bin \
+  -D OPENCL_H="${PREFIX}/include/CL/opencl.h" \
+  -D OPENCL_HPP="${PREFIX}/include/CL/opencl.hpp" \
+  -D OCL_ICD_INCLUDE_DIRS="${PREFIX}/include" \
   ${CMAKE_ARGS} \
   ..
 
-make -j ${CPU_COUNT}
+make -j ${CPU_COUNT} -k
 # install needs to come first for the pocl.icd to be found
 make install
 

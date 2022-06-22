@@ -1,22 +1,17 @@
 {% set name = "pocl" %}
-{% set version = "1.8" %}
-{% set build_number = 4 %}
-{% set sha256 = "0f63377ae1826e16e90038fc8e7f65029be4ff6f9b059f6907174b5c0d1f8ab2" %}
+{% set version = "3.0" %}
+{% set build_number = 0 %}
+{% set sha256 = "a3fd3889ef7854b90b8e4c7899c5de48b7494bf770e39fba5ad268a5cbcc719d" %}
 
-{% set llvm_version = "12.0.1" %}
+{% set llvm_version = "14.0.4" %}
 
 package:
   name: {{ name|lower }}
   version: {{ version }}
 
 source:
-  - url: https://github.com/pocl/pocl/archive/v{{ version.replace(".rc", "-RC") }}.tar.gz
+  - url: https://github.com/pocl/pocl/archive/refs/tags/v{{ version.replace(".rc", "-RC") }}.tar.gz
     sha256: {{ sha256 }}
-    patches:
-      # Likely unnecessary with pocl v1.9+
-      - 1029.diff
-      - 1030.patch
-      - 890.diff
 
 build:
   number: {{ build_number }}
@@ -37,6 +32,7 @@ requirements:
     - ocl-icd                            # [linux]
     - khronos-opencl-icd-loader          # [osx]
     - libhwloc
+    - clhpp
 
     - llvmdev {{ llvm_version }}.*
     - clangdev {{ llvm_version }}.*
@@ -89,6 +85,7 @@ about:
   license_file:
     - LICENSE
     - LLVM-License.txt
+    - LICENSE_THIRDPARTY  # [osx]
   summary: Portable Computing Language -- a portable open source implementation of the OpenCL standard
   dev_url: https://github.com/pocl/pocl
   doc_url: http://portablecl.org/docs/html/
