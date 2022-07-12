@@ -1,15 +1,3 @@
-diff --git a/CHANGES b/CHANGES
-index edb5678e5..7f28852e5 100644
---- a/CHANGES
-+++ b/CHANGES
-@@ -13,6 +13,7 @@ Notable User Facing Changes
-   * and other small fixes and improvements
- - All device names used to control the platform setup via
-   POCL_DEVICES are now lower case (as documented in the user manual).
-+- Added support for Coarse-Grained buffer SVM on CUDA devices.
- 
- 3.0 June 2022
- =============
 diff --git a/lib/CL/devices/cuda/pocl-cuda.c b/lib/CL/devices/cuda/pocl-cuda.c
 index 91b23f935..2991f317c 100644
 --- a/lib/CL/devices/cuda/pocl-cuda.c
@@ -28,12 +16,12 @@ index 91b23f935..2991f317c 100644
 +  ops->svm_copy = pocl_cuda_svm_copy;
 +  ops->svm_fill = pocl_driver_svm_fill;
  }
- 
+
  cl_int
 @@ -428,6 +437,9 @@ pocl_cuda_init (unsigned j, cl_device_id dev, const char *parameters)
    dev->max_mem_alloc_size = max (memtotal / 4, 128 * 1024 * 1024);
    dev->global_mem_size = memtotal;
- 
+
 +  dev->svm_allocation_priority = 2;
 +  dev->svm_caps = CL_DEVICE_SVM_COARSE_GRAIN_BUFFER;
 +
@@ -43,14 +31,14 @@ index 91b23f935..2991f317c 100644
 @@ -1024,7 +1036,7 @@ load_or_generate_kernel (cl_kernel kernel, cl_device_id device,
    result = cuModuleGetFunction (&function, module, kernel->name);
    CUDA_CHECK (result, "cuModuleGetFunction");
- 
+
 -  /* Get pointer aligment */
 +  /* Get pointer alignment */
    if (!kdata->alignments)
      {
        kdata->alignments
 @@ -1121,6 +1133,10 @@ pocl_cuda_submit_kernel (CUstream stream, _cl_command_node *cmd,
- 
+
                  sharedMemBytes += size;
                }
 +            else if (arguments[i].is_svm == 1)
