@@ -21,3 +21,6 @@ cudnn:
 enable_cuda:
   - True      # [linux64 or ppc64le or aarch64]
   - False     # [not (linux64 or ppc64le or aarch64)]
+
+channel_targets:
+  - conda-forge pocl_dev

@@ -1,0 +1,43 @@
+diff --git a/lib/CL/clEnqueueSVMFree.c b/lib/CL/clEnqueueSVMFree.c
+index aff107e0f..71c60b5b3 100644
+--- a/lib/CL/clEnqueueSVMFree.c
++++ b/lib/CL/clEnqueueSVMFree.c
+@@ -60,6 +60,12 @@ POname(clEnqueueSVMFree) (cl_command_queue command_queue,
+   if (errcode != CL_SUCCESS)
+     return errcode;
+ 
++  const size_t svm_pointers_nbytes = sizeof(void *) * num_svm_pointers;
++  void *svm_pointers_copy = malloc(svm_pointers_nbytes);
++  if (svm_pointers_copy == NULL)
++    return CL_OUT_OF_HOST_MEMORY;
++  memcpy(svm_pointers_copy, svm_pointers, svm_pointers_nbytes);
++
+   _cl_command_node *cmd = NULL;
+ 
+   errcode = pocl_create_command (&cmd, command_queue, CL_COMMAND_SVM_FREE,
+@@ -69,11 +75,12 @@ POname(clEnqueueSVMFree) (cl_command_queue command_queue,
+   if (errcode != CL_SUCCESS)
+     {
+       POCL_MEM_FREE(cmd);
++      POCL_MEM_FREE(svm_pointers_copy);
+       return errcode;
+     }
+ 
+   cmd->command.svm_free.num_svm_pointers = num_svm_pointers;
+-  cmd->command.svm_free.svm_pointers = svm_pointers;
++  cmd->command.svm_free.svm_pointers = svm_pointers_copy;
+   cmd->command.svm_free.queue = command_queue;
+   cmd->command.svm_free.data = user_data;
+   cmd->command.svm_free.pfn_free_func = pfn_free_func;
+diff --git a/lib/CL/devices/common.c b/lib/CL/devices/common.c
+index 5db91f963..9b54bb9ee 100644
+--- a/lib/CL/devices/common.c
++++ b/lib/CL/devices/common.c
+@@ -655,6 +655,7 @@ pocl_exec_command (_cl_command_node *node)
+             POname (clReleaseContext) (event->context);
+             dev->ops->svm_free (dev, ptr);
+           }
++      POCL_MEM_FREE(cmd->svm_free.svm_pointers);
+       POCL_UPDATE_EVENT_COMPLETE_MSG (event, "Event SVM Free              ");
+       break;
+ 

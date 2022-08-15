@@ -6,3 +6,5 @@ test: native
 github:
   branch_name: main
   tooling_branch_name: main
+azure:
+  store_build_artifacts: True
