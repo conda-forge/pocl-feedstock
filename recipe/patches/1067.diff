@@ -1,15 +1,3 @@
-diff --git a/CHANGES b/CHANGES
-index edb5678e5..7f28852e5 100644
---- a/CHANGES
-+++ b/CHANGES
-@@ -13,6 +13,7 @@ Notable User Facing Changes
-   * and other small fixes and improvements
- - All device names used to control the platform setup via
-   POCL_DEVICES are now lower case (as documented in the user manual).
-+- Added support for Coarse-Grained buffer SVM on CUDA devices.
- 
- 3.0 June 2022
- =============
 diff --git a/lib/CL/devices/cuda/pocl-cuda.c b/lib/CL/devices/cuda/pocl-cuda.c
 index 91b23f935..8bb3ebca0 100644
 --- a/lib/CL/devices/cuda/pocl-cuda.c
