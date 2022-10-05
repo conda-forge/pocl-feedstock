@@ -1,6 +1,6 @@
 {% set name = "pocl" %}
 {% set version = "3.0" %}
-{% set build_number = 1 %}
+{% set build_number = 2 %}
 {% set sha256 = "a3fd3889ef7854b90b8e4c7899c5de48b7494bf770e39fba5ad268a5cbcc719d" %}
 
 {% set llvm_version = "14.0.4" %}
@@ -14,7 +14,8 @@ source:
     sha256: {{ sha256 }}
     patches:
       - patches/1067.diff
-      - patches/1069.diff
+      - patches/1069.diff  # unnecessary with pocl >3.0
+      - patches/1094.diff  # unnecessary with pocl >3.0
 
 build:
   number: {{ build_number }}
