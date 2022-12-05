@@ -14,8 +14,6 @@ source:
     sha256: {{ sha256 }}
     patches:
       - patches/1067.diff
-      - patches/1069.diff  # unnecessary with pocl >3.0
-      - patches/1094.diff  # unnecessary with pocl >3.0
 
 build:
   number: {{ build_number }}
