@@ -15,6 +15,7 @@ source:
     patches:
       - patches/1067.diff
       - patches/1156.patch
+      - patches/1157.diff
 
 build:
   number: {{ build_number }}
