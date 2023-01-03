@@ -121,6 +121,14 @@ if [[ "$CONDA_BUILD_CROSS_COMPILATION" != "1" ]]; then
     unset SDKROOT
     unset CONDA_BUILD_SYSROOT
   fi
+  
+  if [[ "$CI" == "travis" ]]; then
+    # pocl/hwloc seems to mistake the number of cores
+    # in the weird travis-ci virtual CPU setting and
+    # the test require POCL_AFFINITY to be set which
+    # schedules the i-th thread to i-th core and fails.
+    SKIP_TESTS="$SKIP_TESTS|EinsteinToolkit_SubDev"
+  fi
 
   ctest -E "$SKIP_TESTS" --output-on-failure
 
