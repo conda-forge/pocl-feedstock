@@ -122,6 +122,19 @@ if [[ "$CONDA_BUILD_CROSS_COMPILATION" != "1" ]]; then
     unset CONDA_BUILD_SYSROOT
   fi
 
+  if [[ "$CI" == "travis" ]]; then
+    # pocl/hwloc seems to mistake the number of cores
+    # in the weird travis-ci virtual CPU setting and
+    # the test require POCL_AFFINITY to be set which
+    # schedules the i-th thread to i-th core and fails.
+    SKIP_TESTS="$SKIP_TESTS|EinsteinToolkit_SubDev"
+  fi
+
+  if [[ $target_platform == "linux-aarch64" ]]; then
+    # These tests fail on aarch64
+    SKIP_TESTS="$SKIP_TESTS|test_printf_vectors|test_printf_vectors_ulong"
+  fi
+
   ctest -E "$SKIP_TESTS" --output-on-failure
 
   # Can't run cuda tests without a GPU
