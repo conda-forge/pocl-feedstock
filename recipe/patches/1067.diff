@@ -5,7 +5,7 @@ index 91b23f935..8bb3ebca0 100644
 @@ -49,6 +49,9 @@
  #include <sys/types.h>
  #include <unistd.h>
- 
+
 +void pocl_cuda_svm_copy_async (CUstream, void *restrict, const void *restrict,
 +                               size_t);
 +
@@ -26,12 +26,12 @@ index 91b23f935..8bb3ebca0 100644
 +  ops->svm_copy = pocl_cuda_svm_copy;
 +  ops->svm_fill = pocl_cuda_svm_fill;
  }
- 
+
  cl_int
 @@ -428,6 +440,9 @@ pocl_cuda_init (unsigned j, cl_device_id dev, const char *parameters)
    dev->max_mem_alloc_size = max (memtotal / 4, 128 * 1024 * 1024);
    dev->global_mem_size = memtotal;
- 
+
 +  dev->svm_allocation_priority = 2;
 +  dev->svm_caps = CL_DEVICE_SVM_COARSE_GRAIN_BUFFER;
 +
@@ -41,14 +41,14 @@ index 91b23f935..8bb3ebca0 100644
 @@ -1024,7 +1039,7 @@ load_or_generate_kernel (cl_kernel kernel, cl_device_id device,
    result = cuModuleGetFunction (&function, module, kernel->name);
    CUDA_CHECK (result, "cuModuleGetFunction");
- 
+
 -  /* Get pointer aligment */
 +  /* Get pointer alignment */
    if (!kdata->alignments)
      {
        kdata->alignments
 @@ -1121,6 +1136,10 @@ pocl_cuda_submit_kernel (CUstream stream, _cl_command_node *cmd,
- 
+
                  sharedMemBytes += size;
                }
 +            else if (arguments[i].is_svm == 1)
@@ -134,7 +134,7 @@ index 91b23f935..8bb3ebca0 100644
 +void *
 +pocl_cuda_svm_alloc (cl_device_id dev, cl_svm_mem_flags flags, size_t size)
 +{
-+  POCL_MSG_PRINT_CUDA ("SVM cuMemAllocManaged %lu\n", size);
++  POCL_MSG_PRINT_CUDA ("SVM malloc %lu\n", size);
 +  if ((flags & CL_MEM_SVM_FINE_GRAIN_BUFFER)
 +      && ((dev->svm_caps & CL_DEVICE_SVM_FINE_GRAIN_BUFFER) == 0))
 +    {
@@ -143,30 +143,30 @@ index 91b23f935..8bb3ebca0 100644
 +      return NULL;
 +    }
 +
-+  CUdeviceptr dptr;
-+  CUresult res;
-+  res = cuMemAllocManaged (&dptr, size, CU_MEM_ATTACH_GLOBAL);
-+  CUDA_CHECK (res, "cuMemAllocManaged");
-+  return (void *)dptr;
++  //CUdeviceptr dptr;
++  //CUresult res;
++  //dptr = malloc (size);
++  //CUDA_CHECK (res, "cuMemAllocManaged");
++  return (void *)malloc (size);
 +}
 +
 +void
 +pocl_cuda_svm_free (cl_device_id dev, void *svm_ptr)
 +{
-+  POCL_MSG_PRINT_CUDA ("SVM cuMemFree %p\n", svm_ptr);
-+  CUresult res;
-+  res = cuMemFree ((CUdeviceptr)svm_ptr);
-+  CUDA_CHECK (res, "cuMemFree");
++  POCL_MSG_PRINT_CUDA ("SVM free %p\n", svm_ptr);
++  //CUresult res;
++  free (svm_ptr);
++  //CUDA_CHECK (res, "cuMemFree");
 +}
 +
 +void
 +pocl_cuda_svm_copy (cl_device_id dev, void *__restrict__ dst,
 +                    const void *__restrict__ src, size_t size)
 +{
-+  POCL_MSG_PRINT_CUDA ("SVM cuMemcpy %p -> %p, %lu bytes\n", src, dst, size);
-+  CUresult res;
-+  res = cuMemcpy ((CUdeviceptr)dst, (CUdeviceptr)src, size);
-+  CUDA_CHECK (res, "cuMemcpy");
++  POCL_MSG_PRINT_CUDA ("SVM memcpy %p -> %p, %lu bytes\n", src, dst, size);
++  //CUresult res;
++  memcpy (dst, src, size);
++  //CUDA_CHECK (res, "cuMemcpy");
 +}
 +
 +void
