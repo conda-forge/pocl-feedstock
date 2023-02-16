@@ -9,15 +9,12 @@ curl:
 cxx_compiler:
 - gxx
 cxx_compiler_version:
-- '10'
+- '11'
 docker_image:
 - quay.io/condaforge/linux-anvil-ppc64le-cuda:10.2
 enable_cuda:
 - 'True'
 libhwloc:
 - '1'
-pin_run_as_build:
-  curl:
-    max_pin: x
 target_platform:
 - linux-ppc64le
