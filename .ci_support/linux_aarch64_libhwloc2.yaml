@@ -7,7 +7,7 @@ cdt_name:
 channel_sources:
 - conda-forge
 channel_targets:
-- conda-forge pocl_svm-cuda-um
+- conda-forge pocl_dev
 curl:
 - '7'
 cxx_compiler:

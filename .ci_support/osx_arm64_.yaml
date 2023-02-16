@@ -3,7 +3,7 @@ MACOSX_DEPLOYMENT_TARGET:
 channel_sources:
 - conda-forge
 channel_targets:
-- conda-forge pocl_svm-cuda-um
+- conda-forge pocl_dev
 curl:
 - '7'
 enable_cuda:
