@@ -79,7 +79,7 @@ outputs:
         - {{ pin_subpackage("pocl-core", exact=True) }}
     test:
       commands:
-        - test -f $PREFIX/lib/pocl/libpocl-devices-cpu-minimal.so     # [unix]
+        - test -f $PREFIX/lib/pocl/libpocl-devices-basic.so     # [unix]
 
   - name: pocl-cpu
     script: install-pkg.sh
@@ -96,7 +96,7 @@ outputs:
         - {{ pin_subpackage("pocl-cpu-minimal", exact=True) }}
     test:
       commands:
-        - test -f $PREFIX/lib/pocl/libpocl-devices-cpu.so     # [unix]
+        - test -f $PREFIX/lib/pocl/libpocl-devices-pthread.so     # [unix]
 
   - name: pocl-cuda
     build:
@@ -124,7 +124,9 @@ outputs:
         - {{ pin_subpackage("pocl-cuda", exact=True) }}         # [enable_cuda]
     test:
       commands:
-        - test -f $PREFIX/lib/pocl/libpocl-devices-cpu.so       # [unix]
+        - test -f $PREFIX/lib/pocl/libpocl-devices-pthread.so   # [unix]
+        - test -f $PREFIX/lib/pocl/libpocl-devices-basic.so     # [unix]
+        - test -f $PREFIX/lib/pocl/libpocl-devices-cuda.so      # [enable_cuda]
 
 
 about:
