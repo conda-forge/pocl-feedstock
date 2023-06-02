@@ -48,7 +48,7 @@ requirements:
     - ld64 >=530                         # [osx]
     - {{ pin_compatible('libhwloc') }}
   run_constrained:
-    - pocl {{ version}}.*
+    - pocl {{ version }}.*
 
 test:
   requires:
