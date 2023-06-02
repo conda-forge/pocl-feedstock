@@ -100,18 +100,13 @@ make -j ${CPU_COUNT} -k
 # install needs to come first for the pocl.icd to be found
 make install
 
-if [[ "$enable_cuda" == "True" ]]; then
-  # Don't package the cuda package in pocl package
-  mv $PREFIX/lib/pocl/libpocl-devices-cuda.so .
-fi
-
 if [[ "$CONDA_BUILD_CROSS_COMPILATION" != "1" ]]; then
   # Workaround for https://github.com/KhronosGroup/OpenCL-ICD-Loader/issues/104
   sed -i.bak "s@ocl-vendors@ocl-vendors/@g" CTestCustom.cmake
 
   SKIP_TESTS="dummy"
 
-  export POCL_DEVICES=pthread
+  export POCL_DEVICES=cpu
 
   # Setting this will produce extra output that confuses the test result parser
   # export POCL_DEBUG=1
@@ -142,6 +137,13 @@ if [[ "$CONDA_BUILD_CROSS_COMPILATION" != "1" ]]; then
   #   POCL_DEVICES=cuda ctest -L cuda
   # fi
 fi
+
+if [[ "$enable_cuda" == "True" ]]; then
+  # Don't package the cuda package in pocl package
+  mv $PREFIX/lib/pocl/libpocl-devices-cuda.so .
+fi
+mv $PREFIX/lib/pocl/libpocl-devices-basic.so .
+mv $PREFIX/lib/pocl/libpocl-devices-pthread.so .
 
 # For backwards compatibility
 if [[ "$target_platform" == osx-64 ]]; then

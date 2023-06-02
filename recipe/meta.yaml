@@ -1,12 +1,11 @@
-{% set name = "pocl" %}
-{% set version = "3.1" %}
+{% set version = "4.0.rc1" %}
 {% set build_number = 0 %}
-{% set sha256 = "82314362552e050aff417318dd623b18cf0f1d0f84f92d10a7e3750dd12d3a9a" %}
+{% set sha256 = "a95450e4678396affbf6484c85c6f6ff7e089e5a988d7ddc9eebf893004cfff3" %}
 
-{% set llvm_version = "14.0.4" %}
+{% set llvm_version = "15.0.7" %}
 
 package:
-  name: {{ name|lower }}
+  name: pocl-core
   version: {{ version }}
 
 source:
@@ -14,8 +13,6 @@ source:
     sha256: {{ sha256 }}
     patches:
       - patches/1067.diff
-      - patches/1156.patch
-      - patches/1157.diff
 
 build:
   number: {{ build_number }}
@@ -50,11 +47,14 @@ requirements:
     - khronos-opencl-icd-loader          # [osx]
     - ld64 >=530                         # [osx]
     - {{ pin_compatible('libhwloc') }}
+  run_constrained:
+    - pocl {{ version}}.*
 
 test:
   requires:
     - pyopencl
     - curl
+    - pocl-cpu
   commands:
     - test -f $PREFIX/lib/libpocl${SHLIB_EXT}     # [unix]
     # Remove apple icd so that only pocl is found
@@ -64,24 +64,68 @@ test:
     - python demo.py
 
 outputs:
-  - name: pocl
+  - name: pocl-core
 
-  - name: pocl-cuda
-    build:
-      skip: true  # [not enable_cuda]
-    script: install-cuda.sh
+  - name: pocl-cpu-minimal
+    script: install-pkg.sh
     requirements:
       build:
         - {{ compiler('cxx') }}
       host:
-        - {{ pin_subpackage("pocl", exact=True) }}
+        - {{ pin_subpackage("pocl-core", exact=True) }}
         - llvm {{ llvm_version }}.*
         - libhwloc
       run:
-        - {{ pin_subpackage("pocl", exact=True) }}
+        - {{ pin_subpackage("pocl-core", exact=True) }}
     test:
       commands:
-        - test -f $PREFIX/lib/pocl/libpocl-devices-cuda.so     # [unix]
+        - test -f $PREFIX/lib/pocl/libpocl-devices-cpu-minimal.so     # [unix]
+
+  - name: pocl-cpu
+    script: install-pkg.sh
+    requirements:
+      build:
+        - {{ compiler('cxx') }}
+      host:
+        - {{ pin_subpackage("pocl-core", exact=True) }}
+        - {{ pin_subpackage("pocl-cpu-minimal", exact=True) }}
+        - llvm {{ llvm_version }}.*
+        - libhwloc
+      run:
+        - {{ pin_subpackage("pocl-core", exact=True) }}
+        - {{ pin_subpackage("pocl-cpu-minimal", exact=True) }}
+    test:
+      commands:
+        - test -f $PREFIX/lib/pocl/libpocl-devices-cpu.so     # [unix]
+
+  - name: pocl-cuda
+    build:
+      skip: true  # [not enable_cuda]
+    script: install-pkg.sh
+    requirements:
+      build:
+        - {{ compiler('cxx') }}
+      host:
+        - {{ pin_subpackage("pocl-core", exact=True) }}
+        - llvm {{ llvm_version }}.*
+        - libhwloc
+      run:
+        - {{ pin_subpackage("pocl-core", exact=True) }}
+    test:
+      commands:
+        - test -f $PREFIX/lib/pocl/libpocl-devices-cuda.so      # [unix]
+
+  - name: pocl
+    requirements:
+      run:
+        - {{ pin_subpackage("pocl-core", exact=True) }}
+        - {{ pin_subpackage("pocl-cpu", exact=True) }}
+        - {{ pin_subpackage("pocl-cpu-minimal", exact=True) }}
+        - {{ pin_subpackage("pocl-cuda", exact=True) }}         # [enable_cuda]
+    test:
+      commands:
+        - test -f $PREFIX/lib/pocl/libpocl-devices-cpu.so       # [unix]
+
 
 about:
   home: http://portablecl.org/
@@ -95,6 +139,7 @@ about:
   doc_url: http://portablecl.org/docs/html/
 
 extra:
+  feedstock-name: pocl
   recipe-maintainers:
     - inducer
     - mattwala
