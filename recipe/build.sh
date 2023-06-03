@@ -35,6 +35,8 @@ elif [[ "$target_platform" == osx-* ]]; then
   EXTRA_HOST_LD_FLAGS="$EXTRA_HOST_LD_FLAGS -undefined dynamic_lookup -B $PREFIX/libexec/pocl"
   mkdir -p $PREFIX/libexec/pocl
   ln -sf $PREFIX/bin/ld $PREFIX/libexec/pocl/ld
+
+  export CXXFLAGS="$CXXFLAGS -D_LIBCPP_DISABLE_AVAILABILITY"
 fi
 
 if [[ "$target_platform" == linux-ppc64le ]]; then
