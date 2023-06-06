@@ -13,6 +13,7 @@ source:
     sha256: {{ sha256 }}
     patches:
       - patches/1067.diff
+      - patches/1245.patch
 
 build:
   number: {{ build_number }}

@@ -1,0 +1,134 @@
+From fd4590c6317ecf485f0fe5566718b2ed4b929edf Mon Sep 17 00:00:00 2001
+From: Isuru Fernando <idf2@illinois.edu>
+Date: Mon, 5 Jun 2023 16:59:03 -0500
+Subject: [PATCH 1/3] Hack: Fix a redefinition of size_t on apple
+
+---
+ include/pocl_types.h | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/include/pocl_types.h b/include/pocl_types.h
+index 299c7984d..242a31efc 100644
+--- a/include/pocl_types.h
++++ b/include/pocl_types.h
+@@ -109,7 +109,11 @@ typedef uint16_t ushort;
+ typedef uint32_t uint;
+ 
+ #ifdef cl_khr_int64
++#if __APPLE__
++typedef unsigned long ulong;
++#else
+ typedef uint64_t ulong;
++#endif
+ #else
+ typedef uint32_t ulong;
+ #endif
+
+From ed51783eb949da5b1d222e66238eeb01245b9bf4 Mon Sep 17 00:00:00 2001
+From: Isuru Fernando <idf2@illinois.edu>
+Date: Mon, 5 Jun 2023 17:11:25 -0500
+Subject: [PATCH 2/3] Fix POCL_EXPORT
+
+---
+ lib/CL/pocl_cl.h    |  4 +++-
+ lib/CL/pocl_intfn.h | 12 ++++--------
+ 2 files changed, 7 insertions(+), 9 deletions(-)
+
+diff --git a/lib/CL/pocl_cl.h b/lib/CL/pocl_cl.h
+index 8e180f6fe..0d7e92415 100644
+--- a/lib/CL/pocl_cl.h
++++ b/lib/CL/pocl_cl.h
+@@ -347,6 +347,7 @@ extern uint64_t last_object_id;
+ 
+ #  define POname(name) name
+ #  define POdeclsym(name)
++#  define POdeclsymExport(name)
+ #  define POsym(name)
+ #  define POsymAlways(name)
+ 
+@@ -354,9 +355,9 @@ extern uint64_t last_object_id;
+ /* Visual Studio does not support this magic either */
+ #  define POname(name) name
+ #  define POdeclsym(name)
++#  define POdeclsymExport(name)
+ #  define POsym(name)
+ #  define POsymAlways(name)
+-#  define POdeclsym(name)
+ 
+ #else
+ /* Symbol aliases are supported */
+@@ -364,6 +365,7 @@ extern uint64_t last_object_id;
+ #  define POname(name) PO##name
+ 
+ #define POdeclsym(name) __typeof__ (name) PO##name;
++#define POdeclsymExport(name) POCL_EXPORT POdeclsym(name)
+ #  define POCL_ALIAS_OPENCL_SYMBOL(name)                                \
+   __typeof__(name) name __attribute__((alias ("PO" #name), visibility("default")));
+ 
+diff --git a/lib/CL/pocl_intfn.h b/lib/CL/pocl_intfn.h
+index d922584b1..b01bcccfa 100644
+--- a/lib/CL/pocl_intfn.h
++++ b/lib/CL/pocl_intfn.h
+@@ -102,12 +102,9 @@ POdeclsym(clGetSamplerInfo)
+ POdeclsym(clGetSupportedImageFormats)
+ POdeclsymICD(clIcdGetPlatformIDsKHR)
+ POdeclsym(clReleaseCommandQueue)
+-POCL_EXPORT
+-POdeclsym(clReleaseContext)
+-POCL_EXPORT
+-POdeclsym(clReleaseDevice)
+-POCL_EXPORT
+-POdeclsym(clReleaseEvent)
++POdeclsymExport(clReleaseContext)
++POdeclsymExport(clReleaseDevice)
++POdeclsymExport(clReleaseEvent)
+ POdeclsym(clReleaseKernel)
+ POdeclsym(clReleaseMemObject)
+ POdeclsym(clReleaseProgram)
+@@ -115,8 +112,7 @@ POdeclsym(clReleaseSampler)
+ POdeclsym(clRetainCommandQueue)
+ POdeclsym(clRetainContext)
+ POdeclsym(clRetainDevice)
+-POCL_EXPORT
+-POdeclsym(clRetainEvent)
++POdeclsymExport(clRetainEvent)
+ POdeclsym(clRetainKernel)
+ POdeclsym(clRetainMemObject)
+ POdeclsym(clRetainProgram)
+
+From 1e5c637c5370fc746dba05f280059ba0ee633d34 Mon Sep 17 00:00:00 2001
+From: Isuru Fernando <idf2@illinois.edu>
+Date: Mon, 5 Jun 2023 17:38:36 -0500
+Subject: [PATCH 3/3] use pocl_ignore_sigfpe_for_thread only for linux
+
+---
+ lib/CL/devices/pthread/pthread_scheduler.c | 2 +-
+ lib/CL/pocl_util.h                         | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/lib/CL/devices/pthread/pthread_scheduler.c b/lib/CL/devices/pthread/pthread_scheduler.c
+index 1f2bbfe4b..d2a34ed44 100644
+--- a/lib/CL/devices/pthread/pthread_scheduler.c
++++ b/lib/CL/devices/pthread/pthread_scheduler.c
+@@ -131,7 +131,7 @@ pthread_scheduler_init (cl_device_id device)
+       PTHREAD_CHECK (pthread_create (&scheduler.thread_pool[i].thread, NULL,
+                                      pocl_pthread_driver_thread,
+                                      (void *)&scheduler.thread_pool[i]));
+-#ifdef __x86_64__
++#if defined(__linux__) && defined(__x86_64__)
+       pocl_ignore_sigfpe_for_thread (scheduler.thread_pool[i].thread);
+ #endif
+     }
+diff --git a/lib/CL/pocl_util.h b/lib/CL/pocl_util.h
+index 57c01e074..43213dbfd 100644
+--- a/lib/CL/pocl_util.h
++++ b/lib/CL/pocl_util.h
+@@ -59,7 +59,7 @@ void pocl_restore_ftz (unsigned ftz);
+ 
+ void pocl_install_sigfpe_handler ();
+ void pocl_install_sigusr2_handler ();
+-#ifdef __x86_64__
++#if defined(__linux__) && defined(__x86_64__)
+ POCL_EXPORT
+ void pocl_ignore_sigfpe_for_thread (pthread_t thr);
+ #endif
