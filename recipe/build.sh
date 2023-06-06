@@ -54,6 +54,8 @@ else
   LLVM_TOOLS_PREFIX="$PREFIX"
 fi
 
+LLVM_VERSION=$(llvm-config --version)
+
 if [[ "$target_platform" == linux-aarch64 ]]; then
   AARCH64_CPUS="generic;cortex-a35;cortex-a53;cortex-a55;cortex-a57;cortex-a65;cortex-a72;cortex-a73;cortex-a75;cortex-a76"
   AARCH64_CPUS="${AARCH64_CPUS};cyclone;exynos-m3;exynos-m4;exynos-m5;falkor;kryo;neoverse-e1;neoverse-n1;saphira"
@@ -95,6 +97,7 @@ cmake \
   -D OPENCL_H="${PREFIX}/include/CL/opencl.h" \
   -D OPENCL_HPP="${PREFIX}/include/CL/opencl.hpp" \
   -D OCL_ICD_INCLUDE_DIRS="${PREFIX}/include" \
+  -D LLVM_SPIRV=${PREFIX}/bin/llvm-spirv-${LLVM_VERSION%%.*} \
   ${CMAKE_ARGS} \
   ..
 
