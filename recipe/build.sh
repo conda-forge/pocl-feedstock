@@ -143,12 +143,13 @@ if [[ "$CONDA_BUILD_CROSS_COMPILATION" != "1" ]]; then
   # fi
 fi
 
+# move files that are in individual pkgs
+mkdir pkgs
+mv $PREFIX/lib/pocl/libpocl-devices-*.so pkgs/
+mv $PREFIX/share/pocl/kernel-*.bc pkgs/
 if [[ "$enable_cuda" == "True" ]]; then
-  # Don't package the cuda package in pocl package
-  mv $PREFIX/lib/pocl/libpocl-devices-cuda.so .
+  mv $PREFIX/share/pocl/cuda pkgs/
 fi
-mv $PREFIX/lib/pocl/libpocl-devices-basic.so .
-mv $PREFIX/lib/pocl/libpocl-devices-pthread.so .
 
 # For backwards compatibility
 if [[ "$target_platform" == osx-64 ]]; then
