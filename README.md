@@ -1,11 +1,11 @@
-About pocl
-==========
+About pocl-feedstock
+====================
+
+Feedstock license: [BSD-3-Clause](https://github.com/conda-forge/pocl-feedstock/blob/main/LICENSE.txt)
 
 Home: http://portablecl.org/
 
 Package license: MIT
-
-Feedstock license: [BSD-3-Clause](https://github.com/conda-forge/pocl-feedstock/blob/main/LICENSE.txt)
 
 Summary: Portable Computing Language -- a portable open source implementation of the OpenCL standard
 
@@ -114,6 +114,9 @@ Current release info
 | Name | Downloads | Version | Platforms |
 | --- | --- | --- | --- |
 | [![Conda Recipe](https://img.shields.io/badge/recipe-pocl-green.svg)](https://anaconda.org/conda-forge/pocl) | [![Conda Downloads](https://img.shields.io/conda/dn/conda-forge/pocl.svg)](https://anaconda.org/conda-forge/pocl) | [![Conda Version](https://img.shields.io/conda/vn/conda-forge/pocl.svg)](https://anaconda.org/conda-forge/pocl) | [![Conda Platforms](https://img.shields.io/conda/pn/conda-forge/pocl.svg)](https://anaconda.org/conda-forge/pocl) |
+| [![Conda Recipe](https://img.shields.io/badge/recipe-pocl--core-green.svg)](https://anaconda.org/conda-forge/pocl-core) | [![Conda Downloads](https://img.shields.io/conda/dn/conda-forge/pocl-core.svg)](https://anaconda.org/conda-forge/pocl-core) | [![Conda Version](https://img.shields.io/conda/vn/conda-forge/pocl-core.svg)](https://anaconda.org/conda-forge/pocl-core) | [![Conda Platforms](https://img.shields.io/conda/pn/conda-forge/pocl-core.svg)](https://anaconda.org/conda-forge/pocl-core) |
+| [![Conda Recipe](https://img.shields.io/badge/recipe-pocl--cpu-green.svg)](https://anaconda.org/conda-forge/pocl-cpu) | [![Conda Downloads](https://img.shields.io/conda/dn/conda-forge/pocl-cpu.svg)](https://anaconda.org/conda-forge/pocl-cpu) | [![Conda Version](https://img.shields.io/conda/vn/conda-forge/pocl-cpu.svg)](https://anaconda.org/conda-forge/pocl-cpu) | [![Conda Platforms](https://img.shields.io/conda/pn/conda-forge/pocl-cpu.svg)](https://anaconda.org/conda-forge/pocl-cpu) |
+| [![Conda Recipe](https://img.shields.io/badge/recipe-pocl--cpu--minimal-green.svg)](https://anaconda.org/conda-forge/pocl-cpu-minimal) | [![Conda Downloads](https://img.shields.io/conda/dn/conda-forge/pocl-cpu-minimal.svg)](https://anaconda.org/conda-forge/pocl-cpu-minimal) | [![Conda Version](https://img.shields.io/conda/vn/conda-forge/pocl-cpu-minimal.svg)](https://anaconda.org/conda-forge/pocl-cpu-minimal) | [![Conda Platforms](https://img.shields.io/conda/pn/conda-forge/pocl-cpu-minimal.svg)](https://anaconda.org/conda-forge/pocl-cpu-minimal) |
 | [![Conda Recipe](https://img.shields.io/badge/recipe-pocl--cuda-green.svg)](https://anaconda.org/conda-forge/pocl-cuda) | [![Conda Downloads](https://img.shields.io/conda/dn/conda-forge/pocl-cuda.svg)](https://anaconda.org/conda-forge/pocl-cuda) | [![Conda Version](https://img.shields.io/conda/vn/conda-forge/pocl-cuda.svg)](https://anaconda.org/conda-forge/pocl-cuda) | [![Conda Platforms](https://img.shields.io/conda/pn/conda-forge/pocl-cuda.svg)](https://anaconda.org/conda-forge/pocl-cuda) |
 
 Installing pocl
@@ -126,16 +129,16 @@ conda config --add channels conda-forge
 conda config --set channel_priority strict
 ```
 
-Once the `conda-forge` channel has been enabled, `pocl, pocl-cuda` can be installed with `conda`:
+Once the `conda-forge` channel has been enabled, `pocl, pocl-core, pocl-cpu, pocl-cpu-minimal, pocl-cuda` can be installed with `conda`:
 
 ```
-conda install pocl pocl-cuda
+conda install pocl pocl-core pocl-cpu pocl-cpu-minimal pocl-cuda
 ```
 
 or with `mamba`:
 
 ```
-mamba install pocl pocl-cuda
+mamba install pocl pocl-core pocl-cpu pocl-cpu-minimal pocl-cuda
 ```
 
 It is possible to list all of the versions of `pocl` available on your platform with `conda`:
