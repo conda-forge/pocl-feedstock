@@ -1,10 +1,19 @@
+From 5945febbc166fcd53e7356db411cafb1e05f1d1b Mon Sep 17 00:00:00 2001
+From: Matthias Diener <mdiener@illinois.edu>
+Date: Tue, 18 Jul 2023 13:34:21 -0500
+Subject: [PATCH 1/2] cuda: Coarse-grained SVM
+
+---
+ lib/CL/devices/cuda/pocl-cuda.c | 134 ++++++++++++++++++++++++++++++--
+ 1 file changed, 128 insertions(+), 6 deletions(-)
+
 diff --git a/lib/CL/devices/cuda/pocl-cuda.c b/lib/CL/devices/cuda/pocl-cuda.c
-index 91b23f935..8bb3ebca0 100644
+index cdb50f1..ff578ca 100644
 --- a/lib/CL/devices/cuda/pocl-cuda.c
 +++ b/lib/CL/devices/cuda/pocl-cuda.c
-@@ -49,6 +49,9 @@
- #include <sys/types.h>
- #include <unistd.h>
+@@ -73,6 +73,9 @@ cudnnHandle_t cudnn;
+       }                                                                       \
+   }
  
 +void pocl_cuda_svm_copy_async (CUstream, void *restrict, const void *restrict,
 +                               size_t);
@@ -12,7 +21,7 @@ index 91b23f935..8bb3ebca0 100644
  typedef struct pocl_cuda_device_data_s
  {
    CUdevice device;
-@@ -248,6 +251,15 @@ pocl_cuda_init_device_ops (struct pocl_device_ops *ops)
+@@ -307,6 +310,15 @@ pocl_cuda_init_device_ops (struct pocl_device_ops *ops)
    ops->map_mem = NULL;
    ops->unmap_mem = NULL;
    ops->run = NULL;
@@ -28,7 +37,7 @@ index 91b23f935..8bb3ebca0 100644
  }
  
  cl_int
-@@ -428,6 +440,9 @@ pocl_cuda_init (unsigned j, cl_device_id dev, const char *parameters)
+@@ -536,6 +548,9 @@ pocl_cuda_init (unsigned j, cl_device_id dev, const char *parameters)
    dev->max_mem_alloc_size = max (memtotal / 4, 128 * 1024 * 1024);
    dev->global_mem_size = memtotal;
  
@@ -38,7 +47,7 @@ index 91b23f935..8bb3ebca0 100644
    // All devices starting from Compute Capability 2.0 have this limit;
    // See e.g.
    // https://forums.developer.nvidia.com/t/max-size-of-cuda-arguments/50218
-@@ -1024,7 +1039,7 @@ load_or_generate_kernel (cl_kernel kernel, cl_device_id device,
+@@ -1193,7 +1208,7 @@ load_or_generate_kernel (cl_kernel kernel, cl_device_id device,
    result = cuModuleGetFunction (&function, module, kernel->name);
    CUDA_CHECK (result, "cuModuleGetFunction");
  
@@ -47,7 +56,7 @@ index 91b23f935..8bb3ebca0 100644
    if (!kdata->alignments)
      {
        kdata->alignments
-@@ -1121,6 +1136,10 @@ pocl_cuda_submit_kernel (CUstream stream, _cl_command_node *cmd,
+@@ -1607,6 +1622,10 @@ pocl_cuda_submit_kernel (CUstream stream, _cl_command_node *cmd,
  
                  sharedMemBytes += size;
                }
@@ -58,7 +67,7 @@ index 91b23f935..8bb3ebca0 100644
              else if (meta->arg_info[i].address_qualifier
                       == CL_KERNEL_ARG_ADDRESS_CONSTANT)
                {
-@@ -1440,6 +1459,53 @@ pocl_cuda_submit_node (_cl_command_node *node, cl_command_queue cq, int locked)
+@@ -1932,6 +1951,53 @@ pocl_cuda_submit_node (_cl_command_node *node, cl_command_queue cq, int locked)
                                  cmd->memfill.pattern,
                                  cmd->memfill.pattern_size);
        break;
@@ -112,7 +121,7 @@ index 91b23f935..8bb3ebca0 100644
      case CL_COMMAND_READ_IMAGE:
      case CL_COMMAND_WRITE_IMAGE:
      case CL_COMMAND_COPY_IMAGE:
-@@ -1448,11 +1514,6 @@ pocl_cuda_submit_node (_cl_command_node *node, cl_command_queue cq, int locked)
+@@ -1940,11 +2006,6 @@ pocl_cuda_submit_node (_cl_command_node *node, cl_command_queue cq, int locked)
      case CL_COMMAND_FILL_IMAGE:
      case CL_COMMAND_MAP_IMAGE:
      case CL_COMMAND_NATIVE_KERNEL:
@@ -124,9 +133,9 @@ index 91b23f935..8bb3ebca0 100644
      default:
        POCL_ABORT_UNIMPLEMENTED (pocl_command_to_str (node->type));
        break;
-@@ -1804,3 +1865,64 @@ char* pocl_cuda_init_build(void *data)
+@@ -2290,3 +2351,64 @@ char* pocl_cuda_init_build(void *data)
+ {
      return strdup("-mllvm --nvptx-short-ptr");
- #endif
  }
 +
 +/****** SVM callbacks *****/
@@ -189,3 +198,6 @@ index 91b23f935..8bb3ebca0 100644
 +
 +  pocl_cuda_submit_memfill (0, svm_ptr, size, 0, pattern, pattern_size);
 +}
+-- 
+2.38.1
+
