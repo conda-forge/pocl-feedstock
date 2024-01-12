@@ -1,3 +1,8 @@
+#!/bin/bash
+
+set -ex
+
+
 if [[ "$target_platform" == linux* ]]; then
   sed -i.bak 's/add_subdirectory("matrix1")//g' examples/CMakeLists.txt
 fi
