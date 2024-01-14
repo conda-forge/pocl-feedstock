@@ -103,6 +103,8 @@ cmake \
   -D OPENCL_HPP="${PREFIX}/include/CL/opencl.hpp" \
   -D OCL_ICD_INCLUDE_DIRS="${PREFIX}/include" \
   -D LLVM_SPIRV=${PREFIX}/bin/llvm-spirv-${LLVM_VERSION%%.*} \
+  -D ENABLE_REMOTE_SERVER=on \
+  -D ENABLE_REMOTE_CLIENT=on \
   ${CMAKE_ARGS} \
   ..
 
@@ -140,7 +142,7 @@ if [[ "$CONDA_BUILD_CROSS_COMPILATION" != "1" ]]; then
     SKIP_TESTS="$SKIP_TESTS|test_printf_vectors|test_printf_vectors_ulong"
   fi
 
-  ctest -E "$SKIP_TESTS" --output-on-failure
+  ctest -E "$SKIP_TESTS|remote" --output-on-failure
 
   # Can't run cuda tests without a GPU
   # if [[ "$enable_cuda" == "True" ]]; then

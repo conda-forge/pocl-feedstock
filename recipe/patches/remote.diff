@@ -1,0 +1,66 @@
+--- ./lib/CL/devices/devices.c
++++ ./lib/CL/devices/devices.c
+@@ -100,9 +100,6 @@
+ 
+ #ifdef BUILD_REMOTE_CLIENT
+ #include "remote/remote.h"
+-extern cl_int pocl_remote_setup_peer_mesh ();
+-// from remote/remote.c
+-extern const char *remote_device_name_ptr;
+ #endif
+ 
+ #define MAX_DEV_NAME_LEN 64
+@@ -665,10 +662,6 @@ pocl_init_devices ()
+         }
+     }
+ 
+-#ifdef BUILD_REMOTE_CLIENT
+-  pocl_remote_setup_peer_mesh ();
+-#endif
+-
+   first_init_done = 1;
+   devices_active = 1;
+ ERROR:
+--- ./lib/CL/devices/remote/remote.c
++++ ./lib/CL/devices/remote/remote.c
+@@ -254,6 +254,7 @@ pocl_remote_init_device_ops (struct pocl_device_ops *ops)
+ 
+   ops->create_sampler = pocl_remote_create_sampler;
+   ops->free_sampler = pocl_remote_free_sampler;
++  pocl_remote_setup_peer_mesh();
+ }
+ 
+ char *
+--- ./lib/CL/pocl_intfn.h
++++ ./lib/CL/pocl_intfn.h
+@@ -35,9 +35,9 @@
+ POdeclsym(clBuildProgram)
+ POdeclsym(clLinkProgram)
+ POdeclsym(clCompileProgram)
+-POdeclsym(clCreateBuffer)
++POdeclsymExport(clCreateBuffer)
+ POdeclsym(clCreateCommandQueue)
+-POdeclsym(clCreateContext)
++POdeclsymExport(clCreateContext)
+ POdeclsym(clCreateContextFromType)
+ POdeclsym(clCreateImage2D) 
+ POdeclsym(clCreateImage3D)
+@@ -93,7 +93,7 @@
+ POdeclsym(clGetKernelArgInfo)
+ POdeclsym(clGetKernelWorkGroupInfo)
+ POdeclsym(clGetKernelSubGroupInfo)
+-POdeclsym(clGetMemObjectInfo)
++POdeclsymExport(clGetMemObjectInfo)
+ POdeclsym(clGetPlatformIDs)
+ POdeclsym(clGetPlatformInfo)
+ POdeclsym(clGetProgramBuildInfo)
+--- ./include/pocl_cache.h
++++ ./include/pocl_cache.h
+@@ -64,6 +64,7 @@
+                             const char *spirv_content,
+                             uint64_t file_size);
+ 
++POCL_EXPORT
+ int pocl_cache_write_generic_objfile (char *objfile_path,
+                                       const char *objfile_content,
+                                       uint64_t objfile_size);

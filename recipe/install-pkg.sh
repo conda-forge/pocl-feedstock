@@ -13,4 +13,6 @@ elif [[ "$PKG_NAME" == "pocl-cpu-minimal" ]]; then
   mv kernel-${HOST:0:10}*.bc $PREFIX/share/pocl/
 elif [[ "$PKG_NAME" == "pocl-cpu" ]]; then
   mv libpocl-devices-pthread.so $PREFIX/lib/pocl/
+elif [[ "$PKG_NAME" == "pocl-remote" ]]; then
+  mv libpocl-devices-remote.so $PREFIX/lib/pocl/
 fi

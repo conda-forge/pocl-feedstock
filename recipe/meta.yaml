@@ -11,6 +11,8 @@ package:
 source:
   - url: https://github.com/pocl/pocl/archive/refs/tags/v{{ version.replace(".rc", "-RC") }}.tar.gz
     sha256: {{ sha256 }}
+    patches:
+      - patches/remote.diff
 
 build:
   number: {{ build_number }}
@@ -118,19 +120,34 @@ outputs:
       commands:
         - test -f $PREFIX/lib/pocl/libpocl-devices-cuda.so      # [unix]
 
+  - name: pocl-remote
+    script: install-pkg.sh
+    requirements:
+      build:
+        - {{ compiler('cxx') }}
+      host:
+        - {{ pin_subpackage("pocl-core", exact=True) }}
+        - llvm {{ llvm_version }}.*
+        - libhwloc
+      run:
+        - {{ pin_subpackage("pocl-core", exact=True) }}
+    test:
+      commands:
+        - test -f $PREFIX/lib/pocl/libpocl-devices-remote.so      # [unix]
+
   - name: pocl
     requirements:
       run:
         - {{ pin_subpackage("pocl-core", exact=True) }}
         - {{ pin_subpackage("pocl-cpu", exact=True) }}
         - {{ pin_subpackage("pocl-cpu-minimal", exact=True) }}
+        - {{ pin_subpackage("pocl-remote", exact=True) }}
         - {{ pin_subpackage("pocl-cuda", exact=True) }}         # [enable_cuda]
     test:
       commands:
         - test -f $PREFIX/lib/pocl/libpocl-devices-pthread.so   # [unix]
         - test -f $PREFIX/lib/pocl/libpocl-devices-basic.so     # [unix]
         - test -f $PREFIX/lib/pocl/libpocl-devices-cuda.so      # [enable_cuda]
-
 
 about:
   home: http://portablecl.org/
