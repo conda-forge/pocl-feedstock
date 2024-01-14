@@ -112,6 +112,8 @@ outputs:
         - libhwloc
       run:
         - {{ pin_subpackage("pocl-core", exact=True) }}
+      run_constrained:
+        - __cuda >=11
     test:
       commands:
         - test -f $PREFIX/lib/pocl/libpocl-devices-cuda.so      # [unix]
