@@ -22,6 +22,6 @@ enable_cuda:
   - True      # [linux64 or ppc64le or aarch64]
   - False     # [not (linux64 or ppc64le or aarch64)]
 
-# Needed for MAP_ANONYMOUS:
-MACOSX_SDK_VERSION:        # [osx and x86_64]
-  - "10.13"                # [osx and x86_64]
+# Needed for MAP_ANONYMOUS and clock_gettime:
+MACOSX_DEPLOYMENT_TARGET:        # [osx and x86_64]
+  - "10.13"                      # [osx and x86_64]
