@@ -51,6 +51,7 @@ requirements:
     - khronos-opencl-icd-loader          # [osx]
     - ld64 >=530                         # [osx]
     - {{ pin_compatible('libhwloc') }}
+    - __osx >={{ MACOSX_DEPLOYMENT_TARGET|default("10.13") }}  # [osx]
   run_constrained:
     - pocl {{ version }}.*
 
