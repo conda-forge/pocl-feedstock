@@ -12,9 +12,7 @@ source:
   - url: https://github.com/pocl/pocl/archive/refs/tags/v{{ version.replace(".rc", "-RC") }}.tar.gz
     sha256: {{ sha256 }}
     patches:
-      - patches/remote.diff
-      - patches/export.diff
-      - patches/remote-link.diff
+      - patches/gh1392.patch
 
 build:
   number: {{ build_number }}
