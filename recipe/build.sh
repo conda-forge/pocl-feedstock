@@ -9,7 +9,6 @@ fi
 
 sed -i.bak 's/"-lm",//g' lib/CL/devices/common.c
 sed -i.bak 's/-dynamiclib -w -lm/-dynamiclib -w/g' CMakeLists.txt
-sed -i.bak 's/APPLE AND NOT ENABLE_ICD/APPLE/g' CMakeLists.txt
 
 rm -rf build
 mkdir build
