@@ -1,0 +1,10 @@
+diff --git a/lib/CL/devices/remote/CMakeLists.txt b/lib/CL/devices/remote/CMakeLists.txt
+index bc28c924..c3db1333 100644
+--- a/lib/CL/devices/remote/CMakeLists.txt
++++ b/lib/CL/devices/remote/CMakeLists.txt
+@@ -33,3 +33,5 @@ endif(MSVC)
+ add_pocl_device_library("pocl-devices-remote"
+     remote.h remote.c communication.h communication.c ../../pocl_networking.h
+     ../../pocl_networking.c)
++
++target_link_libraries(pocl-devices-remote PRIVATE ${OPENCL_LIBS})
