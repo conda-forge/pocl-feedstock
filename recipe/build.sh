@@ -106,7 +106,7 @@ cmake \
   -D ENABLE_REMOTE_SERVER=on \
   -D ENABLE_REMOTE_CLIENT=on \
   ${CMAKE_ARGS} \
-  ..
+  .. || { cat CMakeFiles/CMakeConfigureLog.yaml; exit 1; }
 
 make -j ${CPU_COUNT} -k
 # install needs to come first for the pocl.icd to be found
