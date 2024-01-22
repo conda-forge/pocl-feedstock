@@ -13,6 +13,7 @@ source:
     sha256: {{ sha256 }}
     patches:
       - patches/gh1392.patch
+      - patches/alignof.diff  # [ppc64le]
 
 build:
   number: {{ build_number }}
