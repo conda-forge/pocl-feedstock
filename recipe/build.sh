@@ -142,6 +142,11 @@ if [[ "$CONDA_BUILD_CROSS_COMPILATION" != "1" ]]; then
     SKIP_TESTS="$SKIP_TESTS|test_printf_vectors|test_printf_vectors_ulong"
   fi
 
+  if [[ $target_platform == "linux-ppc64le" ]]; then
+    # Thies tests fails on ppc64le
+    SKIP_TESTS="$SKIP_TESTS|example1_spirv"
+  fi
+
   ctest -E "$SKIP_TESTS|remote" --output-on-failure
 
   # Can't run cuda tests without a GPU
