@@ -1,10 +1,12 @@
-provider: {linux_aarch64: native, linux_ppc64le: azure}
-conda_forge_output_validation: true
 build_platform:
   osx_arm64: osx_64
-test: native
+conda_build:
+  pkg_format: '2'
+conda_forge_output_validation: true
 github:
   branch_name: main
   tooling_branch_name: main
-conda_build:
-  pkg_format: '2'
+provider:
+  linux_aarch64: native
+  linux_ppc64le: azure
+test: native
