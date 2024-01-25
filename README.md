@@ -118,6 +118,7 @@ Current release info
 | [![Conda Recipe](https://img.shields.io/badge/recipe-pocl--cpu-green.svg)](https://anaconda.org/conda-forge/pocl-cpu) | [![Conda Downloads](https://img.shields.io/conda/dn/conda-forge/pocl-cpu.svg)](https://anaconda.org/conda-forge/pocl-cpu) | [![Conda Version](https://img.shields.io/conda/vn/conda-forge/pocl-cpu.svg)](https://anaconda.org/conda-forge/pocl-cpu) | [![Conda Platforms](https://img.shields.io/conda/pn/conda-forge/pocl-cpu.svg)](https://anaconda.org/conda-forge/pocl-cpu) |
 | [![Conda Recipe](https://img.shields.io/badge/recipe-pocl--cpu--minimal-green.svg)](https://anaconda.org/conda-forge/pocl-cpu-minimal) | [![Conda Downloads](https://img.shields.io/conda/dn/conda-forge/pocl-cpu-minimal.svg)](https://anaconda.org/conda-forge/pocl-cpu-minimal) | [![Conda Version](https://img.shields.io/conda/vn/conda-forge/pocl-cpu-minimal.svg)](https://anaconda.org/conda-forge/pocl-cpu-minimal) | [![Conda Platforms](https://img.shields.io/conda/pn/conda-forge/pocl-cpu-minimal.svg)](https://anaconda.org/conda-forge/pocl-cpu-minimal) |
 | [![Conda Recipe](https://img.shields.io/badge/recipe-pocl--cuda-green.svg)](https://anaconda.org/conda-forge/pocl-cuda) | [![Conda Downloads](https://img.shields.io/conda/dn/conda-forge/pocl-cuda.svg)](https://anaconda.org/conda-forge/pocl-cuda) | [![Conda Version](https://img.shields.io/conda/vn/conda-forge/pocl-cuda.svg)](https://anaconda.org/conda-forge/pocl-cuda) | [![Conda Platforms](https://img.shields.io/conda/pn/conda-forge/pocl-cuda.svg)](https://anaconda.org/conda-forge/pocl-cuda) |
+| [![Conda Recipe](https://img.shields.io/badge/recipe-pocl--remote-green.svg)](https://anaconda.org/conda-forge/pocl-remote) | [![Conda Downloads](https://img.shields.io/conda/dn/conda-forge/pocl-remote.svg)](https://anaconda.org/conda-forge/pocl-remote) | [![Conda Version](https://img.shields.io/conda/vn/conda-forge/pocl-remote.svg)](https://anaconda.org/conda-forge/pocl-remote) | [![Conda Platforms](https://img.shields.io/conda/pn/conda-forge/pocl-remote.svg)](https://anaconda.org/conda-forge/pocl-remote) |
 
 Installing pocl
 ===============
@@ -129,16 +130,16 @@ conda config --add channels conda-forge
 conda config --set channel_priority strict
 ```
 
-Once the `conda-forge` channel has been enabled, `pocl, pocl-core, pocl-cpu, pocl-cpu-minimal, pocl-cuda` can be installed with `conda`:
+Once the `conda-forge` channel has been enabled, `pocl, pocl-core, pocl-cpu, pocl-cpu-minimal, pocl-cuda, pocl-remote` can be installed with `conda`:
 
 ```
-conda install pocl pocl-core pocl-cpu pocl-cpu-minimal pocl-cuda
+conda install pocl pocl-core pocl-cpu pocl-cpu-minimal pocl-cuda pocl-remote
 ```
 
 or with `mamba`:
 
 ```
-mamba install pocl pocl-core pocl-cpu pocl-cpu-minimal pocl-cuda
+mamba install pocl pocl-core pocl-cpu pocl-cpu-minimal pocl-cuda pocl-remote
 ```
 
 It is possible to list all of the versions of `pocl` available on your platform with `conda`:
@@ -185,7 +186,7 @@ available continuous integration services. Thanks to the awesome service provide
 [CircleCI](https://circleci.com/), [AppVeyor](https://www.appveyor.com/),
 [Drone](https://cloud.drone.io/welcome), and [TravisCI](https://travis-ci.com/)
 it is possible to build and upload installable packages to the
-[conda-forge](https://anaconda.org/conda-forge) [Anaconda-Cloud](https://anaconda.org/)
+[conda-forge](https://anaconda.org/conda-forge) [anaconda.org](https://anaconda.org/)
 channel for Linux, Windows and OSX respectively.
 
 To manage the continuous integration and simplify feedstock maintenance

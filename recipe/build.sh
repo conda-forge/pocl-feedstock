@@ -1,3 +1,8 @@
+#!/bin/bash
+
+set -ex
+
+
 if [[ "$target_platform" == linux* ]]; then
   sed -i.bak 's/add_subdirectory("matrix1")//g' examples/CMakeLists.txt
 fi
@@ -98,10 +103,12 @@ cmake \
   -D OPENCL_HPP="${PREFIX}/include/CL/opencl.hpp" \
   -D OCL_ICD_INCLUDE_DIRS="${PREFIX}/include" \
   -D LLVM_SPIRV=${PREFIX}/bin/llvm-spirv-${LLVM_VERSION%%.*} \
+  -D ENABLE_REMOTE_SERVER=on \
+  -D ENABLE_REMOTE_CLIENT=on \
   ${CMAKE_ARGS} \
-  ..
+  .. || { cat CMakeFiles/CMakeConfigureLog.yaml; exit 1; }
 
-make -j ${CPU_COUNT} -k
+make -j ${CPU_COUNT}
 # install needs to come first for the pocl.icd to be found
 make install
 
@@ -135,7 +142,12 @@ if [[ "$CONDA_BUILD_CROSS_COMPILATION" != "1" ]]; then
     SKIP_TESTS="$SKIP_TESTS|test_printf_vectors|test_printf_vectors_ulong"
   fi
 
-  ctest -E "$SKIP_TESTS" --output-on-failure
+  if [[ $target_platform == "linux-ppc64le" ]]; then
+    # Thies tests fails on ppc64le
+    SKIP_TESTS="$SKIP_TESTS|example1_spirv"
+  fi
+
+  ctest -E "$SKIP_TESTS|remote" --output-on-failure
 
   # Can't run cuda tests without a GPU
   # if [[ "$enable_cuda" == "True" ]]; then

@@ -1,5 +1,5 @@
 MACOSX_DEPLOYMENT_TARGET:
-- '10.9'
+- '10.13'
 channel_sources:
 - conda-forge
 channel_targets:
@@ -9,7 +9,7 @@ curl:
 cxx_compiler:
 - clangxx
 cxx_compiler_version:
-- '15'
+- '16'
 enable_cuda:
 - 'False'
 libhwloc:

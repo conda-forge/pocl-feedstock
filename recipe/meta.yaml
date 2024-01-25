@@ -1,6 +1,6 @@
-{% set version = "4.0" %}
-{% set build_number = 2 %}
-{% set sha256 = "7f4e8ab608b3191c2b21e3f13c193f1344b40aba7738f78762f7b88f45e8ce03" %}
+{% set version = "5.0" %}
+{% set build_number = 0 %}
+{% set sha256 = "fd0bb6e50c2286278c11627b71177991519e1f7ab2576bd8d8742974db414549" %}
 
 {% set llvm_version = "15.0.7" %}
 
@@ -12,8 +12,8 @@ source:
   - url: https://github.com/pocl/pocl/archive/refs/tags/v{{ version.replace(".rc", "-RC") }}.tar.gz
     sha256: {{ sha256 }}
     patches:
-      - patches/1067.diff
-      - patches/gh1277.patch
+      - patches/gh1392.patch
+      - patches/alignof.diff  # [ppc64le]
 
 build:
   number: {{ build_number }}
@@ -50,6 +50,7 @@ requirements:
     - khronos-opencl-icd-loader          # [osx]
     - ld64 >=530                         # [osx]
     - {{ pin_compatible('libhwloc') }}
+    - __osx >={{ MACOSX_DEPLOYMENT_TARGET|default("10.13") }}  # [osx]
   run_constrained:
     - pocl {{ version }}.*
 
@@ -115,9 +116,26 @@ outputs:
         - libhwloc
       run:
         - {{ pin_subpackage("pocl-core", exact=True) }}
+      run_constrained:
+        - __cuda >=11
     test:
       commands:
         - test -f $PREFIX/lib/pocl/libpocl-devices-cuda.so      # [unix]
+
+  - name: pocl-remote
+    script: install-pkg.sh
+    requirements:
+      build:
+        - {{ compiler('cxx') }}
+      host:
+        - {{ pin_subpackage("pocl-core", exact=True) }}
+        - llvm {{ llvm_version }}.*
+        - libhwloc
+      run:
+        - {{ pin_subpackage("pocl-core", exact=True) }}
+    test:
+      commands:
+        - test -f $PREFIX/lib/pocl/libpocl-devices-remote.so      # [unix]
 
   - name: pocl
     requirements:
@@ -125,13 +143,13 @@ outputs:
         - {{ pin_subpackage("pocl-core", exact=True) }}
         - {{ pin_subpackage("pocl-cpu", exact=True) }}
         - {{ pin_subpackage("pocl-cpu-minimal", exact=True) }}
+        - {{ pin_subpackage("pocl-remote", exact=True) }}
         - {{ pin_subpackage("pocl-cuda", exact=True) }}         # [enable_cuda]
     test:
       commands:
         - test -f $PREFIX/lib/pocl/libpocl-devices-pthread.so   # [unix]
         - test -f $PREFIX/lib/pocl/libpocl-devices-basic.so     # [unix]
         - test -f $PREFIX/lib/pocl/libpocl-devices-cuda.so      # [enable_cuda]
-
 
 about:
   home: http://portablecl.org/

@@ -1,4 +1,4 @@
-provider: {linux_aarch64: native, linux_ppc64le: native}
+provider: {linux_aarch64: native, linux_ppc64le: azure}
 conda_forge_output_validation: true
 build_platform:
   osx_arm64: osx_64

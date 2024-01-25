@@ -3,15 +3,15 @@ libhwloc:
   - 2
 
 docker_image:                                           # [linux64 or ppc64le or aarch64]
-  - quay.io/condaforge/linux-anvil-cuda:9.2             # [linux64]
-  - quay.io/condaforge/linux-anvil-ppc64le-cuda:10.2    # [ppc64le]
-  - quay.io/condaforge/linux-anvil-aarch64-cuda:11.1    # [aarch64]
+  - quay.io/condaforge/linux-anvil-cuda:11.2            # [linux64]
+  - quay.io/condaforge/linux-anvil-ppc64le-cuda:11.2    # [ppc64le]
+  - quay.io/condaforge/linux-anvil-aarch64-cuda:11.2    # [aarch64]
 
 cuda_compiler_version:
   - None
 
 cdt_name:  # [linux64 or ppc64le or aarch64]
-  - cos6   # [linux64]
+  - cos7   # [linux64]
   - cos7   # [ppc64le]
   - cos7   # [aarch64]
 
@@ -21,3 +21,7 @@ cudnn:
 enable_cuda:
   - True      # [linux64 or ppc64le or aarch64]
   - False     # [not (linux64 or ppc64le or aarch64)]
+
+# Needed for MAP_ANONYMOUS and clock_gettime:
+MACOSX_DEPLOYMENT_TARGET:        # [osx and x86_64]
+  - "10.13"                      # [osx and x86_64]
