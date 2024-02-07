@@ -4,7 +4,7 @@ libhwloc:
 
 docker_image:                                           # [linux64 or ppc64le or aarch64]
   - quay.io/condaforge/linux-anvil-cuda:11.2            # [linux64]
-  - quay.io/condaforge/linux-anvil-ppc64le-cuda:11.2    # [ppc64le]
+  - quay.io/condaforge/linux-anvil-ppc64le-cuda:10.2    # [ppc64le]
   - quay.io/condaforge/linux-anvil-aarch64-cuda:11.2    # [aarch64]
 
 cuda_compiler_version:
