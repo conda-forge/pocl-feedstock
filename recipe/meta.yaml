@@ -117,7 +117,8 @@ outputs:
       run:
         - {{ pin_subpackage("pocl-core", exact=True) }}
       run_constrained:
-        - __cuda >=11
+        - __cuda >=11  # [not ppc64le]
+        - __cuda >=10.2  # [ppc64le]
     test:
       commands:
         - test -f $PREFIX/lib/pocl/libpocl-devices-cuda.so      # [unix]
