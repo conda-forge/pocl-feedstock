@@ -85,7 +85,6 @@ fi
 set
 
 cmake \
-  -D CMAKE_BUILD_TYPE="RelWithDebInfo" \
   -D CMAKE_INSTALL_PREFIX="${PREFIX}" \
   -D CMAKE_PREFIX_PATH="${PREFIX}" \
   -D POCL_INSTALL_ICD_VENDORDIR="${PREFIX}/etc/OpenCL/vendors" \
@@ -106,6 +105,7 @@ cmake \
   -D ENABLE_REMOTE_SERVER=on \
   -D ENABLE_REMOTE_CLIENT=on \
   ${CMAKE_ARGS} \
+  -D CMAKE_BUILD_TYPE="RelWithDebInfo" \
   .. || { cat CMakeFiles/CMakeConfigureLog.yaml; exit 1; }
 
 make -j ${CPU_COUNT}
