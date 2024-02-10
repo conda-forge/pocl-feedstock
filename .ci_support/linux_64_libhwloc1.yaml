@@ -15,6 +15,6 @@ docker_image:
 enable_cuda:
 - 'True'
 libhwloc:
-- 2.9.3
+- '1'
 target_platform:
 - linux-64

@@ -1,5 +1,5 @@
-MACOSX_DEPLOYMENT_TARGET:
-- '10.13'
+cdt_name:
+- cos7
 channel_sources:
 - conda-forge
 channel_targets:
@@ -7,16 +7,14 @@ channel_targets:
 curl:
 - '8'
 cxx_compiler:
-- clangxx
+- gxx
 cxx_compiler_version:
-- '16'
+- '12'
+docker_image:
+- quay.io/condaforge/linux-anvil-ppc64le-cuda:10.2
 enable_cuda:
-- 'False'
+- 'True'
 libhwloc:
-- 2.9.3
-macos_machine:
-- x86_64-apple-darwin13.4.0
+- '1'
 target_platform:
-- osx-64
-zlib:
-- '1.2'
+- linux-ppc64le
