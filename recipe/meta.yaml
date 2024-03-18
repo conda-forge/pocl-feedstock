@@ -147,10 +147,15 @@ outputs:
         - {{ pin_subpackage("pocl-remote", exact=True) }}
         - {{ pin_subpackage("pocl-cuda", exact=True) }}         # [enable_cuda]
     test:
+      requires:
+        - pyopencl
+      files:
+        - demo.py
       commands:
         - test -f $PREFIX/lib/pocl/libpocl-devices-pthread.so   # [unix]
         - test -f $PREFIX/lib/pocl/libpocl-devices-basic.so     # [unix]
         - test -f $PREFIX/lib/pocl/libpocl-devices-cuda.so      # [enable_cuda]
+        - python demo.py
 
 about:
   home: http://portablecl.org/
