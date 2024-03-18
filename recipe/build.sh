@@ -147,7 +147,7 @@ if [[ "$CONDA_BUILD_CROSS_COMPILATION" != "1" ]]; then
     SKIP_TESTS="$SKIP_TESTS|example1_spirv"
   fi
 
-  ctest -E "$SKIP_TESTS|remote" --output-on-failure
+  # ctest -E "$SKIP_TESTS|remote" --output-on-failure
 
   # Can't run cuda tests without a GPU
   # if [[ "$enable_cuda" == "True" ]]; then

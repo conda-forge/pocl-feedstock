@@ -12,3 +12,8 @@ provider:
 test: native
 azure:
   store_build_artifacts: true
+
+# The next two lines are necessary to support the ppc64le build,
+# whose CUDA (v10.2) image is outdated.
+conda_install_tool: conda
+conda_solver: classic
