@@ -1,5 +1,5 @@
 {% set version = "5.0" %}
-{% set build_number = 3 %}
+{% set build_number = 2 %}
 {% set sha256 = "fd0bb6e50c2286278c11627b71177991519e1f7ab2576bd8d8742974db414549" %}
 
 {% set llvm_version = "15.0.7" %}
@@ -43,12 +43,12 @@ requirements:
     - llvm-spirv-{{ llvm_version.split(".")[0] }}
 
     - zlib                               # [osx]
-    - ld64 >=530,<711                     # [osx]
+    - ld64 >=530                         # [osx]
   run:
     - llvm-spirv-{{ llvm_version.split(".")[0] }}
     - ocl-icd                            # [linux]
     - khronos-opencl-icd-loader          # [osx]
-    - ld64 >=530,<711                     # [osx]
+    - ld64 >=530                         # [osx]
     - {{ pin_compatible('libhwloc') }}
     - __osx >={{ MACOSX_DEPLOYMENT_TARGET|default("10.13") }}  # [osx]
   run_constrained:
