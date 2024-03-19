@@ -28,12 +28,15 @@ conda-build:
 pkgs_dirs:
   - ${FEEDSTOCK_ROOT}/build_artifacts/pkg_cache
   - /opt/conda/pkgs
-solver: classic
+solver: libmamba
 
 CONDARC
+export CONDA_LIBMAMBA_SOLVER_NO_CHANNELS_FROM_INSTALLED=1
 
-conda install --update-specs --yes --quiet --channel conda-forge --strict-channel-priority \
-    pip conda conda-build conda-forge-ci-setup=4 "conda-build>=24.1"
+mamba install --update-specs --yes --quiet --channel conda-forge --strict-channel-priority \
+    pip mamba conda-build conda-forge-ci-setup=4 "conda-build>=24.1"
+mamba update --update-specs --yes --quiet --channel conda-forge --strict-channel-priority \
+    pip mamba conda-build conda-forge-ci-setup=4 "conda-build>=24.1"
 
 # set up the condarc
 setup_conda_rc "${FEEDSTOCK_ROOT}" "${RECIPE_ROOT}" "${CONFIG_FILE}"
