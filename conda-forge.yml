@@ -8,7 +8,7 @@ github:
   tooling_branch_name: main
 provider:
   linux_aarch64: native
-  linux_ppc64le: native
+  linux_ppc64le: azure
 test: native
 azure:
   store_build_artifacts: true

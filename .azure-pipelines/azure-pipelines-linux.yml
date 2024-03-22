@@ -18,6 +18,16 @@ jobs:
         UPLOAD_PACKAGES: 'True'
         DOCKER_IMAGE: quay.io/condaforge/linux-anvil-cuda:11.2
         SHORT_CONFIG: linux_64_libhwloc2.9.3
+      linux_ppc64le_libhwloc2:
+        CONFIG: linux_ppc64le_libhwloc2
+        UPLOAD_PACKAGES: 'True'
+        DOCKER_IMAGE: quay.io/condaforge/linux-anvil-ppc64le-cuda:10.2
+        SHORT_CONFIG: linux_ppc64le_libhwloc2
+      linux_ppc64le_libhwloc2.9.3:
+        CONFIG: linux_ppc64le_libhwloc2.9.3
+        UPLOAD_PACKAGES: 'True'
+        DOCKER_IMAGE: quay.io/condaforge/linux-anvil-ppc64le-cuda:10.2
+        SHORT_CONFIG: linux_ppc64le_libhwloc2.9.3
   timeoutInMinutes: 360
   variables: {}
 
