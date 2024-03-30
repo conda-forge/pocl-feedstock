@@ -147,8 +147,6 @@ outputs:
         - {{ pin_subpackage("pocl-remote", exact=True) }}
         - {{ pin_subpackage("pocl-cuda", exact=True) }}         # [enable_cuda]
     test:
-      files:
-        - demo.py
       commands:
         - test -f $PREFIX/lib/pocl/libpocl-devices-pthread.so   # [unix]
         - test -f $PREFIX/lib/pocl/libpocl-devices-basic.so     # [unix]
