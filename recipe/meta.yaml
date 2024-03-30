@@ -2,7 +2,7 @@
 {% set build_number = 3 %}
 {% set sha256 = "fd0bb6e50c2286278c11627b71177991519e1f7ab2576bd8d8742974db414549" %}
 
-{% set llvm_version = "15.0.7" %}
+{% set llvm_version = "16.0.6" %}
 
 package:
   name: pocl-core
@@ -147,15 +147,14 @@ outputs:
         - {{ pin_subpackage("pocl-remote", exact=True) }}
         - {{ pin_subpackage("pocl-cuda", exact=True) }}         # [enable_cuda]
     test:
-      requires:
-        - pyopencl
       files:
         - demo.py
       commands:
         - test -f $PREFIX/lib/pocl/libpocl-devices-pthread.so   # [unix]
         - test -f $PREFIX/lib/pocl/libpocl-devices-basic.so     # [unix]
         - test -f $PREFIX/lib/pocl/libpocl-devices-cuda.so      # [enable_cuda]
-        - python demo.py
+      downstreams:
+        - pyopencl
 
 about:
   home: http://portablecl.org/
