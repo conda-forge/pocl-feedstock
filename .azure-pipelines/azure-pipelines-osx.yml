@@ -5,22 +5,23 @@
 jobs:
 - job: osx
   pool:
-    vmImage: macOS-11
+    vmImage: macOS-12
   strategy:
     matrix:
       osx_64_libhwloc2:
         CONFIG: osx_64_libhwloc2
         UPLOAD_PACKAGES: 'True'
         SHORT_CONFIG: osx_64_libhwloc2
-      osx_64_libhwloc2.9.3:
-        CONFIG: osx_64_libhwloc2.9.3
+      osx_64_libhwloc2.10.0:
+        CONFIG: osx_64_libhwloc2.10.0
         UPLOAD_PACKAGES: 'True'
-        SHORT_CONFIG: osx_64_libhwloc2.9.3
+        SHORT_CONFIG: osx_64_libhwloc2.10.0
       osx_arm64_:
         CONFIG: osx_arm64_
         UPLOAD_PACKAGES: 'True'
         SHORT_CONFIG: osx_arm64_
   timeoutInMinutes: 360
+  variables: {}
 
   steps:
   # TODO: Fast finish on azure pipelines?

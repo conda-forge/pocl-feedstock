@@ -13,22 +13,23 @@ jobs:
         UPLOAD_PACKAGES: 'True'
         DOCKER_IMAGE: quay.io/condaforge/linux-anvil-cuda:11.2
         SHORT_CONFIG: linux_64_libhwloc2
-      linux_64_libhwloc2.9.3:
-        CONFIG: linux_64_libhwloc2.9.3
+      linux_64_libhwloc2.10.0:
+        CONFIG: linux_64_libhwloc2.10.0
         UPLOAD_PACKAGES: 'True'
         DOCKER_IMAGE: quay.io/condaforge/linux-anvil-cuda:11.2
-        SHORT_CONFIG: linux_64_libhwloc2.9.3
+        SHORT_CONFIG: linux_64_libhwloc2.10.0
       linux_ppc64le_libhwloc2:
         CONFIG: linux_ppc64le_libhwloc2
         UPLOAD_PACKAGES: 'True'
         DOCKER_IMAGE: quay.io/condaforge/linux-anvil-ppc64le-cuda:10.2
         SHORT_CONFIG: linux_ppc64le_libhwloc2
-      linux_ppc64le_libhwloc2.9.3:
-        CONFIG: linux_ppc64le_libhwloc2.9.3
+      linux_ppc64le_libhwloc2.10.0:
+        CONFIG: linux_ppc64le_libhwloc2.10.0
         UPLOAD_PACKAGES: 'True'
         DOCKER_IMAGE: quay.io/condaforge/linux-anvil-ppc64le-cuda:10.2
-        SHORT_CONFIG: linux_ppc64le_libhwloc2.9.3
+        SHORT_CONFIG: linux_ppc64le_libhwloc2.10.0
   timeoutInMinutes: 360
+  variables: {}
 
   steps:
   # configure qemu binfmt-misc running.  This allows us to run docker containers
