@@ -1,5 +1,5 @@
 {% set version = "5.0" %}
-{% set build_number = 2 %}
+{% set build_number = 3 %}
 {% set sha256 = "fd0bb6e50c2286278c11627b71177991519e1f7ab2576bd8d8742974db414549" %}
 
 {% set llvm_version = "15.0.7" %}
@@ -27,6 +27,7 @@ requirements:
     - make
     - pkg-config
     - {{ compiler('cxx') }}                                   # [not osx]
+    - {{ stdlib("c") }}                                     # [not osx]
     - clangxx_{{ target_platform }} {{ llvm_version }}.*      # [osx]
     - llvmdev {{ llvm_version }}.*       # [build_platform != target_platform]
     - clangdev {{ llvm_version }}.*      # [build_platform != target_platform]
@@ -50,7 +51,6 @@ requirements:
     - khronos-opencl-icd-loader          # [osx]
     - ld64 >=530                         # [osx]
     - {{ pin_compatible('libhwloc') }}
-    - __osx >={{ MACOSX_DEPLOYMENT_TARGET|default("10.13") }}  # [osx]
   run_constrained:
     - pocl {{ version }}.*
 
@@ -66,6 +66,7 @@ outputs:
     requirements:
       build:
         - {{ compiler('cxx') }}
+        - {{ stdlib("c") }}
       host:
         - {{ pin_subpackage("pocl-core", exact=True) }}
         - llvm {{ llvm_version }}.*
@@ -81,6 +82,7 @@ outputs:
     requirements:
       build:
         - {{ compiler('cxx') }}
+        - {{ stdlib("c") }}
       host:
         - {{ pin_subpackage("pocl-core", exact=True) }}
         - {{ pin_subpackage("pocl-cpu-minimal", exact=True) }}
@@ -110,6 +112,7 @@ outputs:
     requirements:
       build:
         - {{ compiler('cxx') }}
+        - {{ stdlib("c") }}
       host:
         - {{ pin_subpackage("pocl-core", exact=True) }}
         - llvm {{ llvm_version }}.*
@@ -128,6 +131,7 @@ outputs:
     requirements:
       build:
         - {{ compiler('cxx') }}
+        - {{ stdlib("c") }}
       host:
         - {{ pin_subpackage("pocl-core", exact=True) }}
         - llvm {{ llvm_version }}.*
