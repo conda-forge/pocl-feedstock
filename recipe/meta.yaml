@@ -30,6 +30,7 @@ requirements:
     - clangxx_{{ target_platform }} {{ llvm_version }}.*      # [osx]
     - llvmdev {{ llvm_version }}.*       # [build_platform != target_platform]
     - clangdev {{ llvm_version }}.*      # [build_platform != target_platform]
+    - {{ stdlib("c") }}
   host:
     - ocl-icd                            # [linux]
     - khronos-opencl-icd-loader          # [osx]
