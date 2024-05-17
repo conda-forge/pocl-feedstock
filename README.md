@@ -3,6 +3,75 @@ About pocl-feedstock
 
 Feedstock license: [BSD-3-Clause](https://github.com/conda-forge/pocl-feedstock/blob/main/LICENSE.txt)
 
+
+About pocl
+----------
+
+Home: http://portablecl.org/
+
+Package license: MIT
+
+Summary: Portable Computing Language -- a portable open source implementation of the OpenCL standard
+
+Development: https://github.com/pocl/pocl
+
+Documentation: http://portablecl.org/docs/html/
+
+About pocl-core
+---------------
+
+Home: http://portablecl.org/
+
+Package license: MIT
+
+Summary: Portable Computing Language -- a portable open source implementation of the OpenCL standard
+
+Development: https://github.com/pocl/pocl
+
+Documentation: http://portablecl.org/docs/html/
+
+About pocl-cpu-minimal
+----------------------
+
+Home: http://portablecl.org/
+
+Package license: MIT
+
+Summary: Portable Computing Language -- a portable open source implementation of the OpenCL standard
+
+Development: https://github.com/pocl/pocl
+
+Documentation: http://portablecl.org/docs/html/
+
+About pocl-remote
+-----------------
+
+Home: http://portablecl.org/
+
+Package license: MIT
+
+Summary: Portable Computing Language -- a portable open source implementation of the OpenCL standard
+
+Development: https://github.com/pocl/pocl
+
+Documentation: http://portablecl.org/docs/html/
+
+About pocl-cpu
+--------------
+
+Home: http://portablecl.org/
+
+Package license: MIT
+
+Summary: Portable Computing Language -- a portable open source implementation of the OpenCL standard
+
+Development: https://github.com/pocl/pocl
+
+Documentation: http://portablecl.org/docs/html/
+
+About pocl
+----------
+
 Home: http://portablecl.org/
 
 Package license: MIT
@@ -17,14 +86,7 @@ Current build status
 ====================
 
 
-<table><tr>
-    <td>Travis</td>
-    <td>
-      <a href="https://app.travis-ci.com/conda-forge/pocl-feedstock">
-        <img alt="linux" src="https://img.shields.io/travis/com/conda-forge/pocl-feedstock/main.svg?label=Linux">
-      </a>
-    </td>
-  </tr>
+<table>
     
   <tr>
     <td>Azure</td>
