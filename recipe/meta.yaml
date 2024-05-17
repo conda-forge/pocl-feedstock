@@ -49,7 +49,9 @@ requirements:
     - llvm-spirv-{{ llvm_version.split(".")[0] }}
     - ocl-icd                            # [linux]
     - khronos-opencl-icd-loader          # [osx]
-    - ld64 >=530,<711                     # [osx]
+    # See https://github.com/conda-forge/cctools-and-ld64-feedstock/issues/66
+    # why we need the upper bound for ld64
+    - ld64 >=530,!=711                     # [osx]
     - {{ pin_compatible('libhwloc') }}
   run_constrained:
     - pocl {{ version }}.*
