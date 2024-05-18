@@ -1,5 +1,5 @@
 {% set version = "5.0" %}
-{% set build_number = 2 %}
+{% set build_number = 3 %}
 {% set sha256 = "fd0bb6e50c2286278c11627b71177991519e1f7ab2576bd8d8742974db414549" %}
 
 {% set llvm_version = "15.0.7" %}
@@ -30,6 +30,7 @@ requirements:
     - clangxx_{{ target_platform }} {{ llvm_version }}.*      # [osx]
     - llvmdev {{ llvm_version }}.*       # [build_platform != target_platform]
     - clangdev {{ llvm_version }}.*      # [build_platform != target_platform]
+    - {{ stdlib("c") }}
   host:
     - ocl-icd                            # [linux]
     - khronos-opencl-icd-loader          # [osx]
@@ -43,14 +44,15 @@ requirements:
     - llvm-spirv-{{ llvm_version.split(".")[0] }}
 
     - zlib                               # [osx]
-    - ld64 >=530                         # [osx]
+    - ld64 >=530,<711                     # [osx]
   run:
     - llvm-spirv-{{ llvm_version.split(".")[0] }}
     - ocl-icd                            # [linux]
     - khronos-opencl-icd-loader          # [osx]
-    - ld64 >=530                         # [osx]
+    # See https://github.com/conda-forge/cctools-and-ld64-feedstock/issues/66
+    # why we need the upper bound for ld64
+    - ld64 >=530,<711                     # [osx]
     - {{ pin_compatible('libhwloc') }}
-    - __osx >={{ MACOSX_DEPLOYMENT_TARGET|default("10.13") }}  # [osx]
   run_constrained:
     - pocl {{ version }}.*
 
@@ -151,6 +153,8 @@ outputs:
         - test -f $PREFIX/lib/pocl/libpocl-devices-pthread.so   # [unix]
         - test -f $PREFIX/lib/pocl/libpocl-devices-basic.so     # [unix]
         - test -f $PREFIX/lib/pocl/libpocl-devices-cuda.so      # [enable_cuda]
+      downstreams:
+        - pyopencl
 
 about:
   home: http://portablecl.org/
