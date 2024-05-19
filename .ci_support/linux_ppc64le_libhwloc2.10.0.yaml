@@ -19,7 +19,7 @@ docker_image:
 enable_cuda:
 - 'True'
 libhwloc:
-- 2.9.3
+- 2.10.0
 target_platform:
 - linux-ppc64le
 zip_keys:

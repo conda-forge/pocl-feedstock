@@ -12,7 +12,7 @@ matrix:
       arch: arm64
       dist: focal
 
-    - env: CONFIG=linux_aarch64_libhwloc2.9.3 UPLOAD_PACKAGES=True PLATFORM=linux-aarch64 DOCKER_IMAGE=quay.io/condaforge/linux-anvil-aarch64-cuda:11.2
+    - env: CONFIG=linux_aarch64_libhwloc2.10.0 UPLOAD_PACKAGES=True PLATFORM=linux-aarch64 DOCKER_IMAGE=quay.io/condaforge/linux-anvil-aarch64-cuda:11.2
       os: linux
       arch: arm64
       dist: focal
