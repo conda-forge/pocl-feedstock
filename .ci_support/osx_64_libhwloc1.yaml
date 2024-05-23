@@ -19,7 +19,7 @@ cxx_compiler_version:
 enable_cuda:
 - 'False'
 libhwloc:
-- 2.10.0
+- '1'
 macos_machine:
 - x86_64-apple-darwin13.4.0
 target_platform:

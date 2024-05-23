@@ -1,5 +1,5 @@
 {% set version = "5.0" %}
-{% set build_number = 4 %}
+{% set build_number = 5 %}
 {% set sha256 = "fd0bb6e50c2286278c11627b71177991519e1f7ab2576bd8d8742974db414549" %}
 
 {% set llvm_version = "15.0.7" %}
@@ -14,6 +14,10 @@ source:
     patches:
       - patches/gh1392.patch
       - patches/alignof.diff  # [ppc64le]
+
+      # https://github.com/pocl/pocl/issues/1480, https://github.com/pocl/pocl/commit/ed97458ba737be9057f322594b7ff5701ad79b1f
+      # unnecessary after 5.0:
+      - patches/cache.diff
 
 build:
   number: {{ build_number }}
