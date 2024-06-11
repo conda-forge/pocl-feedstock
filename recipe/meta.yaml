@@ -72,6 +72,7 @@ outputs:
     requirements:
       build:
         - {{ compiler('cxx') }}
+        - {{ stdlib('c') }}
       host:
         - {{ pin_subpackage("pocl-core", exact=True) }}
         - llvm {{ llvm_version }}.*
@@ -87,6 +88,7 @@ outputs:
     requirements:
       build:
         - {{ compiler('cxx') }}
+        - {{ stdlib('c') }}
       host:
         - {{ pin_subpackage("pocl-core", exact=True) }}
         - {{ pin_subpackage("pocl-cpu-minimal", exact=True) }}
@@ -116,6 +118,7 @@ outputs:
     requirements:
       build:
         - {{ compiler('cxx') }}
+        - {{ stdlib('c') }}
       host:
         - {{ pin_subpackage("pocl-core", exact=True) }}
         - llvm {{ llvm_version }}.*
@@ -134,6 +137,7 @@ outputs:
     requirements:
       build:
         - {{ compiler('cxx') }}
+        - {{ stdlib('c') }}
       host:
         - {{ pin_subpackage("pocl-core", exact=True) }}
         - llvm {{ llvm_version }}.*
