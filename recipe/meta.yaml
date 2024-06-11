@@ -1,5 +1,5 @@
 {% set version = "5.0" %}
-{% set build_number = 5 %}
+{% set build_number = 6 %}
 {% set sha256 = "fd0bb6e50c2286278c11627b71177991519e1f7ab2576bd8d8742974db414549" %}
 
 {% set llvm_version = "15.0.7" %}
@@ -146,6 +146,11 @@ outputs:
 
   - name: pocl
     requirements:
+      host:
+        # Need hwloc here for the pocl meta-package to have two hashes
+        # Otherwise only one of them gets uploaded and the `exact=True`
+        # conditions below prevent installations
+        - libhwloc
       run:
         - {{ pin_subpackage("pocl-core", exact=True) }}
         - {{ pin_subpackage("pocl-cpu", exact=True) }}
