@@ -12,6 +12,7 @@ source:
   - url: https://github.com/pocl/pocl/archive/refs/tags/v{{ version.replace(".rc", "-RC") }}.tar.gz
     sha256: {{ sha256 }}
     patches:
+      - patches/gh1392.patch
       - patches/alignof.diff  # [ppc64le]
 
 build:
