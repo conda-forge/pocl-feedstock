@@ -28,3 +28,24 @@ index bdf711cf8..f8aa50a1c 100644
      int listen_command_fd = 0;
      int listen_stream_fd = 0;
      struct sockaddr_storage server_addr_command, server_addr_stream;
+diff --git a/pocld/shared_cl_context.cc b/pocld/shared_cl_context.cc
+index 6bc358bbe..b1678af03 100644
+--- a/pocld/shared_cl_context.cc
++++ b/pocld/shared_cl_context.cc
+@@ -23,6 +23,7 @@
+    IN THE SOFTWARE.
+ */
+ 
++#include <unistd.h>
+ #include <cassert>
+ #include <cstdio>
+ #include <filesystem>
+@@ -630,7 +631,7 @@ SharedCLContext::SharedCLContext(cl::Platform *p, unsigned pid,
+     if (MaxMemAllocSize < MaxSVMAllocSize)
+       MaxSVMAllocSize = MaxMemAllocSize;
+ 
+-    MaxTotalAllocatableSVM = std::min(MaxTotalAllocatableSVM,
++    MaxTotalAllocatableSVM = std::min(MaxTotalAllocatableSVM, (size_t)
+                                       Dev.getInfo<CL_DEVICE_GLOBAL_MEM_SIZE>());
+   }
+ 
