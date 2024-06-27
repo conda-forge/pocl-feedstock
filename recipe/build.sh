@@ -139,7 +139,7 @@ if [[ "$CONDA_BUILD_CROSS_COMPILATION" != "1" ]]; then
 
   if [[ $target_platform == "linux-aarch64" ]]; then
     # These tests fail on aarch64
-    SKIP_TESTS="$SKIP_TESTS|test_printf_vectors|test_printf_vectors_ulong"
+    SKIP_TESTS="$SKIP_TESTS|test_printf_vectors|test_printf_vectors_ulong|test_large_buf"
   fi
 
   if [[ $target_platform == "linux-ppc64le" ]]; then

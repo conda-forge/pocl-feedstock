@@ -5,7 +5,7 @@ mkdir -p $PREFIX/lib/pocl
 
 if [[ "$PKG_NAME" == "pocl-cuda" ]]; then
   mv libpocl-devices-cuda.so $PREFIX/lib/pocl/
-  mv kernel-nvptx64.bc $PREFIX/share/pocl/
+  mv kernel-nvptx64-*.bc $PREFIX/share/pocl/
   mv cuda $PREFIX/share/pocl/
 elif [[ "$PKG_NAME" == "pocl-cpu-minimal" ]]; then
   mv libpocl-devices-basic.so $PREFIX/lib/pocl/
