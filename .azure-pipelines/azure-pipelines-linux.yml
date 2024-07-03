@@ -8,26 +8,26 @@ jobs:
     vmImage: ubuntu-latest
   strategy:
     matrix:
-      linux_64_libhwloc1:
-        CONFIG: linux_64_libhwloc1
-        UPLOAD_PACKAGES: 'True'
-        DOCKER_IMAGE: quay.io/condaforge/linux-anvil-cuda:11.2
-        SHORT_CONFIG: linux_64_libhwloc1
       linux_64_libhwloc2:
         CONFIG: linux_64_libhwloc2
         UPLOAD_PACKAGES: 'True'
         DOCKER_IMAGE: quay.io/condaforge/linux-anvil-cuda:11.2
         SHORT_CONFIG: linux_64_libhwloc2
-      linux_ppc64le_libhwloc1:
-        CONFIG: linux_ppc64le_libhwloc1
+      linux_64_libhwloc2.11.0:
+        CONFIG: linux_64_libhwloc2.11.0
         UPLOAD_PACKAGES: 'True'
-        DOCKER_IMAGE: quay.io/condaforge/linux-anvil-ppc64le-cuda:10.2
-        SHORT_CONFIG: linux_ppc64le_libhwloc1
+        DOCKER_IMAGE: quay.io/condaforge/linux-anvil-cuda:11.2
+        SHORT_CONFIG: linux_64_libhwloc2.11.0
       linux_ppc64le_libhwloc2:
         CONFIG: linux_ppc64le_libhwloc2
         UPLOAD_PACKAGES: 'True'
         DOCKER_IMAGE: quay.io/condaforge/linux-anvil-ppc64le-cuda:10.2
         SHORT_CONFIG: linux_ppc64le_libhwloc2
+      linux_ppc64le_libhwloc2.11.0:
+        CONFIG: linux_ppc64le_libhwloc2.11.0
+        UPLOAD_PACKAGES: 'True'
+        DOCKER_IMAGE: quay.io/condaforge/linux-anvil-ppc64le-cuda:10.2
+        SHORT_CONFIG: linux_ppc64le_libhwloc2.11.0
   timeoutInMinutes: 360
   variables: {}
 
