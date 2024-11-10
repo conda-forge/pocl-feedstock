@@ -31,6 +31,9 @@ requirements:
     - clangxx_{{ target_platform }} {{ llvm_version }}.*      # [osx]
     - llvmdev {{ llvm_version }}.*       # [build_platform != target_platform]
     - clangdev {{ llvm_version }}.*      # [build_platform != target_platform]
+    # only exists from v16, but cannot leave unpinned because
+    # clang 15 is not compatible with libc++ 19 anymore
+    - libcxx-devel {{ llvm_version.split(".")[0]|int + 1 }}   # [osx]
     - {{ stdlib("c") }}
   host:
     - ocl-icd                            # [linux]
