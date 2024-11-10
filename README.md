@@ -3,6 +3,75 @@ About pocl-feedstock
 
 Feedstock license: [BSD-3-Clause](https://github.com/conda-forge/pocl-feedstock/blob/main/LICENSE.txt)
 
+
+About pocl
+----------
+
+Home: http://portablecl.org/
+
+Package license: MIT
+
+Summary: Portable Computing Language -- a portable open source implementation of the OpenCL standard
+
+Development: https://github.com/pocl/pocl
+
+Documentation: http://portablecl.org/docs/html/
+
+About pocl-core
+---------------
+
+Home: http://portablecl.org/
+
+Package license: MIT
+
+Summary: Portable Computing Language -- a portable open source implementation of the OpenCL standard
+
+Development: https://github.com/pocl/pocl
+
+Documentation: http://portablecl.org/docs/html/
+
+About pocl-cpu-minimal
+----------------------
+
+Home: http://portablecl.org/
+
+Package license: MIT
+
+Summary: Portable Computing Language -- a portable open source implementation of the OpenCL standard
+
+Development: https://github.com/pocl/pocl
+
+Documentation: http://portablecl.org/docs/html/
+
+About pocl-remote
+-----------------
+
+Home: http://portablecl.org/
+
+Package license: MIT
+
+Summary: Portable Computing Language -- a portable open source implementation of the OpenCL standard
+
+Development: https://github.com/pocl/pocl
+
+Documentation: http://portablecl.org/docs/html/
+
+About pocl-cpu
+--------------
+
+Home: http://portablecl.org/
+
+Package license: MIT
+
+Summary: Portable Computing Language -- a portable open source implementation of the OpenCL standard
+
+Development: https://github.com/pocl/pocl
+
+Documentation: http://portablecl.org/docs/html/
+
+About pocl
+----------
+
 Home: http://portablecl.org/
 
 Package license: MIT
@@ -17,14 +86,7 @@ Current build status
 ====================
 
 
-<table><tr>
-    <td>Travis</td>
-    <td>
-      <a href="https://app.travis-ci.com/conda-forge/pocl-feedstock">
-        <img alt="linux" src="https://img.shields.io/travis/com/conda-forge/pocl-feedstock/main.svg?label=Linux">
-      </a>
-    </td>
-  </tr>
+<table>
     
   <tr>
     <td>Azure</td>
@@ -38,59 +100,31 @@ Current build status
         <table>
           <thead><tr><th>Variant</th><th>Status</th></tr></thead>
           <tbody><tr>
-              <td>linux_64_libhwloc2</td>
+              <td>linux_64</td>
               <td>
                 <a href="https://dev.azure.com/conda-forge/feedstock-builds/_build/latest?definitionId=794&branchName=main">
-                  <img src="https://dev.azure.com/conda-forge/feedstock-builds/_apis/build/status/pocl-feedstock?branchName=main&jobName=linux&configuration=linux%20linux_64_libhwloc2" alt="variant">
+                  <img src="https://dev.azure.com/conda-forge/feedstock-builds/_apis/build/status/pocl-feedstock?branchName=main&jobName=linux&configuration=linux%20linux_64_" alt="variant">
                 </a>
               </td>
             </tr><tr>
-              <td>linux_64_libhwloc2.11.2</td>
+              <td>linux_aarch64</td>
               <td>
                 <a href="https://dev.azure.com/conda-forge/feedstock-builds/_build/latest?definitionId=794&branchName=main">
-                  <img src="https://dev.azure.com/conda-forge/feedstock-builds/_apis/build/status/pocl-feedstock?branchName=main&jobName=linux&configuration=linux%20linux_64_libhwloc2.11.2" alt="variant">
+                  <img src="https://dev.azure.com/conda-forge/feedstock-builds/_apis/build/status/pocl-feedstock?branchName=main&jobName=linux&configuration=linux%20linux_aarch64_" alt="variant">
                 </a>
               </td>
             </tr><tr>
-              <td>linux_aarch64_libhwloc2</td>
+              <td>linux_ppc64le</td>
               <td>
                 <a href="https://dev.azure.com/conda-forge/feedstock-builds/_build/latest?definitionId=794&branchName=main">
-                  <img src="https://dev.azure.com/conda-forge/feedstock-builds/_apis/build/status/pocl-feedstock?branchName=main&jobName=linux&configuration=linux%20linux_aarch64_libhwloc2" alt="variant">
+                  <img src="https://dev.azure.com/conda-forge/feedstock-builds/_apis/build/status/pocl-feedstock?branchName=main&jobName=linux&configuration=linux%20linux_ppc64le_" alt="variant">
                 </a>
               </td>
             </tr><tr>
-              <td>linux_aarch64_libhwloc2.11.2</td>
+              <td>osx_64</td>
               <td>
                 <a href="https://dev.azure.com/conda-forge/feedstock-builds/_build/latest?definitionId=794&branchName=main">
-                  <img src="https://dev.azure.com/conda-forge/feedstock-builds/_apis/build/status/pocl-feedstock?branchName=main&jobName=linux&configuration=linux%20linux_aarch64_libhwloc2.11.2" alt="variant">
-                </a>
-              </td>
-            </tr><tr>
-              <td>linux_ppc64le_libhwloc2</td>
-              <td>
-                <a href="https://dev.azure.com/conda-forge/feedstock-builds/_build/latest?definitionId=794&branchName=main">
-                  <img src="https://dev.azure.com/conda-forge/feedstock-builds/_apis/build/status/pocl-feedstock?branchName=main&jobName=linux&configuration=linux%20linux_ppc64le_libhwloc2" alt="variant">
-                </a>
-              </td>
-            </tr><tr>
-              <td>linux_ppc64le_libhwloc2.11.2</td>
-              <td>
-                <a href="https://dev.azure.com/conda-forge/feedstock-builds/_build/latest?definitionId=794&branchName=main">
-                  <img src="https://dev.azure.com/conda-forge/feedstock-builds/_apis/build/status/pocl-feedstock?branchName=main&jobName=linux&configuration=linux%20linux_ppc64le_libhwloc2.11.2" alt="variant">
-                </a>
-              </td>
-            </tr><tr>
-              <td>osx_64_libhwloc2</td>
-              <td>
-                <a href="https://dev.azure.com/conda-forge/feedstock-builds/_build/latest?definitionId=794&branchName=main">
-                  <img src="https://dev.azure.com/conda-forge/feedstock-builds/_apis/build/status/pocl-feedstock?branchName=main&jobName=osx&configuration=osx%20osx_64_libhwloc2" alt="variant">
-                </a>
-              </td>
-            </tr><tr>
-              <td>osx_64_libhwloc2.11.2</td>
-              <td>
-                <a href="https://dev.azure.com/conda-forge/feedstock-builds/_build/latest?definitionId=794&branchName=main">
-                  <img src="https://dev.azure.com/conda-forge/feedstock-builds/_apis/build/status/pocl-feedstock?branchName=main&jobName=osx&configuration=osx%20osx_64_libhwloc2.11.2" alt="variant">
+                  <img src="https://dev.azure.com/conda-forge/feedstock-builds/_apis/build/status/pocl-feedstock?branchName=main&jobName=osx&configuration=osx%20osx_64_" alt="variant">
                 </a>
               </td>
             </tr><tr>

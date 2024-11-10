@@ -7,7 +7,7 @@ c_stdlib_version:
 cdt_arch:
 - aarch64
 cdt_name:
-- cos7
+- conda
 channel_sources:
 - conda-forge
 channel_targets:
@@ -19,13 +19,10 @@ cxx_compiler:
 cxx_compiler_version:
 - '13'
 docker_image:
-- quay.io/condaforge/linux-anvil-aarch64-cuda:11.2
+- quay.io/condaforge/linux-anvil-aarch64-cuda:11.8
 enable_cuda:
 - 'True'
 libhwloc:
-- '2'
+- 2.11.2
 target_platform:
 - linux-aarch64
-zip_keys:
-- - c_stdlib_version
-  - cdt_name
