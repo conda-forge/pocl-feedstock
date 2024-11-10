@@ -90,11 +90,13 @@ outputs:
       host:
         - {{ pin_subpackage("pocl-core", exact=True) }}
         - {{ pin_subpackage("pocl-cpu-minimal", exact=True) }}
+        - {{ pin_subpackage("pocl-remote", exact=True) }}
         - llvm {{ llvm_version }}.*
         - libhwloc
       run:
         - {{ pin_subpackage("pocl-core", exact=True) }}
         - {{ pin_subpackage("pocl-cpu-minimal", exact=True) }}
+        - {{ pin_subpackage("pocl-remote", exact=True) }}
     test:
       requires:
         - pyopencl
