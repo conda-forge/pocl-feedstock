@@ -10,18 +10,9 @@ docker_image:                                           # [linux64 or ppc64le or
 cuda_compiler_version:
   - None
 
-cdt_name:  # [linux64 or ppc64le or aarch64]
-  - cos7   # [linux64]
-  - cos7   # [ppc64le]
-  - cos7   # [aarch64]
-
 cudnn:
   - undefined
 
 enable_cuda:
   - True      # [linux64 or ppc64le or aarch64]
   - False     # [not (linux64 or ppc64le or aarch64)]
-
-# Needed for MAP_ANONYMOUS and clock_gettime:
-c_stdlib_version:              # [osx and x86_64]
-  - "10.13"                    # [osx and x86_64]
