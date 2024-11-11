@@ -13,9 +13,10 @@ source:
   - url: https://github.com/pocl/pocl/archive/refs/tags/v{{ version.replace(".rc", "-RC") }}.tar.gz
     sha256: {{ sha256 }}
     patches:
-      - patches/gh1392.patch
-      - patches/alignof.diff  # [ppc64le]
-      - patches/pocld.diff
+      # backport equivalent of https://github.com/pocl/pocl/commit/aa5595f871
+      # also for pocld/daemon.cc (c.f. https://github.com/pocl/pocl/pull/1392)
+      - patches/0001-gh1392.patch
+      - patches/0002-pocld.patch
 
 build:
   number: {{ build_number }}
