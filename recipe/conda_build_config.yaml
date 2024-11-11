@@ -1,5 +1,5 @@
 docker_image:                                           # [linux]
-  - quay.io/condaforge/linux-anvil-cuda:11.8            # [linux]
+  - quay.io/condaforge/linux-anvil-alma-x86_64:8        # [linux]
 
 cuda_compiler_version:
   - None

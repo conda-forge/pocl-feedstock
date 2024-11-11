@@ -3,6 +3,7 @@
 {% set sha256 = "de9710223fc1855f833dbbf42ea2681e06aa8ec0464f0201104dc80a74dfd1f2" %}
 
 {% set llvm_version = "15.0.7" %}
+{% set cuda_version = "12.0" %}
 
 package:
   name: pocl-core
@@ -46,6 +47,9 @@ requirements:
     - llvm {{ llvm_version }}.*
     - libclang-cpp {{ llvm_version }}.*
     - llvm-spirv-{{ llvm_version.split(".")[0] }}
+    - cuda-version {{ cuda_version }}.*  # [enable_cuda]
+    - cuda-driver-dev                    # [enable_cuda]
+    - cuda-cudart-dev                    # [enable_cuda]
 
     - zlib                               # [osx]
     - ld64 >=530,<711                    # [osx]
@@ -128,7 +132,7 @@ outputs:
       run:
         - {{ pin_subpackage("pocl-core", exact=True) }}
       run_constrained:
-        - __cuda >=11.8
+        - __cuda >={{ cuda_version }}
     test:
       commands:
         - test -f $PREFIX/lib/pocl/libpocl-devices-cuda.so      # [unix]
