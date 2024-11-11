@@ -32,6 +32,7 @@ requirements:
     - pkg-config
     - {{ compiler('cxx') }}                                   # [not osx]
     - clangxx_{{ target_platform }} {{ llvm_version }}.*      # [osx]
+    - {{ compiler('cuda') }}                                  # [enable_cuda]
     - llvmdev {{ llvm_version }}.*       # [build_platform != target_platform]
     - clangdev {{ llvm_version }}.*      # [build_platform != target_platform]
     # only exists from v16, but cannot leave unpinned because
