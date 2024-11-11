@@ -1,7 +1,7 @@
 From 66f8dbb096fce11f1cd3d3d624414c0e6ee2b733 Mon Sep 17 00:00:00 2001
 From: Matthias Diener <mdiener@illinois.edu>
 Date: Wed, 26 Jun 2024 15:54:53 -0500
-Subject: [PATCH 2/2] pocld
+Subject: [PATCH 2/3] pocld
 
 ---
  pocld/daemon.cc            | 7 +++++++
