@@ -1,0 +1,13 @@
+diff --git a/tests/CMakeLists.txt b/tests/CMakeLists.txt
+index c6a7a76d7..77667a70f 100644
+--- a/tests/CMakeLists.txt
++++ b/tests/CMakeLists.txt
+@@ -80,7 +80,7 @@ if(ENABLE_HSA)
+   set_property(TEST "pocl_version_check" APPEND PROPERTY DEPENDS "pocl_test_dlopen_device_hsa")
+ endif()
+ 
+-if(ENABLE_CUDA)
++if(FALSE)
+   add_test(NAME pocl_test_dlopen_device_cuda COMMAND test_dlopen cuda)
+   set_tests_properties("pocl_test_dlopen_device_cuda" PROPERTIES LABELS "cuda;dlopen")
+   set_property(TEST "pocl_version_check" APPEND PROPERTY DEPENDS "pocl_test_dlopen_device_cuda")

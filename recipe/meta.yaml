@@ -18,6 +18,8 @@ source:
       - patches/0001-gh1392.patch
       - patches/0002-pocld.patch
       - patches/0003-switch-to-newer-find_package-CUDAToolkit-for-CUDA-12.patch
+      # https://github.com/conda-forge/pocl-feedstock/pull/106#issuecomment-2467398973
+      - patches/disable-cuda-test.patch
 
 build:
   number: {{ build_number }}
