@@ -46,7 +46,8 @@ requirements:
     - {{ stdlib("c") }}
   host:
     - ocl-icd                            # [linux]
-    - khronos-opencl-icd-loader          # [osx]
+    # FIXME: Undo the version restriction in the line below once pocl-6.1 is released
+    - khronos-opencl-icd-loader <2024.10          # [osx]
     - libhwloc
     - clhpp
 
@@ -64,7 +65,7 @@ requirements:
   run:
     - llvm-spirv-{{ llvm_version.split(".")[0] }}
     - ocl-icd                            # [linux]
-    - khronos-opencl-icd-loader          # [osx]
+    - khronos-opencl-icd-loader <2024.10        # [osx]
     # See https://github.com/conda-forge/cctools-and-ld64-feedstock/issues/66
     # why we need the upper bound for ld64
     - ld64 >=530,<711                    # [osx]
