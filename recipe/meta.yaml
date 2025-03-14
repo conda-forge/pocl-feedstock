@@ -46,7 +46,7 @@ requirements:
     - {{ stdlib("c") }}
   host:
     - ocl-icd                            # [linux]
-    # FIXME: Undo the version restriction in the line below once pocl-6.1 is released
+    # FIXME: Undo the version restriction in the line below once pocl-6.1 is released (see https://github.com/conda-forge/pocl-feedstock/pull/106)
     - khronos-opencl-icd-loader <2024.10          # [osx]
     - libhwloc
     - clhpp
