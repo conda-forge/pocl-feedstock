@@ -29,6 +29,12 @@ build:
   skip: true  # [not enable_cuda and (cuda_compiler_version != "None")]
   script_env:   # [enable_cuda]
     - CUDA_HOME   # [enable_cuda]
+  ignore_run_exports_from:
+    # we only need libcuda.so.1
+    - {{ compiler('cuda') }}   # [enable_cuda]
+    - cuda-version             # [enable_cuda]
+    - cuda-driver-dev          # [enable_cuda]
+    - cuda-cudart-dev          # [enable_cuda]
 
 requirements:
   build:
