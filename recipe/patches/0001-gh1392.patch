@@ -1,0 +1,22 @@
+From 54350ddc78685c125bb48e5374a6497f9148297b Mon Sep 17 00:00:00 2001
+From: Isuru Fernando <isuruf@gmail.com>
+Date: Wed, 17 Jan 2024 00:51:18 -0600
+Subject: [PATCH 1/3] gh1392
+
+---
+ pocld/daemon.cc | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/pocld/daemon.cc b/pocld/daemon.cc
+index bdf711cf8..3dcab766f 100644
+--- a/pocld/daemon.cc
++++ b/pocld/daemon.cc
+@@ -50,7 +50,7 @@
+ #include "daemon.hh"
+ 
+ #ifndef POLLRDHUP
+-#define PULLRDHUP 0
++#define POLLRDHUP 0
+ #endif
+ #define POLLFD_ERROR_BITS (POLLHUP | POLLERR | POLLNVAL | POLLRDHUP)
+ 

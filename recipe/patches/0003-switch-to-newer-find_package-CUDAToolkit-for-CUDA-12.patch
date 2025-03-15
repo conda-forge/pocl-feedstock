@@ -1,0 +1,22 @@
+From 700f2133e22230a6ffa38e33c016a3292742c4fc Mon Sep 17 00:00:00 2001
+From: "H. Vetinari" <h.vetinari@gmx.com>
+Date: Mon, 11 Nov 2024 16:02:21 +1100
+Subject: [PATCH 3/3] switch to newer `find_package(CUDAToolkit)` for CUDA 12
+
+---
+ lib/CL/devices/cuda/CMakeLists.txt | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/lib/CL/devices/cuda/CMakeLists.txt b/lib/CL/devices/cuda/CMakeLists.txt
+index 412eb232e..e4536b02d 100644
+--- a/lib/CL/devices/cuda/CMakeLists.txt
++++ b/lib/CL/devices/cuda/CMakeLists.txt
+@@ -23,7 +23,7 @@
+ #
+ #=============================================================================
+ 
+-find_package(CUDA REQUIRED)
++find_package(CUDAToolkit REQUIRED)
+ message(STATUS "CUDA_TOOLKIT_ROOT_DIR = ${CUDA_TOOLKIT_ROOT_DIR}")
+ 
+ # this is required, because we're compiling the C++ files of this directory

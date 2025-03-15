@@ -3,11 +3,15 @@ c_stdlib:
 c_stdlib_version:
 - '2.17'
 cdt_name:
-- cos7
+- conda
 channel_sources:
 - conda-forge
 channel_targets:
 - conda-forge main
+cuda_compiler:
+- cuda-nvcc
+cuda_compiler_version:
+- '12.0'
 curl:
 - '8'
 cxx_compiler:
@@ -15,13 +19,16 @@ cxx_compiler:
 cxx_compiler_version:
 - '12'
 docker_image:
-- quay.io/condaforge/linux-anvil-cuda:11.2
+- quay.io/condaforge/linux-anvil-cos7-x86_64
 enable_cuda:
 - 'True'
 libhwloc:
-- 2.11.1
+- 2.11.2
 target_platform:
 - linux-64
 zip_keys:
-- - c_stdlib_version
-  - cdt_name
+- - cxx_compiler_version
+  - c_stdlib_version
+  - cuda_compiler
+  - cuda_compiler_version
+  - docker_image
