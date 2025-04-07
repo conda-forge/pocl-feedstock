@@ -105,6 +105,7 @@ cmake \
   -D LLVM_SPIRV=${PREFIX}/bin/llvm-spirv-${LLVM_VERSION%%.*} \
   -D ENABLE_REMOTE_SERVER=on \
   -D ENABLE_REMOTE_CLIENT=on \
+  -D CMAKE_POLICY_VERSION_MINIMUM=3.5 \
   ${CMAKE_ARGS} \
   .. || { cat CMakeFiles/CMakeConfigureLog.yaml; exit 1; }
 
