@@ -37,7 +37,7 @@ elif [[ "$target_platform" == osx-* ]]; then
   # This is patched by the linker packaged in conda, but when the environment is
   # not activated, clang tries to use the system linker.
   # Adding -B $PREFIX/libexec/pocl makes clang look there for the linker first.
-  EXTRA_HOST_LD_FLAGS="$EXTRA_HOST_LD_FLAGS -undefined dynamic_lookup -B $PREFIX/libexec/pocl"
+  EXTRA_HOST_LD_FLAGS="$EXTRA_HOST_LD_FLAGS -undefined dynamic_lookup -B $PREFIX/libexec/pocl -L/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/lib -lSystem"
   mkdir -p $PREFIX/libexec/pocl
   ln -sf $PREFIX/bin/ld $PREFIX/libexec/pocl/ld
 
@@ -105,6 +105,7 @@ cmake \
   -D LLVM_SPIRV=${PREFIX}/bin/llvm-spirv-${LLVM_VERSION%%.*} \
   -D ENABLE_REMOTE_SERVER=on \
   -D ENABLE_REMOTE_CLIENT=on \
+  -D CMAKE_POLICY_VERSION_MINIMUM=3.5 \
   ${CMAKE_ARGS} \
   .. || { cat CMakeFiles/CMakeConfigureLog.yaml; exit 1; }
 
