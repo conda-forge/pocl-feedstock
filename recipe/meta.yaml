@@ -1,6 +1,6 @@
 {% set version = "7.0" %}
 {% set llvm_version = "19.1.0" %}
-{% if not defined cuda_compiler_version %}
+{% if cuda_compiler_version is not defined %}
 {% set cuda_compiler_version = "12.0" %}
 {% endif %}
 {% set cuda_major_version = cuda_compiler_version.split(".")[0] %}
@@ -73,7 +73,8 @@ requirements:
 
 test:
   commands:
-    - test -f $PREFIX/lib/libpocl${SHLIB_EXT}     # [unix]
+    - test -f $PREFIX/lib/libpocl${SHLIB_EXT}             # [unix]
+    - if not exist %LIBRARY_PREFIX%/lib/pocl.dll exit 1   # [win]
 
 outputs:
   - name: pocl-core
@@ -92,7 +93,8 @@ outputs:
         - {{ pin_subpackage("pocl-core", exact=True) }}
     test:
       commands:
-        - test -f $PREFIX/lib/pocl/libpocl-devices-basic.so     # [unix]
+        - test -f $PREFIX/lib/pocl/libpocl-devices-basic.so               # [unix]
+        - if not exist $PREFIX/lib/pocl/pocl-devices-basic.dll exit 1     # [win]
 
   - name: pocl-cpu
     script: install-pkg.sh
@@ -116,11 +118,13 @@ outputs:
         - curl
         - pocl-cpu
       commands:
-        - test -f $PREFIX/lib/pocl/libpocl-devices-pthread.so     # [unix]
+        - test -f $PREFIX/lib/pocl/libpocl-devices-pthread.so             # [unix]
+        - if not exist $PREFIX/lib/pocl/pocl-devices-pthread.dll exit 1   # [win]
         # Remove apple icd so that only pocl is found
         - rm -f $PREFIX/etc/OpenCL/vendors/apple.icd     # [osx]
-        - export OCL_ICD_DEBUG=15                     # [linux]
-        - export POCL_DEBUG=1
+        - export OCL_ICD_DEBUG=15                        # [linux]
+        - export POCL_DEBUG=1                            # [unix]
+        - set POCL_DEBUG=1                               # [win]
         - curl -O https://raw.githubusercontent.com/inducer/pyopencl/main/examples/demo.py
         - python demo.py
 
@@ -142,7 +146,8 @@ outputs:
         - __cuda >={{ cuda_major_version }}
     test:
       commands:
-        - test -f $PREFIX/lib/pocl/libpocl-devices-cuda.so      # [unix]
+        - test -f $PREFIX/lib/pocl/libpocl-devices-cuda.so                # [unix]
+        - if not exist $PREFIX/lib/pocl/pocl-devices-cuda.dll exit 1      # [win]
 
   - name: pocl-remote
     script: install-pkg.sh
@@ -158,7 +163,8 @@ outputs:
         - {{ pin_subpackage("pocl-core", exact=True) }}
     test:
       commands:
-        - test -f $PREFIX/lib/pocl/libpocl-devices-remote.so      # [unix]
+        - test -f $PREFIX/lib/pocl/libpocl-devices-remote.so              # [unix]
+        - if not exist $PREFIX/lib/pocl/pocl-devices-remote.dll exit 1    # [win]
 
   - name: pocl
     requirements:
@@ -177,7 +183,10 @@ outputs:
       commands:
         - test -f $PREFIX/lib/pocl/libpocl-devices-pthread.so   # [unix]
         - test -f $PREFIX/lib/pocl/libpocl-devices-basic.so     # [unix]
-        - test -f $PREFIX/lib/pocl/libpocl-devices-cuda.so      # [enable_cuda]
+        - test -f $PREFIX/lib/pocl/libpocl-devices-cuda.so      # [unix and enable_cuda]
+        - if not exist $PREFIX/lib/pocl/pocl-devices-pthread.dll exit 1    # [win]
+        - if not exist $PREFIX/lib/pocl/pocl-devices-basic.dll exit 1      # [win]
+        - if not exist $PREFIX/lib/pocl/pocl-devices-cuda.dll exit 1       # [win and enable_cuda]
       downstreams:
         - pyopencl
 
