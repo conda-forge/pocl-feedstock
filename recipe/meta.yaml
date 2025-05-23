@@ -1,9 +1,9 @@
-{% set version = "6.0" %}
-{% set build_number = 3 %}
-{% set sha256 = "de9710223fc1855f833dbbf42ea2681e06aa8ec0464f0201104dc80a74dfd1f2" %}
-
-{% set llvm_version = "15.0.7" %}
-{% set cuda_version = "12.0" %}
+{% set version = "7.0" %}
+{% set llvm_version = "19.1.0" %}
+{% if not defined cuda_compiler_version %}
+{% set cuda_compiler_version = "12.0" %}
+{% endif %}
+{% set cuda_major_version = cuda_compiler_version.split(".")[0] %}
 
 package:
   name: pocl-core
@@ -11,24 +11,20 @@ package:
 
 source:
   - url: https://github.com/pocl/pocl/archive/refs/tags/v{{ version.replace(".rc", "-RC") }}.tar.gz
-    sha256: {{ sha256 }}
+    sha256: f55caba8c3ce12bec7b683ce55104c7555e19457fc2ac72c6f035201e362be08
     patches:
-      # backport equivalent of https://github.com/pocl/pocl/commit/aa5595f871
-      # also for pocld/daemon.cc (c.f. https://github.com/pocl/pocl/pull/1392)
-      - patches/0001-gh1392.patch
       - patches/0002-pocld.patch
       - patches/0003-switch-to-newer-find_package-CUDAToolkit-for-CUDA-12.patch
       # https://github.com/conda-forge/pocl-feedstock/pull/106#issuecomment-2467398973
       - patches/disable-cuda-test.patch
 
 build:
-  number: {{ build_number }}
-  skip: true  # [win]
+  number: 0
   skip: true  # [cuda_compiler_version == "11.8"]
   skip: true  # [enable_cuda and (cuda_compiler_version == "None")]
   skip: true  # [not enable_cuda and (cuda_compiler_version != "None")]
-  script_env:   # [enable_cuda]
-    - CUDA_HOME   # [enable_cuda]
+  script_env:
+    - LLVM_VERSION_MAJOR={{ llvm_version.split(".")[0] }}
   ignore_run_exports_from:
     # we only need libcuda.so.1
     - {{ compiler('cuda') }}   # [enable_cuda]
@@ -39,7 +35,7 @@ build:
 requirements:
   build:
     - cmake
-    - make
+    - ninja
     - pkg-config
     - {{ compiler('cxx') }}                                   # [not osx]
     - clangxx_{{ target_platform }} {{ llvm_version }}.*      # [osx]
@@ -51,9 +47,7 @@ requirements:
     - libcxx-devel {{ llvm_version.split(".")[0]|int + 1 }}   # [osx]
     - {{ stdlib("c") }}
   host:
-    - ocl-icd                            # [linux]
-    # FIXME: Undo the version restriction in the line below once pocl-6.1 is released (see https://github.com/conda-forge/pocl-feedstock/pull/106)
-    - khronos-opencl-icd-loader <2024.10          # [osx]
+    - libopencl-devel
     - libhwloc
     - clhpp
 
@@ -62,7 +56,7 @@ requirements:
     - llvm {{ llvm_version }}.*
     - libclang-cpp {{ llvm_version }}.*
     - llvm-spirv-{{ llvm_version.split(".")[0] }}
-    - cuda-version {{ cuda_version }}.*  # [enable_cuda]
+    - cuda-version {{ cuda_major_version }}.*  # [enable_cuda]
     - cuda-driver-dev                    # [enable_cuda]
     - cuda-cudart-dev                    # [enable_cuda]
 
@@ -70,8 +64,6 @@ requirements:
     - ld64 >=530                         # [osx]
   run:
     - llvm-spirv-{{ llvm_version.split(".")[0] }}
-    - ocl-icd                            # [linux]
-    - khronos-opencl-icd-loader          # [osx]
     # See https://github.com/conda-forge/cctools-and-ld64-feedstock/issues/66
     # why we need the upper bound for ld64
     - ld64 >=530                         # [osx]
@@ -147,7 +139,7 @@ outputs:
       run:
         - {{ pin_subpackage("pocl-core", exact=True) }}
       run_constrained:
-        - __cuda >={{ cuda_version }}
+        - __cuda >={{ cuda_major_version }}
     test:
       commands:
         - test -f $PREFIX/lib/pocl/libpocl-devices-cuda.so      # [unix]

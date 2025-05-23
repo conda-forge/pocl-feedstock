@@ -2,7 +2,6 @@
 
 set -ex
 
-
 if [[ "$target_platform" == linux* ]]; then
   sed -i.bak 's/add_subdirectory("matrix1")//g' examples/CMakeLists.txt
 fi
@@ -54,12 +53,7 @@ if [[ "$CONDA_BUILD_CROSS_COMPILATION" == "1" && "${CMAKE_CROSSCOMPILING_EMULATO
   if [[ "$target_platform" == osx-* ]]; then
     install_name_tool -add_rpath $BUILD_PREFIX/lib $PREFIX/bin/llvm-config
   fi
-  LLVM_TOOLS_PREFIX="$BUILD_PREFIX"
-else
-  LLVM_TOOLS_PREFIX="$PREFIX"
 fi
-
-LLVM_VERSION=$(llvm-config --version)
 
 if [[ "$target_platform" == linux-aarch64 ]]; then
   AARCH64_CPUS="generic;cortex-a35;cortex-a53;cortex-a55;cortex-a57;cortex-a65;cortex-a72;cortex-a73;cortex-a75;cortex-a76"
@@ -84,7 +78,7 @@ fi
 
 set
 
-cmake \
+cmake -G Ninja \
   -D CMAKE_BUILD_TYPE="Release" \
   -D CMAKE_INSTALL_PREFIX="${PREFIX}" \
   -D CMAKE_PREFIX_PATH="${PREFIX}" \
@@ -102,21 +96,18 @@ cmake \
   -D OPENCL_H="${PREFIX}/include/CL/opencl.h" \
   -D OPENCL_HPP="${PREFIX}/include/CL/opencl.hpp" \
   -D OCL_ICD_INCLUDE_DIRS="${PREFIX}/include" \
-  -D LLVM_SPIRV=${PREFIX}/bin/llvm-spirv-${LLVM_VERSION%%.*} \
+  -D LLVM_SPIRV=${PREFIX}/bin/llvm-spirv-${LLVM_VERSION_MAJOR} \
   -D ENABLE_REMOTE_SERVER=on \
   -D ENABLE_REMOTE_CLIENT=on \
-  -D CMAKE_POLICY_VERSION_MINIMUM=3.5 \
+  -D ENABLE_LOADABLE_DRIVERS=on \
   ${CMAKE_ARGS} \
   .. || { cat CMakeFiles/CMakeConfigureLog.yaml; exit 1; }
 
-make -j ${CPU_COUNT}
+ninja -j ${CPU_COUNT}
 # install needs to come first for the pocl.icd to be found
-make install
+ninja install
 
 if [[ "$CONDA_BUILD_CROSS_COMPILATION" != "1" ]]; then
-  # Workaround for https://github.com/KhronosGroup/OpenCL-ICD-Loader/issues/104
-  sed -i.bak "s@ocl-vendors@ocl-vendors/@g" CTestCustom.cmake
-
   SKIP_TESTS="dummy"
 
   export POCL_DEVICES=cpu
@@ -162,9 +153,4 @@ mv $PREFIX/lib/pocl/libpocl-devices-*.so pkgs/
 mv $PREFIX/share/pocl/kernel-*.bc pkgs/
 if [[ "$enable_cuda" == "True" ]]; then
   mv $PREFIX/share/pocl/cuda pkgs/
-fi
-
-# For backwards compatibility
-if [[ "$target_platform" == osx-64 ]]; then
-  ln -s $PREFIX/lib/libpocl.dylib $PREFIX/lib/libOpenCL.2.dylib
 fi
