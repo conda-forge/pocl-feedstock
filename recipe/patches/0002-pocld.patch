@@ -1,4 +1,4 @@
-From 97938d8dcc201e49ec2f3b573cd143a71f7d1037 Mon Sep 17 00:00:00 2001
+From 8893f7cdf41b7c9fa883ddb42a30737e0056fd1b Mon Sep 17 00:00:00 2001
 From: Matthias Diener <mdiener@illinois.edu>
 Date: Fri, 23 May 2025 15:22:23 -0500
 Subject: [PATCH] Fix pocld when not linux
@@ -6,9 +6,9 @@ Subject: [PATCH] Fix pocld when not linux
 Co-authored-by: Isuru Fernando <isuruf@gmail.com>
 ---
  lib/CL/pocl_networking.c | 3 ++-
- pocld/connection.cc      | 4 +++-
+ pocld/connection.cc      | 2 ++
  pocld/daemon.cc          | 7 +++++++
- 3 files changed, 12 insertions(+), 2 deletions(-)
+ 3 files changed, 11 insertions(+), 1 deletion(-)
 
 diff --git a/lib/CL/pocl_networking.c b/lib/CL/pocl_networking.c
 index ca35f04f7..987e7b001 100644
@@ -31,7 +31,7 @@ index ca35f04f7..987e7b001 100644
      }
  }
 diff --git a/pocld/connection.cc b/pocld/connection.cc
-index 84a851fce..eb88ce31a 100644
+index 503a1521b..eb88ce31a 100644
 --- a/pocld/connection.cc
 +++ b/pocld/connection.cc
 @@ -47,9 +47,11 @@ void Connection::configure(bool LowLatency) {
@@ -46,18 +46,11 @@ index 84a851fce..eb88ce31a 100644
    default:
      break;
    }
-@@ -142,4 +144,4 @@ std::string Connection::describe() {
-     assert(!"Unhandled transport domain");
-     return "[unknown]";
-   }
--}
-\ No newline at end of file
-+}
 diff --git a/pocld/daemon.cc b/pocld/daemon.cc
-index 18a60f3db..ea55c3162 100644
+index cd6ef76c8..a41967471 100644
 --- a/pocld/daemon.cc
 +++ b/pocld/daemon.cc
-@@ -564,18 +564,25 @@ int PoclDaemon::launch(std::string ListenAddress, struct ServerPorts &Ports,
+@@ -575,18 +575,25 @@ int PoclDaemon::launch(std::string ListenAddress, struct ServerPorts &Ports,
    addrinfo *ai = ResolvedAddress;
    NumListenFds = 0;
    for (addrinfo *ai = ResolvedAddress; ai; ai = ai->ai_next) {
