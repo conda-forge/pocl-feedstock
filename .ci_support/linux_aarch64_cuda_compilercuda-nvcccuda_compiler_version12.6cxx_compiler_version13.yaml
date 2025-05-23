@@ -24,6 +24,8 @@ enable_cuda:
 - 'True'
 libhwloc:
 - 2.11.2
+llvm_version:
+- 19.1.0
 target_platform:
 - linux-aarch64
 zip_keys:

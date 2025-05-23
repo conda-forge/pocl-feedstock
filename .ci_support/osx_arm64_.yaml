@@ -19,11 +19,13 @@ curl:
 cxx_compiler:
 - clangxx
 cxx_compiler_version:
-- '18'
+- 19.1.0
 enable_cuda:
 - 'False'
 libhwloc:
 - 2.11.2
+llvm_version:
+- 19.1.0
 macos_machine:
 - arm64-apple-darwin20.0.0
 target_platform:
