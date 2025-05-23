@@ -1,9 +1,5 @@
 c_stdlib:
-- sysroot
-c_stdlib_version:
-- '2.17'
-cdt_name:
-- conda
+- vs
 channel_sources:
 - conda-forge
 channel_targets:
@@ -15,11 +11,7 @@ cuda_compiler_version:
 curl:
 - '8'
 cxx_compiler:
-- gxx
-cxx_compiler_version:
-- '13'
-docker_image:
-- quay.io/condaforge/linux-anvil-x86_64:alma9
+- vs2019
 enable_cuda:
 - 'True'
 libhwloc:
@@ -27,9 +19,7 @@ libhwloc:
 llvm_version:
 - 19.1.7
 target_platform:
-- linux-64
+- win-64
 zip_keys:
-- - cxx_compiler_version
-  - cuda_compiler
+- - cuda_compiler
   - cuda_compiler_version
-  - docker_image

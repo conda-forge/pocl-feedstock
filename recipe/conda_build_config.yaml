@@ -2,5 +2,12 @@ cudnn:
   - undefined
 
 enable_cuda:
-  - True      # [linux64 or ppc64le or aarch64]
-  - False     # [not (linux64 or ppc64le or aarch64)]
+  - True      # [linux64 or ppc64le or aarch64 or win64]
+  - False     # [not (linux64 or ppc64le or aarch64 or win64)]
+
+llvm_version:
+  - 19.1.7
+cxx_compiler_version:   # [osx]
+  - 19.1.7              # [osx]
+c_compiler_version:     # [osx]
+  - 19.1.7              # [osx]
