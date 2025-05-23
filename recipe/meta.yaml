@@ -1,8 +1,12 @@
 {% set version = "7.0" %}
-{% set llvm_version = "19.1.0" %}
-{% if cuda_compiler_version is not defined %}
-{% set cuda_compiler_version = "12.0" %}
+
+{% if llvm_version is not defined %}
+{% set llvm_version = "0.0.0" %}
 {% endif %}
+{% if cuda_compiler_version is not defined %}
+{% set cuda_compiler_version = "0.0" %}
+{% endif %}
+
 {% set cuda_major_version = cuda_compiler_version.split(".")[0] %}
 
 package:
