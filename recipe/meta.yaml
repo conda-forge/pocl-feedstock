@@ -17,7 +17,7 @@ source:
   - url: https://github.com/pocl/pocl/archive/refs/tags/v{{ version.replace(".rc", "-RC") }}.tar.gz
     sha256: f55caba8c3ce12bec7b683ce55104c7555e19457fc2ac72c6f035201e362be08
     patches:
-      - patches/0002-pocld.patch
+      # - patches/0002-pocld.patch
       - patches/0003-switch-to-newer-find_package-CUDAToolkit-for-CUDA-12.patch
       # https://github.com/conda-forge/pocl-feedstock/pull/106#issuecomment-2467398973
       - patches/disable-cuda-test.patch
@@ -46,15 +46,11 @@ requirements:
     - {{ compiler('cuda') }}                                  # [enable_cuda]
     - llvmdev {{ llvm_version }}.*       # [build_platform != target_platform]
     - clangdev {{ llvm_version }}.*      # [build_platform != target_platform]
-    # only exists from v16, but cannot leave unpinned because
-    # clang 15 is not compatible with libc++ 19 anymore
-    - libcxx-devel {{ llvm_version.split(".")[0]|int + 1 }}   # [osx]
     - {{ stdlib("c") }}
   host:
     - libopencl-devel
     - libhwloc
     - clhpp
-
     - llvmdev {{ llvm_version }}.*
     - clangdev {{ llvm_version }}.*
     - llvm {{ llvm_version }}.*
@@ -63,7 +59,6 @@ requirements:
     - cuda-version {{ cuda_major_version }}.*  # [enable_cuda]
     - cuda-driver-dev                    # [enable_cuda]
     - cuda-cudart-dev                    # [enable_cuda]
-
     - zlib                               # [osx]
     - ld64 >=530                         # [osx]
   run:
