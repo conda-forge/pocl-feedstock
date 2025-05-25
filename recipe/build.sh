@@ -72,7 +72,7 @@ fi
 
 if [[ "$enable_cuda" == "True" ]]; then
   CMAKE_ARGS="$CMAKE_ARGS -DENABLE_CUDA=ON -DCUDAToolkit_ROOT=$CUDA_HOME -DCUDA_INCLUDE_DIRS=$CUDA_HOME/include -DCUDA_TOOLKIT_INCLUDE=$CUDA_HOME/include"
-  CMAKE_ARGS="$CMAKE_ARGS -DCUDA_CUDART_LIBRARY=$PREFIX/lib/libcudart.so -DCUDA_TOOLKIT_ROOT_DIR_INTERNAL=$CUDA_HOME"
+  CMAKE_ARGS="$CMAKE_ARGS -DCUDA_CUDART_LIBRARY=$PREFIX/lib/libcudart${SHLIB_EXT} -DCUDA_TOOLKIT_ROOT_DIR_INTERNAL=$CUDA_HOME"
   LDFLAGS="$LDFLAGS -L$PREFIX/lib/stubs"
 fi
 
@@ -149,7 +149,7 @@ fi
 
 # move files that are in individual pkgs
 mkdir pkgs
-mv $PREFIX/lib/pocl/libpocl-devices-*.so pkgs/
+mv $PREFIX/lib/pocl/libpocl-devices-*${SHLIB_EXT} pkgs/
 mv $PREFIX/share/pocl/kernel-*.bc pkgs/
 if [[ "$enable_cuda" == "True" ]]; then
   mv $PREFIX/share/pocl/cuda pkgs/
