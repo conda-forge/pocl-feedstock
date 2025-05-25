@@ -15,7 +15,7 @@ cmake -G Ninja ^
   -D CMAKE_INSTALL_PREFIX="%PREFIX%" ^
   -D CMAKE_PREFIX_PATH="%PREFIX%" ^
   -D POCL_INSTALL_ICD_VENDORDIR="%PREFIX%/etc/OpenCL/vendors" ^
-  -D LLVM_CONFIG="%PREFIX%/bin/llvm-config" ^
+  -D LLVM_CONFIG="%PREFIX%/bin/llvm-config.exe" ^
   -D INSTALL_OPENCL_HEADERS="off" ^
   -D KERNELLIB_HOST_CPU_VARIANTS=distro ^
   -D OPENCL_LIBRARIES="%PREFIX%/lib/OpenCL.lib" ^
