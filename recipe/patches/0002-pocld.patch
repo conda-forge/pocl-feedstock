@@ -1,14 +1,15 @@
-From 8893f7cdf41b7c9fa883ddb42a30737e0056fd1b Mon Sep 17 00:00:00 2001
+From 1dd6c73a5c1d42b98d37a201ada6cd4a1ab40f1d Mon Sep 17 00:00:00 2001
 From: Matthias Diener <mdiener@illinois.edu>
 Date: Fri, 23 May 2025 15:22:23 -0500
-Subject: [PATCH] Fix pocld when not linux
+Subject: [PATCH 1/2] Fix pocld when not linux
 
 Co-authored-by: Isuru Fernando <isuruf@gmail.com>
 ---
- lib/CL/pocl_networking.c | 3 ++-
- pocld/connection.cc      | 2 ++
- pocld/daemon.cc          | 7 +++++++
- 3 files changed, 11 insertions(+), 1 deletion(-)
+ lib/CL/pocl_networking.c   | 3 ++-
+ pocld/connection.cc        | 2 ++
+ pocld/daemon.cc            | 7 +++++++
+ pocld/shared_cl_context.cc | 2 +-
+ 4 files changed, 12 insertions(+), 2 deletions(-)
 
 diff --git a/lib/CL/pocl_networking.c b/lib/CL/pocl_networking.c
 index ca35f04f7..987e7b001 100644
@@ -76,6 +77,19 @@ index cd6ef76c8..a41967471 100644
      int FdCommand = -1;
      int FdStream = -1;
      transport_domain_t Domain =
+diff --git a/pocld/shared_cl_context.cc b/pocld/shared_cl_context.cc
+index 7b410c534..02acec9e4 100644
+--- a/pocld/shared_cl_context.cc
++++ b/pocld/shared_cl_context.cc
+@@ -699,7 +699,7 @@ SharedCLContext::SharedCLContext(cl::Platform *p, unsigned pid,
+     if (MaxMemAllocSize < MaxSVMAllocSize)
+       MaxSVMAllocSize = MaxMemAllocSize;
+ 
+-    MaxTotalAllocatableSVM = std::min(MaxTotalAllocatableSVM,
++    MaxTotalAllocatableSVM = std::min(MaxTotalAllocatableSVM, (size_t)
+                                       Dev.getInfo<CL_DEVICE_GLOBAL_MEM_SIZE>());
+   }
+ 
 -- 
 2.45.2
 
