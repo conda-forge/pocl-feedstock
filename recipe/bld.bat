@@ -30,6 +30,7 @@ cmake -G Ninja ^
   -D ENABLE_REMOTE_SERVER=on ^
   -D ENABLE_REMOTE_CLIENT=on ^
   -D ENABLE_LOADBALE_DRIVERS=on ^
+  -D STATIC_LLVM=ON ^
   %CMAKE_ARGS% ^
   ..
 
