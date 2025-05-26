@@ -139,6 +139,13 @@ if [[ "$CONDA_BUILD_CROSS_COMPILATION" != "1" ]]; then
     SKIP_TESTS="$SKIP_TESTS|example1_spirv"
   fi
 
+  if [[ "$PKG_VERSION" == "7.0" ]]; then
+    # See https://github.com/pocl/pocl/issues/1931
+    SKIP_TESTS="$SKIP_TESTS|kernel/test_halfs_loopvec|kernel/test_halfs_cbs|kernel/test_printf_vectors_halfn_loopvec"
+    SKIP_TESTS="$SKIP_TESTS|kernel/test_printf_vectors_halfn_cbs|regression/test_rematerialized_alloca_load_with_outside_pr_users"
+    SKIP_TESTS="$SKIP_TESTS|runtime/test_large_buf|workgroup/conditional_barrier_dynamic"
+  fi
+
   ctest -E "$SKIP_TESTS|remote" --output-on-failure
 
   # Can't run cuda tests without a GPU

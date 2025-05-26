@@ -55,7 +55,11 @@ set POCL_DEVICES=cpu
 REM Setting this will produce extra output that confuses the test result parser
 REM set POCL_DEBUG=1
 
-ctest -E "remote" --output-on-failure
+set "SKIP_TESTS=kernel/test_halfs_loopvec|kernel/test_halfs_cbs|kernel/test_printf_vectors_halfn_loopvec"
+set "SKIP_TESTS=%SKIP_TESTS%|kernel/test_printf_vectors_halfn_cbs|regression/test_rematerialized_alloca_load_with_outside_pr_users"
+set "SKIP_TESTS=%SKIP_TESTS%|runtime/test_large_buf|workgroup/conditional_barrier_dynamic"
+
+ctest -E "%SKIP_TESTS%|remote" --output-on-failure
 if errorlevel 1 exit 1
 
 REM Can't run cuda tests without a GPU
