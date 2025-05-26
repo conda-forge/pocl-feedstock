@@ -10,6 +10,8 @@ if "%enable_cuda%" == "True" (
   set "CMAKE_ARGS=%CMAKE_ARGS% -DCUDA_CUDART_LIBRARY=%PREFIX%/lib/libcudart.so -DCUDA_TOOLKIT_ROOT_DIR_INTERNAL=%CUDA_HOME%"
 )
 
+copy %LIBRARY_IB%\zstd.lib %LIBRARY_LIB%\zstd.dll.lib
+
 cmake -G Ninja ^
   -D CMAKE_BUILD_TYPE="Release" ^
   -D CMAKE_INSTALL_PREFIX="%PREFIX%" ^
@@ -36,6 +38,8 @@ cmake -G Ninja ^
 
 ninja -j %CPU_COUNT%
 ninja install
+
+del %LIBRARY_LIB%\zstd.dll.lib
 
 set POCL_DEVICES=cpu
 
