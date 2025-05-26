@@ -105,13 +105,11 @@ outputs:
       host:
         - {{ pin_subpackage("pocl-core", exact=True) }}
         - {{ pin_subpackage("pocl-cpu-minimal", exact=True) }}
-        - {{ pin_subpackage("pocl-remote", exact=True) }}
         - llvm {{ llvm_version }}.*
         - libhwloc
       run:
         - {{ pin_subpackage("pocl-core", exact=True) }}
         - {{ pin_subpackage("pocl-cpu-minimal", exact=True) }}
-        - {{ pin_subpackage("pocl-remote", exact=True) }}
     test:
       requires:
         - pyopencl
@@ -151,6 +149,8 @@ outputs:
 
   - name: pocl-remote
     script: install-pkg.sh
+    build:
+      skip: true   # [win]
     requirements:
       build:
         - {{ compiler('cxx') }}
@@ -177,7 +177,7 @@ outputs:
         - {{ pin_subpackage("pocl-core", exact=True) }}
         - {{ pin_subpackage("pocl-cpu", exact=True) }}
         - {{ pin_subpackage("pocl-cpu-minimal", exact=True) }}
-        - {{ pin_subpackage("pocl-remote", exact=True) }}
+        - {{ pin_subpackage("pocl-remote", exact=True) }}       # [unix]
         - {{ pin_subpackage("pocl-cuda", exact=True) }}         # [enable_cuda]
     test:
       commands:

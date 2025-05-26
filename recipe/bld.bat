@@ -29,8 +29,8 @@ cmake -G Ninja ^
   -D OPENCL_HPP="%PREFIX%/include/CL/opencl.hpp" ^
   -D OCL_ICD_INCLUDE_DIRS="%PREFIX%/include" ^
   -D LLVM_SPIRV=%PREFIX%/bin/llvm-spirv-%LLVM_VERSION_MAJOR% ^
-  -D ENABLE_REMOTE_SERVER=on ^
-  -D ENABLE_REMOTE_CLIENT=on ^
+  -D ENABLE_REMOTE_SERVER=off ^
+  -D ENABLE_REMOTE_CLIENT=off ^
   -D ENABLE_LOADBALE_DRIVERS=on ^
   -D STATIC_LLVM=ON ^
   -D LLVM_LINK_TEST=ON ^
@@ -38,8 +38,13 @@ cmake -G Ninja ^
   %CMAKE_ARGS% ^
   ..
 
+if errorlevel 1 exit 1
+
 ninja -j %CPU_COUNT%
+if errorlevel 1 exit 1
+
 ninja install
+if errorlevel 1 exit 1
 
 del %LIBRARY_LIB%\zstd.dll.lib
 
@@ -49,6 +54,7 @@ REM Setting this will produce extra output that confuses the test result parser
 REM set POCL_DEBUG=1
 
 ctest -E "remote" --output-on-failure
+if errorlevel 1 exit 1
 
 REM Can't run cuda tests without a GPU
 REM if "%$enable_cuda%" == "True" (
