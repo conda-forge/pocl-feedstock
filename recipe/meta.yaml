@@ -80,7 +80,8 @@ outputs:
   - name: pocl-core
 
   - name: pocl-cpu-minimal
-    script: install-pkg.sh
+    script: install-pkg.sh  # [unix]
+    script: install-pkg.bat  # [win]
     requirements:
       build:
         - {{ compiler('cxx') }}
@@ -97,7 +98,8 @@ outputs:
         - if not exist $PREFIX/lib/pocl/pocl-devices-basic.dll exit 1     # [win]
 
   - name: pocl-cpu
-    script: install-pkg.sh
+    script: install-pkg.sh  # [unix]
+    script: install-pkg.bat  # [win]
     requirements:
       build:
         - {{ compiler('cxx') }}
@@ -129,7 +131,8 @@ outputs:
   - name: pocl-cuda
     build:
       skip: true  # [not enable_cuda]
-    script: install-pkg.sh
+    script: install-pkg.sh  # [unix]
+    script: install-pkg.bat  # [win]
     requirements:
       build:
         - {{ compiler('cxx') }}
@@ -148,7 +151,8 @@ outputs:
         - if not exist $PREFIX/lib/pocl/pocl-devices-cuda.dll exit 1      # [win]
 
   - name: pocl-remote
-    script: install-pkg.sh
+    script: install-pkg.sh  # [unix]
+    script: install-pkg.bat  # [win]
     build:
       skip: true   # [win]
     requirements:

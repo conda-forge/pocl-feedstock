@@ -62,7 +62,7 @@ REM   set POCL_DEVICES=cuda
 REM   ctest -L cuda
 REM )
 
-# move files that are in individual pkgs
+REM move files that are in individual pkgs
 mkdir pkgs
 move %PREFIX%/lib/pocl/pocl-devices-*.dll pkgs/
 move %PREFIX%/share/pocl/kernel-*.bc pkgs/
