@@ -55,7 +55,7 @@ requirements:
     - clangdev {{ llvm_version }}.*
     - llvm {{ llvm_version }}.*
     - libclang-cpp {{ llvm_version }}.*
-    - llvm-spirv-{{ llvm_version.split(".")[0] }}
+    - llvm-spirv-{{ llvm_version.split(".")[0] }}  # [unix]
     - cuda-version {{ cuda_major_version }}.*  # [enable_cuda]
     - cuda-driver-dev                    # [unix and enable_cuda]
     - cuda-cudart-dev                    # [enable_cuda]
@@ -63,7 +63,7 @@ requirements:
     - ld64 >=530                         # [osx]
     - libjpeg-turbo
   run:
-    - llvm-spirv-{{ llvm_version.split(".")[0] }}
+    - llvm-spirv-{{ llvm_version.split(".")[0] }}   # [unix]
     # See https://github.com/conda-forge/cctools-and-ld64-feedstock/issues/66
     # why we need the upper bound for ld64
     - ld64 >=530                         # [osx]

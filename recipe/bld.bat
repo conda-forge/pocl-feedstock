@@ -28,7 +28,6 @@ cmake -G Ninja ^
   -D OPENCL_H="%PREFIX%/include/CL/opencl.h" ^
   -D OPENCL_HPP="%PREFIX%/include/CL/opencl.hpp" ^
   -D OCL_ICD_INCLUDE_DIRS="%PREFIX%/include" ^
-  -D LLVM_SPIRV=%PREFIX%/bin/llvm-spirv-%LLVM_VERSION_MAJOR% ^
   -D ENABLE_REMOTE_SERVER=off ^
   -D ENABLE_REMOTE_CLIENT=off ^
   -D ENABLE_LOADBALE_DRIVERS=on ^
