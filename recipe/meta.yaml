@@ -194,9 +194,7 @@ about:
   home: http://portablecl.org/
   license: MIT
   license_file:
-    - LICENSE
-    - LLVM-License.txt
-    - LICENSE_THIRDPARTY  # [osx]
+    - LICENSE.with.3rdparty
   summary: Portable Computing Language -- a portable open source implementation of the OpenCL standard
   dev_url: https://github.com/pocl/pocl
   doc_url: http://portablecl.org/docs/html/
