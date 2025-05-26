@@ -1,3 +1,6 @@
+@echo on
+SetLocal EnableDelayedExpansion
+
 mkdir build
 cd build
 

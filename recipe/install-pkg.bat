@@ -1,3 +1,6 @@
+@echo on
+SetLocal EnableDelayedExpansion
+
 set "PREFIX=%LIBRARY_PREFIX%"
 
 cd build/pkgs
