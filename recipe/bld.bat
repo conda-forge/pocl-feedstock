@@ -34,6 +34,7 @@ cmake -G Ninja ^
   -D ENABLE_LOADBALE_DRIVERS=on ^
   -D STATIC_LLVM=ON ^
   -D LLVM_LINK_TEST=ON ^
+  -D CLANG_LINK_TEST=ON ^
   %CMAKE_ARGS% ^
   ..
 
