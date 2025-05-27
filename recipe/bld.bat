@@ -10,6 +10,9 @@ set "HOST=x86_64-pc-windows-msvc"
 
 if "%enable_cuda%" == "True" (
   set "CMAKE_ARGS=%CMAKE_ARGS% -DENABLE_CUDA=ON -DCUDAToolkit_ROOT=%CUDA_HOME% -DCUDA_INCLUDE_DIRS=%CUDA_HOME%/include -DCUDA_TOOLKIT_INCLUDE=%CUDA_HOME%/include"
+)
+
+if "%enable_cuda%" == "True" (
   set "CMAKE_ARGS=%CMAKE_ARGS% -DCUDA_CUDART_LIBRARY=%PREFIX%/lib/libcudart.so -DCUDA_TOOLKIT_ROOT_DIR_INTERNAL=%CUDA_HOME%"
 )
 

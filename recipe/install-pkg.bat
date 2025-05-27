@@ -2,6 +2,7 @@
 SetLocal EnableDelayedExpansion
 
 set "PREFIX=%LIBRARY_PREFIX%"
+set "HOST=x86_64-pc-windows-msvc"
 
 cd build/pkgs
 mkdir -p %PREFIX%/lib/pocl
@@ -13,8 +14,8 @@ if "%PKG_NAME%" == "pocl-cuda" (
 )
 if "%PKG_NAME%" == "pocl-cpu-minimal" (
   mv libpocl-devices-basic.dll %PREFIX%/lib/pocl/
-  ls kernel-${HOST:0:10}*.bc
-  mv kernel-${HOST:0:10}*.bc %PREFIX%/share/pocl/
+  ls kernel-%HOST%.bc
+  mv kernel-%HOST%*.bc %PREFIX%/share/pocl/
 )
 if "%PKG_NAME%" == "pocl-cpu" (
   mv libpocl-devices-pthread.dll %PREFIX%/lib/pocl/
