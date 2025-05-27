@@ -24,6 +24,10 @@ enable_cuda:
 - 'True'
 libhwloc:
 - 2.11.2
+libjpeg_turbo:
+- '3'
+llvm_version:
+- 19.1.7
 target_platform:
 - linux-ppc64le
 zip_keys:

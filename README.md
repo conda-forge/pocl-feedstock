@@ -3,75 +3,6 @@ About pocl-feedstock
 
 Feedstock license: [BSD-3-Clause](https://github.com/conda-forge/pocl-feedstock/blob/main/LICENSE.txt)
 
-
-About pocl
-----------
-
-Home: http://portablecl.org/
-
-Package license: MIT
-
-Summary: Portable Computing Language -- a portable open source implementation of the OpenCL standard
-
-Development: https://github.com/pocl/pocl
-
-Documentation: http://portablecl.org/docs/html/
-
-About pocl-core
----------------
-
-Home: http://portablecl.org/
-
-Package license: MIT
-
-Summary: Portable Computing Language -- a portable open source implementation of the OpenCL standard
-
-Development: https://github.com/pocl/pocl
-
-Documentation: http://portablecl.org/docs/html/
-
-About pocl-cpu-minimal
-----------------------
-
-Home: http://portablecl.org/
-
-Package license: MIT
-
-Summary: Portable Computing Language -- a portable open source implementation of the OpenCL standard
-
-Development: https://github.com/pocl/pocl
-
-Documentation: http://portablecl.org/docs/html/
-
-About pocl-remote
------------------
-
-Home: http://portablecl.org/
-
-Package license: MIT
-
-Summary: Portable Computing Language -- a portable open source implementation of the OpenCL standard
-
-Development: https://github.com/pocl/pocl
-
-Documentation: http://portablecl.org/docs/html/
-
-About pocl-cpu
---------------
-
-Home: http://portablecl.org/
-
-Package license: MIT
-
-Summary: Portable Computing Language -- a portable open source implementation of the OpenCL standard
-
-Development: https://github.com/pocl/pocl
-
-Documentation: http://portablecl.org/docs/html/
-
-About pocl
-----------
-
 Home: http://portablecl.org/
 
 Package license: MIT
@@ -132,6 +63,13 @@ Current build status
               <td>
                 <a href="https://dev.azure.com/conda-forge/feedstock-builds/_build/latest?definitionId=794&branchName=main">
                   <img src="https://dev.azure.com/conda-forge/feedstock-builds/_apis/build/status/pocl-feedstock?branchName=main&jobName=osx&configuration=osx%20osx_arm64_" alt="variant">
+                </a>
+              </td>
+            </tr><tr>
+              <td>win_64_cuda_compilercuda-nvcccuda_compiler_version12.6</td>
+              <td>
+                <a href="https://dev.azure.com/conda-forge/feedstock-builds/_build/latest?definitionId=794&branchName=main">
+                  <img src="https://dev.azure.com/conda-forge/feedstock-builds/_apis/build/status/pocl-feedstock?branchName=main&jobName=win&configuration=win%20win_64_cuda_compilercuda-nvcccuda_compiler_version12.6" alt="variant">
                 </a>
               </td>
             </tr>
