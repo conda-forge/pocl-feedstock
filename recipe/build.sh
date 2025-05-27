@@ -96,6 +96,8 @@ cmake -G Ninja \
   -D OPENCL_H="${PREFIX}/include/CL/opencl.h" \
   -D OPENCL_HPP="${PREFIX}/include/CL/opencl.hpp" \
   -D OCL_ICD_INCLUDE_DIRS="${PREFIX}/include" \
+  -D OCL_ICD_LIBRARIES="${OPENCL_LIBRARIES}" \
+  -D HAVE_OCL_ICD_30_COMPATIBLE=1 \
   -D LLVM_SPIRV=${PREFIX}/bin/llvm-spirv-${LLVM_VERSION_MAJOR} \
   -D ENABLE_REMOTE_SERVER=on \
   -D ENABLE_REMOTE_CLIENT=on \

@@ -27,6 +27,7 @@ cmake -G Ninja ^
   -D CMAKE_INSTALL_LIBDIR=lib ^
   -D ENABLE_ICD=on ^
   -D LLVM_HOST_TARGET=%HOST% ^
+  -D LLC_TRIPLE=%HOST% ^
   -D LLVM_BINDIR=%BUILD_PREFIX%/Library/bin ^
   -D OPENCL_H="%PREFIX%/include/CL/opencl.h" ^
   -D OPENCL_HPP="%PREFIX%/include/CL/opencl.hpp" ^
