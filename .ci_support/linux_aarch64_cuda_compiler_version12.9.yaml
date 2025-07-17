@@ -11,13 +11,13 @@ channel_targets:
 cuda_compiler:
 - cuda-nvcc
 cuda_compiler_version:
-- '12.6'
+- '12.9'
 curl:
 - '8'
 cxx_compiler:
 - gxx
 cxx_compiler_version:
-- '13'
+- '14'
 docker_image:
 - quay.io/condaforge/linux-anvil-x86_64:alma9
 enable_cuda:
@@ -25,9 +25,7 @@ enable_cuda:
 libhwloc:
 - 2.11.2
 target_platform:
-- linux-64
+- linux-aarch64
 zip_keys:
 - - cxx_compiler_version
-  - cuda_compiler
   - cuda_compiler_version
-  - docker_image

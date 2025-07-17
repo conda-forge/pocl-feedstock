@@ -17,7 +17,7 @@ curl:
 cxx_compiler:
 - clangxx
 cxx_compiler_version:
-- '18'
+- '19'
 enable_cuda:
 - 'False'
 libhwloc:
