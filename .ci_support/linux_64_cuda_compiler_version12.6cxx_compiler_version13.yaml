@@ -23,7 +23,7 @@ docker_image:
 enable_cuda:
 - 'True'
 libhwloc:
-- 2.11.2
+- 2.12.1
 libjpeg_turbo:
 - '3'
 llvm_version:
@@ -32,6 +32,4 @@ target_platform:
 - linux-64
 zip_keys:
 - - cxx_compiler_version
-  - cuda_compiler
   - cuda_compiler_version
-  - docker_image
