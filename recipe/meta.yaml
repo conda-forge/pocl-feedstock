@@ -21,6 +21,7 @@ source:
       - patches/0003-switch-to-newer-find_package-CUDAToolkit-for-CUDA-12.patch
       # https://github.com/conda-forge/pocl-feedstock/pull/106#issuecomment-2467398973
       - patches/disable-cuda-test.patch
+      - patches/ocl-icd-mac.diff   # [not linux]
 
 build:
   number: 0

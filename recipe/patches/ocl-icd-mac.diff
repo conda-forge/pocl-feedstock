@@ -1,0 +1,11 @@
+--- lib/CL/pocl_icd.h	2025-08-06 10:51:46.980329046 -0500
++++ lib/CL/pocl_icd.h	2025-08-06 10:51:58.249898678 -0500
+@@ -22,7 +22,7 @@
+  * Prefer to get it from ocl-icd, as that has compile time type checking
+  * of the function signatures. This checks that they are in correct order.
+  */
+-#if defined(HAVE_OCL_ICD) && defined(HAVE_OCL_ICD_30_COMPATIBLE)
++#if 0 && defined(HAVE_OCL_ICD) && defined(HAVE_OCL_ICD_30_COMPATIBLE)
+ #include <ocl_icd.h>
+ #else
+ #define OCL_ICD_IDENTIFIED_FUNCTIONS 116
