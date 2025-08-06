@@ -23,7 +23,6 @@ source:
       - patches/disable-cuda-test.patch
       - patches/ocl-icd-mac.diff   # [not linux]
       - patches/unistd-win.diff
-      - patches/extension-suffix-win.diff
 
 build:
   number: 0
