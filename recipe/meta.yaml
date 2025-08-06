@@ -22,6 +22,7 @@ source:
       # https://github.com/conda-forge/pocl-feedstock/pull/106#issuecomment-2467398973
       - patches/disable-cuda-test.patch
       - patches/ocl-icd-mac.diff   # [not linux]
+      - patches/unistd-win.diff
 
 build:
   number: 0
