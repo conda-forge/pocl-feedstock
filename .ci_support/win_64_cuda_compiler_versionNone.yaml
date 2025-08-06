@@ -7,13 +7,13 @@ channel_targets:
 cuda_compiler:
 - cuda-nvcc
 cuda_compiler_version:
-- '12.6'
+- None
 curl:
 - '8'
 cxx_compiler:
 - vs2022
 enable_cuda:
-- 'True'
+- 'False'
 libhwloc:
 - 2.12.1
 libjpeg_turbo:

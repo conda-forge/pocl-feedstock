@@ -2,8 +2,8 @@ cudnn:
   - undefined
 
 enable_cuda:
-  - True      # [linux64 or ppc64le or aarch64 or win64]
-  - False     # [not (linux64 or ppc64le or aarch64 or win64)]
+  - True      # [linux64 or ppc64le or aarch64]
+  - False     # [not (linux64 or ppc64le or aarch64)]
 
 llvm_version:
   - 19.1.7
