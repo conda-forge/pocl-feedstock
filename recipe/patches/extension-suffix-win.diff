@@ -1,0 +1,16 @@
+diff --git a/cmake/add_test_pocl.cmake b/cmake/add_test_pocl.cmake
+index a57d9dec1..016fa7447 100644
+--- a/cmake/add_test_pocl.cmake
++++ b/cmake/add_test_pocl.cmake
+@@ -62,9 +62,9 @@ function(add_test_pocl)
+       if(NOT RUN_CMD)
+         # Special command name expansion.
+         if(${LOOPVAR} STREQUAL "poclcc")
+-          set(RUN_CMD "${CMAKE_BINARY_DIR}/bin/${LOOPVAR}")
++          set(RUN_CMD "${CMAKE_BINARY_DIR}/bin/${LOOPVAR}${CMAKE_EXECUTABLE_SUFFIX}")
+         else()
+-          set(RUN_CMD "${CMAKE_CURRENT_BINARY_DIR}/${LOOPVAR}")
++          set(RUN_CMD "${CMAKE_CURRENT_BINARY_DIR}/${LOOPVAR}${CMAKE_EXECUTABLE_SUFFIX}")
+         endif()
+       else()
+         set(RUN_CMD "${RUN_CMD}####${LOOPVAR}")
