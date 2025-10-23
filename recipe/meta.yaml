@@ -1,6 +1,6 @@
-{% set version = "6.0" %}
-{% set build_number = 4 %}
-{% set sha256 = "de9710223fc1855f833dbbf42ea2681e06aa8ec0464f0201104dc80a74dfd1f2" %}
+{% set version = "7.1" %}
+{% set build_number = 0 %}
+{% set sha256 = "1110057cb0736c74819ad65238655a03f7b93403a0ca60cdd8849082f515ca25" %}
 
 {% set llvm_version = "15.0.7" %}
 {% set cuda_version = "12.0" %}
