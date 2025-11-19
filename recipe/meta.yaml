@@ -1,4 +1,4 @@
-{% set version = "7.0" %}
+{% set version = "7.1" %}
 
 {% if llvm_version is not defined %}
 {% set llvm_version = "0.0.0" %}
@@ -15,7 +15,7 @@ package:
 
 source:
   - url: https://github.com/pocl/pocl/archive/refs/tags/v{{ version.replace(".rc", "-RC") }}.tar.gz
-    sha256: f55caba8c3ce12bec7b683ce55104c7555e19457fc2ac72c6f035201e362be08
+    sha256: 1110057cb0736c74819ad65238655a03f7b93403a0ca60cdd8849082f515ca25
     patches:
       - patches/0002-pocld.patch
       - patches/0003-switch-to-newer-find_package-CUDAToolkit-for-CUDA-12.patch
