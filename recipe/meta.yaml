@@ -37,6 +37,7 @@ build:
     - cuda-version             # [enable_cuda]
     - cuda-driver-dev          # [enable_cuda]
     - cuda-cudart-dev          # [enable_cuda]
+    - libxml2-devel
 
 requirements:
   build:
@@ -53,6 +54,7 @@ requirements:
     - libopencl-devel
     - libhwloc
     - clhpp
+    - libxml2-devel
     - llvmdev {{ llvm_version }}.*
     - clangdev {{ llvm_version }}.*
     - llvm {{ llvm_version }}.*
