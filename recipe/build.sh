@@ -71,6 +71,7 @@ if [[ "$target_platform" != "linux-aarch64" || "${CI}" != "travis" ]]; then
 fi
 
 if [[ "$enable_cuda" == "True" ]]; then
+  CUDA_HOME=$BUILD_PREFIX
   CMAKE_ARGS="$CMAKE_ARGS -DENABLE_CUDA=ON -DCUDAToolkit_ROOT=$CUDA_HOME -DCUDA_INCLUDE_DIRS=$CUDA_HOME/include -DCUDA_TOOLKIT_INCLUDE=$CUDA_HOME/include"
   CMAKE_ARGS="$CMAKE_ARGS -DCUDA_CUDART_LIBRARY=$PREFIX/lib/libcudart${SHLIB_EXT} -DCUDA_TOOLKIT_ROOT_DIR_INTERNAL=$CUDA_HOME"
   LDFLAGS="$LDFLAGS -L$PREFIX/lib/stubs"
