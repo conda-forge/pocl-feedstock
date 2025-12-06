@@ -75,8 +75,8 @@ REM )
 
 REM move files that are in individual pkgs
 mkdir pkgs
-move %PREFIX%/lib/pocl/pocl-devices-*.dll pkgs/
-move %PREFIX%/share/pocl/kernel-*.bc pkgs/
+move %PREFIX%\\bin\\pocl\\pocl-devices-*.dll pkgs\\
+move %PREFIX%\\share\\pocl\\kernel-*.bc pkgs\\
 if "%enable_cuda%" == "True" (
-  move %PREFIX%/share/pocl/cuda pkgs/
+  move %PREFIX%\\share\\pocl\\cuda pkgs\\
 )
