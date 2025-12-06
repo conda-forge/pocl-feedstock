@@ -132,9 +132,14 @@ if [[ "$CONDA_BUILD_CROSS_COMPILATION" != "1" ]]; then
     SKIP_TESTS="$SKIP_TESTS|EinsteinToolkit_SubDev"
   fi
 
+  if [[ $target_platform == "linux-"* && "${CI:-}" != "" ]]; then
+    # These test fails on CI due to large memory usage
+    SKIP_TESTS="$SKIP_TESTS|test_large_buf"
+  fi
+
   if [[ $target_platform == "linux-aarch64" ]]; then
     # These tests fail on aarch64
-    SKIP_TESTS="$SKIP_TESTS|test_printf_vectors|test_printf_vectors_ulong|test_large_buf"
+    SKIP_TESTS="$SKIP_TESTS|test_printf_vectors|test_printf_vectors_ulong"
   fi
 
   if [[ $target_platform == "linux-ppc64le" ]]; then
@@ -142,11 +147,11 @@ if [[ "$CONDA_BUILD_CROSS_COMPILATION" != "1" ]]; then
     SKIP_TESTS="$SKIP_TESTS|example1_spirv"
   fi
 
-  if [[ "$PKG_VERSION" == "7.0" ]]; then
+  if [[ "$PKG_VERSION" == "7.1" ]]; then
     # See https://github.com/pocl/pocl/issues/1931
     SKIP_TESTS="$SKIP_TESTS|kernel/test_halfs_loopvec|kernel/test_halfs_cbs|kernel/test_printf_vectors_halfn_loopvec"
     SKIP_TESTS="$SKIP_TESTS|kernel/test_printf_vectors_halfn_cbs|regression/test_rematerialized_alloca_load_with_outside_pr_users"
-    SKIP_TESTS="$SKIP_TESTS|runtime/test_large_buf|workgroup/conditional_barrier_dynamic"
+    SKIP_TESTS="$SKIP_TESTS|workgroup/conditional_barrier_dynamic"
   fi
 
   ctest -E "$SKIP_TESTS|remote" --output-on-failure
