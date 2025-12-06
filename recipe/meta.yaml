@@ -55,7 +55,7 @@ requirements:
     - libhwloc
     - clhpp
     - libxml2-devel
-    - winpthreads   # [win]
+    - winpthreads-devel   # [win]
     - llvmdev {{ llvm_version }}.*
     - clangdev {{ llvm_version }}.*
     - llvm {{ llvm_version }}.*
