@@ -9,18 +9,18 @@ mkdir -p %PREFIX%/bin/pocl
 mkdir -p %PREFIX%/share/pocl
 
 if "%PKG_NAME%" == "pocl-cuda" (
-  mv libpocl-devices-cuda.dll %PREFIX%/bin/pocl/
+  mv pocl-devices-cuda.dll %PREFIX%/bin/pocl/
   mv kernel-nvptx64-*.bc %PREFIX%/share/pocl/
   mv cuda %PREFIX%/share/pocl/
 )
 if "%PKG_NAME%" == "pocl-cpu-minimal" (
-  mv libpocl-devices-basic.dll %PREFIX%/bin/pocl/
-  ls kernel-%HOST%.bc
+  mv pocl-devices-basic.dll %PREFIX%/bin/pocl/
+  ls kernel-%HOST%*.bc
   mv kernel-%HOST%*.bc %PREFIX%/share/pocl/
 )
 if "%PKG_NAME%" == "pocl-cpu" (
-  mv libpocl-devices-pthread.dll %PREFIX%/bin/pocl/
+  mv pocl-devices-pthread.dll %PREFIX%/bin/pocl/
 )
 if "%PKG_NAME%" == "pocl-remote" (
-  mv libpocl-devices-remote.dll %PREFIX%/bin/pocl/
+  mv pocl-devices-remote.dll %PREFIX%/bin/pocl/
 fi
