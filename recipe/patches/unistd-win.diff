@@ -1,0 +1,12 @@
+--- lib/CL/devices/cuda/pocl-cuda.c	2025-08-06 12:56:56.932906603 -0500
++++ lib/CL/devices/cuda/pocl-cuda.c	2025-08-06 12:58:41.477123511 -0500
+@@ -43,7 +43,9 @@
+ 
+ #include <string.h>
+ #include <fcntl.h>
++#ifndef _WIN32
+ #include <unistd.h>
++#endif
+ #include <sys/stat.h>
+ #include <sys/types.h>
+ 
