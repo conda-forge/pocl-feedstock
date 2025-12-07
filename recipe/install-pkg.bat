@@ -24,4 +24,4 @@ if "%PKG_NAME%" == "pocl-cpu" (
 )
 if "%PKG_NAME%" == "pocl-remote" (
   move pocl-devices-remote.dll %PREFIX%\bin\pocl\
-fi
+)
