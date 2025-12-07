@@ -87,3 +87,7 @@ move %PREFIX%\\share\\pocl\\kernel-*.bc pkgs\\
 if "%enable_cuda%" == "True" (
   move %PREFIX%\\share\\pocl\\cuda pkgs\\
 )
+
+mkdir %PREFIX%\\etc\\OpenCL\\vendors
+echo %PREFIX%\\bin\\pocl.dll> %PREFIX%\\etc\\OpenCL\\vendors\\pocl.icd
+type %PREFIX%\\etc\\OpenCL\\vendors\\pocl.icd
