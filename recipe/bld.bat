@@ -56,7 +56,8 @@ if errorlevel 1 exit 1
 
 del %LIBRARY_LIB%\zstd.dll.lib
 
-set POCL_DEVICES=cpu
+set "POCL_DEVICES=cpu"
+set "OCL_ICD_FILENAMES=%PREFIX%\bin\pocl.dll"
 
 REM Setting this will produce extra output that confuses the test result parser
 REM set POCL_DEBUG=1
