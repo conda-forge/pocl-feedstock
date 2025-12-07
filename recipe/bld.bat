@@ -35,6 +35,8 @@ cmake -G Ninja ^
   -D OPENCL_H="%PREFIX%/include/CL/opencl.h" ^
   -D OPENCL_HPP="%PREFIX%/include/CL/opencl.hpp" ^
   -D OCL_ICD_INCLUDE_DIRS="%PREFIX%/include" ^
+  -D OCL_ICD_LIBRARIES="%PREFIX%/lib/OpenCL.lib" ^
+  -D HAVE_OCL_ICD_30_COMPATIBLE=1 ^
   -D ENABLE_REMOTE_SERVER=off ^
   -D ENABLE_REMOTE_CLIENT=off ^
   -D ENABLE_LOADBALE_DRIVERS=on ^

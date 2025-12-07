@@ -79,7 +79,7 @@ requirements:
 test:
   commands:
     - test -f $PREFIX/lib/libpocl${SHLIB_EXT}             # [unix]
-    - if not exist %LIBRARY_PREFIX%/lib/pocl.dll exit 1   # [win]
+    - if not exist %LIBRARY_BIN%\\pocl.dll exit 1   # [win]
 
 outputs:
   - name: pocl-core
@@ -100,7 +100,7 @@ outputs:
     test:
       commands:
         - test -f $PREFIX/lib/pocl/libpocl-devices-basic${SHLIB_EXT}      # [unix]
-        - if not exist $PREFIX/lib/pocl/pocl-devices-basic.dll exit 1     # [win]
+        - if not exist %LIBRARY_BIN%\\pocl\\pocl-devices-basic.dll exit 1     # [win]
 
   - name: pocl-cpu
     script: install-pkg.sh  # [unix]
@@ -124,7 +124,7 @@ outputs:
         - pocl-cpu
       commands:
         - test -f $PREFIX/lib/pocl/libpocl-devices-pthread${SHLIB_EXT}    # [unix]
-        - if not exist $PREFIX/lib/pocl/pocl-devices-pthread.dll exit 1   # [win]
+        - if not exist %LIBRARY_BIN%\\pocl\\pocl-devices-pthread.dll exit 1   # [win]
         # Remove apple icd so that only pocl is found
         - rm -f $PREFIX/etc/OpenCL/vendors/apple.icd     # [osx]
         - export OCL_ICD_DEBUG=15                        # [linux]
@@ -153,7 +153,7 @@ outputs:
     test:
       commands:
         - test -f $PREFIX/lib/pocl/libpocl-devices-cuda${SHLIB_EXT}       # [unix]
-        - if not exist $PREFIX/lib/pocl/pocl-devices-cuda.dll exit 1      # [win]
+        - if not exist %LIBRARY_BIN%\\pocl\\pocl-devices-cuda.dll exit 1      # [win]
 
   - name: pocl-remote
     script: install-pkg.sh  # [unix]
@@ -173,7 +173,7 @@ outputs:
     test:
       commands:
         - test -f $PREFIX/lib/pocl/libpocl-devices-remote${SHLIB_EXT}     # [unix]
-        - if not exist $PREFIX/lib/pocl/pocl-devices-remote.dll exit 1    # [win]
+        - if not exist %LIBRARY_BIN%\\pocl\\pocl-devices-remote.dll exit 1    # [win]
 
   - name: pocl
     requirements:
@@ -193,9 +193,9 @@ outputs:
         - test -f $PREFIX/lib/pocl/libpocl-devices-pthread${SHLIB_EXT}     # [unix]
         - test -f $PREFIX/lib/pocl/libpocl-devices-basic${SHLIB_EXT}       # [unix]
         - test -f $PREFIX/lib/pocl/libpocl-devices-cuda${SHLIB_EXT}        # [unix and enable_cuda]
-        - if not exist $PREFIX/lib/pocl/pocl-devices-pthread.dll exit 1    # [win]
-        - if not exist $PREFIX/lib/pocl/pocl-devices-basic.dll exit 1      # [win]
-        - if not exist $PREFIX/lib/pocl/pocl-devices-cuda.dll exit 1       # [win and enable_cuda]
+        - if not exist %LIBRARY_BIN%\\pocl\\pocl-devices-pthread.dll exit 1    # [win]
+        - if not exist %LIBRARY_BIN%\\pocl\\pocl-devices-basic.dll exit 1      # [win]
+        - if not exist %LIBRARY_BIN%\\pocl\\pocl-devices-cuda.dll exit 1       # [win and enable_cuda]
       downstreams:
         - pyopencl
 
