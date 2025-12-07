@@ -68,8 +68,6 @@ requirements:
     - libjpeg-turbo
   run:
     - llvm-spirv-{{ llvm_version.split(".")[0] }}   # [unix]
-    # See https://github.com/conda-forge/cctools-and-ld64-feedstock/issues/66
-    # why we need the upper bound for ld64
     - ld64 >=530                         # [osx]
     - {{ pin_compatible('libhwloc') }}
   run_constrained:
