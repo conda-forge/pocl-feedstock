@@ -25,8 +25,7 @@ source:
       - patches/unistd-win.diff
 
 build:
-  number: 0
-  skip: true  # [cuda_compiler_version == "11.8"]
+  number: 1
   skip: true  # [enable_cuda and (cuda_compiler_version == "None")]
   skip: true  # [not enable_cuda and (cuda_compiler_version != "None")]
   script_env:
@@ -69,8 +68,6 @@ requirements:
     - libjpeg-turbo
   run:
     - llvm-spirv-{{ llvm_version.split(".")[0] }}   # [unix]
-    # See https://github.com/conda-forge/cctools-and-ld64-feedstock/issues/66
-    # why we need the upper bound for ld64
     - ld64 >=530                         # [osx]
     - {{ pin_compatible('libhwloc') }}
   run_constrained:
