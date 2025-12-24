@@ -21,7 +21,7 @@ docker_image:
 enable_cuda:
 - 'True'
 libhwloc:
-- 2.12.1
+- 2.12.2
 libjpeg_turbo:
 - '3'
 libxml2_devel:
