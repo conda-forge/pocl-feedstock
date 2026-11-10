@@ -154,7 +154,8 @@ if [[ "$CONDA_BUILD_CROSS_COMPILATION" != "1" ]]; then
     SKIP_TESTS="$SKIP_TESTS|workgroup/conditional_barrier_dynamic"
   fi
 
-  ctest -E "$SKIP_TESTS|remote" --output-on-failure
+  # PoCL labels unsupported CPU features and known failures at configure time.
+  ctest -LE cpu_fail -E "$SKIP_TESTS|remote" --output-on-failure
 
   # Can't run cuda tests without a GPU
   # if [[ "$enable_cuda" == "True" ]]; then

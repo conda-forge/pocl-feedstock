@@ -21,6 +21,7 @@ source:
       # https://github.com/conda-forge/pocl-feedstock/pull/106#issuecomment-2467398973
       - patches/disable-cuda-test.patch
       - patches/unistd-win.diff
+      - patches/runtime-dependency-host-bin.patch  # [win]
 
 build:
   number: 0

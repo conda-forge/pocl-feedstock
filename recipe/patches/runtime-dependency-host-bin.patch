@@ -1,0 +1,10 @@
+--- a/lib/CL/CMakeLists.txt
++++ b/lib/CL/CMakeLists.txt
+@@ -501,6 +501,7 @@
+           # at least when using micromamba, all dependencies
+           # are in the same directory as libLLVM.dll
+           DIRECTORIES ${LLVM_LIBDIR} ${LLVM_BINDIR}
++          "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_BINDIR}"
+           # Destination directories for the resolved external libraries
+           LIBRARY DESTINATION ${POCL_INSTALL_PUBLIC_LIBDIR_REL}
+           RUNTIME DESTINATION ${POCL_INSTALL_PUBLIC_LIBDIR_REL})
