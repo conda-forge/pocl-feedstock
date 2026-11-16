@@ -24,7 +24,7 @@ source:
       - patches/runtime-dependency-host-bin.patch  # [win]
 
 build:
-  number: 0
+  number: 1
   skip: true  # [enable_cuda and (cuda_compiler_version == "None")]
   skip: true  # [not enable_cuda and (cuda_compiler_version != "None")]
   script_env:

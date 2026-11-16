@@ -21,7 +21,7 @@ cxx_compiler_version:
 enable_cuda:
 - 'False'
 libhwloc:
-- 2.13.0
+- 2.15.0
 libjpeg_turbo:
 - '3'
 libxml2_devel:
